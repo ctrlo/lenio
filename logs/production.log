@@ -1,0 +1,323 @@
+[Lenio:3338] error @2014-01-18 11:36:48> Route exception: undef error - DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'me.fyfrom' in 'field list' [for Statement "SELECT me.id, me.name, me.fyfrom FROM org me WHERE ( me.id = ? )" with ParamValues: 0='1'] at /usr/share/nginx/lenio/views/layouts/main.tt line 43 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:3338] error @2014-01-18 11:38:51> Route exception: undef error - DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'me.fyfrom' in 'field list' [for Statement "SELECT me.id, me.name, me.fyfrom FROM org me WHERE ( me.id = ? )" with ParamValues: 0='1'] at /usr/share/nginx/lenio/views/layouts/main.tt line 43 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:3338] error @2014-01-18 11:46:03> Route exception: Can't call method "org" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 63. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:5706] error @2014-01-18 12:24:19> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry '38' for key 'issue_id_UNIQUE' [for Statement "INSERT INTO site_task ( issue_id, site_id, task_id) VALUES ( ?, ?, ? )" with ParamValues: 0='38', 1="2", 2=undef] at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 53 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:5706] error @2014-01-18 12:27:19> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry '38' for key 'issue_id_UNIQUE' [for Statement "INSERT INTO site_task ( issue_id, site_id, task_id) VALUES ( ?, ?, ? )" with ParamValues: 0='38', 1="2", 2=undef] at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 53 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:5706] error @2014-01-18 12:27:57> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry '38' for key 'issue_id_UNIQUE' [for Statement "INSERT INTO site_task ( issue_id, site_id, task_id) VALUES ( ?, ?, ? )" with ParamValues: 0='38', 1="2", 2=undef] at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 53 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:5706] error @2014-01-18 12:28:38> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry '38' for key 'issue_id_UNIQUE' [for Statement "INSERT INTO site_task ( issue_id, site_id, task_id) VALUES ( ?, ?, ? )" with ParamValues: 0='38', 1="2", 2=undef] at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 53 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:5826] error @2014-01-18 13:50:13> Route exception: Can't use string ("New ticket for St Matthews Schoo"...) as a HASH ref while "strict refs" in use at /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm line 29. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:6005] error @2014-01-18 14:05:24> Template process failed: file error - newissue.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 54
+[Lenio:6005] error @2014-01-18 14:05:24> Route exception: cannot send mail without a sender, recipient, subject and message at /usr/local/share/perl/5.14.2/Emailesque.pm line 53. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:6228] error @2014-01-18 14:26:18> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:6228] error @2014-01-18 14:26:57> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:6272] error @2014-01-18 15:19:56> Template process failed: file error - newissue.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio:6272] error @2014-01-18 15:19:56> Route exception: cannot send mail without a sender, recipient, subject and message at /usr/local/share/perl/5.14.2/Emailesque.pm line 53. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:6419] error @2014-01-18 17:19:55> Route exception: Can't locate object method "all" via package "Lenio::Contractor" (perhaps you forgot to load "Lenio::Contractor"?) at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 174. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:6440] error @2014-01-18 17:20:54> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Column 'name' cannot be null [for Statement "INSERT INTO contractor ( name) VALUES ( ? )" with ParamValues: 0=undef] at /usr/share/nginx/lenio/bin/../lib/Lenio/Contractor.pm line 29 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18733] error @2014-01-22 12:28:01> Route exception: DBIx::Class::Row::store_column(): No such column 'site_id' at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 67 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18733] error @2014-01-22 12:29:11> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18733] error @2014-01-22 12:29:15> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18744] error @2014-01-22 12:29:57> Route exception: DBIx::Class::Relationship::Base::set_from_related(): Object 'HASH(0x4de4420)' isn't a Lenio::Schema::Result::SiteTask at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 71 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18755] error @2014-01-22 12:33:19> Route exception: Can't locate object method "update_all" via package "Lenio::Schema::Result::Issue" at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 71. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18774] error @2014-01-22 12:36:05> Route exception: DBIx::Class::Row::store_column(): No such column 'contractor' at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 72 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18836] error @2014-01-22 14:49:38> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18836] error @2014-01-22 14:52:30> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18836] error @2014-01-22 14:54:37> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18836] error @2014-01-22 14:58:14> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18836] error @2014-01-22 15:32:01> Route exception: DBIx::Class::Row::new(): No such column 'login' on Lenio::Schema::Result::Issue at /usr/share/nginx/lenio/bin/../lib/Lenio/Issue.pm line 56 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:46:34> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:46:38> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:02> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:08> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:10> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:10> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:10> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:11> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:11> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:11> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:12> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:13> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:14> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:16> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:47:31> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:48:05> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:48:16> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:48:26> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:48:40> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:48:55> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:50:07> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry 'Legionella Risk Assessment ' for key 'name_UNIQUE' [for Statement "INSERT INTO task ( description, global, name, period_qty, period_unit) VALUES ( ?, ?, ?, ?, ? )" with ParamValues: 0="Risk assessment required on a 2 yearly basis or after any works have been carried out to the hot and cold water system.", 1=1, 2="Legionella Risk Assessment ", 3="2", 4="year"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:50:20> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry 'Legionella Risk Assessment ' for key 'name_UNIQUE' [for Statement "INSERT INTO task ( description, global, name, period_qty, period_unit) VALUES ( ?, ?, ?, ?, ? )" with ParamValues: 0="Risk assessment required on a 2 yearly basis or after any works have been carried out to the hot and cold water system.", 1=1, 2="Legionella Risk Assessment ", 3="2", 4="year"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:52:09> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry 'Legionella Risk Assessment ' for key 'name_UNIQUE' [for Statement "INSERT INTO task ( description, global, name, period_qty, period_unit) VALUES ( ?, ?, ?, ?, ? )" with ParamValues: 0="Risk assessment required on a 2 yearly basis or after any works have been carried out to the hot and cold water system.", 1=1, 2="Legionella Risk Assessment ", 3="2", 4="year"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:52:16> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:52:35> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 15:52:38> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 16:01:08> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18934] error @2014-01-22 16:01:20> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18977] error @2014-01-22 16:06:13> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18977] error @2014-01-22 16:07:17> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18977] error @2014-01-22 16:07:21> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18977] error @2014-01-22 16:09:12> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18996] error @2014-01-22 16:10:31> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 187. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19015] error @2014-01-22 16:26:18> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Duplicate entry 'Legionella Risk Assessment ' for key 'name_UNIQUE' [for Statement "INSERT INTO task ( description, global, name, period_qty, period_unit) VALUES ( ?, ?, ?, ?, ? )" with ParamValues: 0="Risk assessment required on a 2 yearly basis or after any works have been carried out to the hot and cold water system.", 1=1, 2="Legionella Risk Assessment ", 3="2", 4="year"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19015] error @2014-02-20 00:21:38> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Table 'lenio.issue' doesn't exist [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( issue.planned ) AS issue_planned, MAX( issue.completed ) AS issue_completed, site_tasks.id, site_tasks.task_id, site_tasks.site_id, site_tasks.issue_id, issue.id, issue.name, issue.description, issue.planned, issue.completed, issue.contractor_id, issue.cost, site.id, site.name, site.org_id FROM task me LEFT JOIN site_task site_tasks ON site_tasks.task_id = me.id LEFT JOIN issue issue ON issue.id = site_tasks.issue_id LEFT JOIN site site ON site.id = site_tasks.site_id WHERE ( ( global = ? AND period_unit = ? AND site.id = ? ) ) GROUP BY site_tasks.task_id, site_tasks.site_id HAVING ( issue_completed IS NULL OR issue_completed < DATE_SUB(NOW(), INTERVAL period_qty year) )" with ParamValues: 0=1, 1='year', 2="3"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 156 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:15797] error @2014-02-20 00:24:45> Template process failed: file error - ticket/new.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio:15797] error @2014-02-20 00:24:45> Route exception: cannot send mail without a sender, recipient, subject and message at /usr/local/share/perl/5.14.2/Emailesque.pm line 53. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17225] error @2014-02-20 12:36:18> Route exception: The 2 passwords entered do not match at /usr/share/nginx/lenio/bin/../lib/Lenio/Login.pm line 77. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17259] error @2014-02-20 12:43:51> Route exception: Undefined subroutine &Lenio::mesageAdd called at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 122. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17549] error @2014-02-20 13:37:46> Route exception: Use of uninitialized value in join or string at /usr/local/share/perl/5.14.2/Dancer2/Core/Cookie.pm line 19. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:24:28> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:24:34> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:24:43> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:24:47> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:28:09> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:30:19> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:30:28> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:30:33> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17598] error @2014-02-20 16:40:37> Route exception: Undefined subroutine &Lenio::Task::trim called at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 120. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17960] error @2014-02-20 17:04:48> Route exception: Can't locate object method "password" via package "DBIx::Class::ResultSet" at /usr/share/nginx/lenio/bin/../lib/Lenio/Login.pm line 44. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:17972] error @2014-02-20 17:05:53> Route exception: The password entered is incorrect at /usr/share/nginx/lenio/bin/../lib/Lenio/Login.pm line 45. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18638] error @2014-02-20 18:19:49> Route exception: Can't locate object method "view" via package "Lenio::Login" at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 221. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18678] error @2014-02-20 18:24:05> Route exception: Undefined subroutine &Lenio::message called at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 210. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18833] error @2014-02-20 18:54:15> Route exception: Can't locate object method "data" via package "DBIx::Class::Exception" at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 212. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18856] error @2014-02-20 18:58:27> Route exception: Can't use an undefined value as an ARRAY reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 212. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:18907] error @2014-02-20 19:28:23> Route exception: file error - parse error - /usr/share/nginx/lenio/views/user.tt line 104: unexpected end of input in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19564] error @2014-02-21 13:55:42> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19564] error @2014-02-21 13:56:15> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19564] error @2014-02-21 13:56:16> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19607] error @2014-02-21 13:56:55> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19607] error @2014-02-21 13:56:56> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:57:17> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:23> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:24> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:24> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:25> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:25> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:26> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:27> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:28> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:28> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:28> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:29> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:29> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:29> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19616] error @2014-02-21 13:59:29> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19636] error @2014-02-21 14:00:09> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19636] error @2014-02-21 14:00:09> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19636] error @2014-02-21 14:00:10> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19636] error @2014-02-21 14:00:10> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:19636] error @2014-02-21 14:00:10> Route exception: DBIx::Class::Storage::DBI::_dbh_execute(): DBI Exception: DBD::mysql::st execute failed: Unknown column 'ticket.cost' in 'field list' [for Statement "SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, me.planned, me.completed, me.cost, me.site_task_id, me.is_extant FROM (
+SELECT me.id, me.name, me.description, me.period_unit, me.period_qty, me.global, MAX( ticket.completed ) AS completed, MAX( ticket.planned ) AS planned, SUM( ticket.cost ) AS cost, site_task.id AS site_task_id, MIN(IFNULL(ticket_id, -1)) AS is_extant, site_task.site_id AS site_id
+FROM task me
+LEFT JOIN site_task ON ( site_task.site_id = ? AND site_task.task_id = me.id )
+LEFT JOIN site site ON site.id = site_task.site_id
+LEFT JOIN ticket ticket ON ticket.id = site_task.ticket_id
+GROUP BY id
+) me WHERE ( site_id = ? )" with ParamValues: 0="1", 1="1"] at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 75 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:01:01> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:01:05> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:01:12> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:01:29> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:16> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:25> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:38> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:48> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:51> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:53> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:33:57> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:34:04> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:34:09> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:34:15> Route exception: Can't call method "site_id" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 408. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:45:10> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:20163] error @2014-02-21 16:48:10> Route exception: Can't call method "site_tasks" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 526. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:21457] error @2014-02-23 21:40:49> Template process failed: file error - ticket/new.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio::Email:21457] error @2014-02-23 21:41:15> Template process failed: file error - ticket/new.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio:22177] error @2014-03-08 11:06:40> Route exception: Can't call method "org" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm line 38. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:22196] error @2014-03-08 11:08:49> Template process failed: file error - ticket/update.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio::Email:22196] error @2014-03-08 11:10:00> Template process failed: file error - ticket/new.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio:22243] error @2014-03-08 11:34:32> Route exception: Can't locate object method "new" via package "Lenio::FY" (perhaps you forgot to load "Lenio::FY"?) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 62. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22388] error @2014-03-08 11:45:01> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 728. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22407] error @2014-03-08 11:47:57> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 728. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22427] error @2014-03-08 11:56:09> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 728. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22427] error @2014-03-08 11:56:56> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 728. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio::Email:22482] error @2014-03-08 12:08:48> Template process failed: file error - ticket/new.tt: not found in /usr/share/nginx/lenio/bin/../lib/Lenio/Email.pm l. 42
+[Lenio:22482] error @2014-03-08 12:08:48> Route exception: cannot send mail without a sender, recipient, subject and message at /usr/local/share/perl/5.14.2/Emailesque.pm line 53. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22482] error @2014-03-08 12:24:12> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 728. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22532] error @2014-03-08 12:24:48> Route exception: Can't call method "name" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 259. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22532] error @2014-03-08 12:24:51> Route exception: Can't call method "name" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 259. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22544] error @2014-03-08 12:25:53> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 155. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22560] error @2014-03-08 12:26:48> Route exception: Can't call method "id" on unblessed reference at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 256. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22797] error @2014-03-08 15:53:02> Route exception: Can't call method "site_task" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 534. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:22897] error @2014-03-08 16:01:53> Route exception: Can't call method "global" on an undefined value at /usr/share/nginx/lenio/bin/../lib/Lenio.pm line 534. in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:24268] error @2014-03-08 21:37:34> Route exception: DBIx::Class::Storage::DBI::_resolve_bindattrs(): You must supply a datatype/bindtype (see DBIx::Class::ResultSet/DBIC BIND VALUES) for non-scalar value  bless( { "_result_source" => 'DBIx::Class::ResultSource::Table=HASH(0x4732868)', "_in_storage" => 1, "_column_data" => 'HASH(0x58e27f8)' }, 'Lenio::Schema::Result::Site' ) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 65 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:24279] error @2014-03-08 21:38:13> Route exception: DBIx::Class::Storage::DBI::_resolve_bindattrs(): You must supply a datatype/bindtype (see DBIx::Class::ResultSet/DBIC BIND VALUES) for non-scalar value  bless( { "_result_source" => 'DBIx::Class::ResultSource::Table=HASH(0x38bb868)', "_in_storage" => 1, "_column_data" => 'HASH(0x4a6b928)' }, 'Lenio::Schema::Result::Site' ) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 65 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:24279] error @2014-03-08 21:38:14> Route exception: DBIx::Class::Storage::DBI::_resolve_bindattrs(): You must supply a datatype/bindtype (see DBIx::Class::ResultSet/DBIC BIND VALUES) for non-scalar value  bless( { "_result_source" => 'DBIx::Class::ResultSource::Table=HASH(0x38bb868)', "_in_storage" => 1, "_column_data" => 'HASH(0x46dd898)' }, 'Lenio::Schema::Result::Site' ) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 65 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:24290] error @2014-03-08 21:38:30> Route exception: DBIx::Class::Storage::DBI::_resolve_bindattrs(): You must supply a datatype/bindtype (see DBIx::Class::ResultSet/DBIC BIND VALUES) for non-scalar value  bless( { "_result_source" => 'DBIx::Class::ResultSource::Table=HASH(0x42f9868)', "_in_storage" => 1, "_column_data" => 'HASH(0x54a9778)' }, 'Lenio::Schema::Result::Site' ) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 65 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54
+[Lenio:24290] error @2014-03-08 21:38:31> Route exception: DBIx::Class::Storage::DBI::_resolve_bindattrs(): You must supply a datatype/bindtype (see DBIx::Class::ResultSet/DBIC BIND VALUES) for non-scalar value  bless( { "_result_source" => 'DBIx::Class::ResultSource::Table=HASH(0x42f9868)', "_in_storage" => 1, "_column_data" => 'HASH(0x511b668)' }, 'Lenio::Schema::Result::Site' ) at /usr/share/nginx/lenio/bin/../lib/Lenio/Task.pm line 65 in /usr/local/share/perl/5.14.2/Return/MultiLevel.pm l. 54

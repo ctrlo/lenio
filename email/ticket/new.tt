@@ -1,0 +1,7 @@
+A new ticket titled "[% name %]" has been created for [% org %].
+To view the ticket please visit the following link:
+
+[% siteurl %][% url %]
+
+[% description %]
+

@@ -1,0 +1,63 @@
+[% IF action %]
+    [% IF action == "new" %]
+    <h3>Create new notice</h3>
+    [% ELSE %]
+    <h3>Update notice</h3>
+    [% END %]
+    [% notice = notices.last %]
+
+    <form role="form" method="post">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <textarea name="text" id="text" class="form-control" rows="6">[% notice.text %]</textarea>
+                </div>
+                <div class="form-group">
+		    <button type="submit" name="submit" value="submit" class="btn btn-default">
+			[% IF action == "new" %]
+			    Create
+			[% ELSE %]
+			    Update
+			[% END %]
+		    </button>
+                </div>
+            </div>
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </form>
+
+[% ELSE %]
+    <h3>Notices</h3>
+    <p>
+        <a href="/notice/new" class="btn btn-default" role="button">Create new notice</a>
+    </p>
+    [% IF notices.size %]
+	<form method="post">
+	<table class="table table-striped">
+	    <tr>
+		<th></th>
+		<th>ID</th>
+		<th>Text</th>
+		<th title="The number of users that have not yet seen and dismissed the message">To view</th>
+	    </tr>
+
+	    [% FOR notice IN notices %]
+	    <tr>
+		<td class="col-sm-1">
+		    <button type="submit" class="btn-xs btn-link" name="delete" value="[% notice.id %]" title="Delete notice">
+			<span class="glyphicon glyphicon-remove"></span>
+		    </button>
+		</td>
+		<td class="col-sm-1"><a href="/notice/view/[% notice.id %]">[% notice.id %]</a></td>
+		<td class="col-sm-8">[% notice.text %]</td>
+		<td class="col-sm-2">[% notice.get_column('login_count') %]</td>
+	    </tr>
+	    [% END %]
+	</table> 
+	</form>
+    [% ELSE %]
+	<p>There are no existing notices</p>
+    [% END %]
+[% END %]
+

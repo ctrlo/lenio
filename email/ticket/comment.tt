@@ -1,0 +1,9 @@
+The ticket titled "[% name %]" for [% org %] has been commented on
+by [% login.surname %], [% login.firstname %].
+
+"[% comment %]"
+
+To view the ticket please visit the following link:
+
+[% siteurl %][% url %]
+

@@ -1,0 +1,173 @@
+[% IF action %]
+    [% IF action == "new" %]
+    <h3>Create new ticket</h3>
+    [% ELSE %]
+    <h3>Update ticket</h3>
+    [% END %]
+    [% ticket = tickets.last %]
+
+    [% UNLESS action == "new" OR login.is_admin OR ticket.site_task.task.global == 0 %]
+        [% readonly = "readonly" %]
+    [% END %]
+    <form role="form" method="post">
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="form-group">
+                    <label for="name">Title</label>
+                    <input type="text" name="name" class="form-control" id="name" value="[% ticket.name %]" [% readonly %]>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" name="description" class="form-control" id="description" value="[% ticket.description %]" [% readonly %]>
+                </div>
+                <div class="form-group">
+                    <label for="site_id">Site</label>
+                    <select class="form-control" id="site_id" name="site_id" [% readonly %]>
+			[% FOR site IN login.sites %]
+			    [% IF site.id == ticket.site_task.site_id OR (action == "new" AND site.id == login.site.id )%]
+			        [% sel = "selected" %]
+			    [% ELSE %]
+				[% sel = "" %]
+			    [% END %]
+                            <option value="[% site.id %]" [% sel %]>[% site.org.name %] ([% site.name %])</option>
+                        [% END %]
+                    </select>
+                </div>
+                [% IF (NOT action == "new") OR ticket.site_task.task.global == 0 OR login.is_admin %]
+                    <div class="form-group">
+                        <label for="contractor">Contractor</label>
+                        [% IF contractors.size %]
+                            <select class="form-control" id="contractor" name="contractor" [% readonly %]>
+                                [% FOR contractor IN contractors %]
+                                <option value="[% contractor.id %]"
+                                    [% IF contractor.id == ticket.contractor_id %]selected[% END %]>[% contractor.name %]
+                                </option>
+                                [% END %]
+                            </select>
+                        [% ELSE %]
+                            <p>No contractors have been added. Add using the <a href="/contractors">contractors menu</a>.</p>
+                        [% END %]
+                    </div>
+                    <div class="form-group">
+                        <label for="cost_planned">Planned cost</label>
+                        <input type="text" name="cost_planned" class="form-control" id="cost_planned" value="[% ticket.cost_planned %]" [% readonly %]>
+                    </div>
+                    <div class="form-group">
+                        <label for="cost_actual">Actual cost</label>
+                        <input type="text" name="cost_actual" class="form-control" id="cost_actual" value="[% ticket.cost_actual %]" [% readonly %]>
+                    </div>
+                    <div class="form-group">
+                        <label for="planned">Planned</label>
+                        <input type="text" name="planned"
+                            [% UNLESS readonly %]class="datepicker"[% END %]
+                            id="planned" value="[% ticket.planned.ymd %]" [% readonly %]>
+                    </div>
+                    <div class="form-group">
+                        <label for="completed">Completed</label>
+                        <input type="text" name="completed"
+                            [% UNLESS readonly %]class="datepicker"[% END %]
+                            id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
+                    </div>
+                [% END %]
+                [% UNLESS readonly %]
+                <div class="form-group">
+                    <button type="submit" name="submit" value="submit" class="btn btn-primary">
+                        [% IF action == "new" %]Create[% ELSE %]Update[% END %]
+                    </button>
+                    <a href="/ticket" role="button" class="btn btn-default">Cancel</a>
+                </div>
+                [% END %]
+            </div>
+            <div class="col-sm-5">
+                <div class="form-group">
+                    <label for="comment">Comments</label>
+                    [% FOR comment IN ticket.comments %]
+                    <div class="well well-sm"><strong>
+                            By [% comment.login.surname %], [% comment.login.firstname %] ([% comment.datetime %])
+                    </strong><br />[% comment.text %]</div>
+                    [% END %]
+                    <textarea name="comment" id="comments" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    [% UNLESS action == "new" %]
+                    <button type="submit" name="addcomment" value="submit" class="btn btn-default">Add comment</button>
+                    [% END %]
+                </div>
+            </div>
+            <div class="col-sm-2">
+                [% UNLESS action == "new" %]
+                <div class="form-group">
+                        <label for="attach">Attachments</label>
+                        [% IF ticket.attaches.size %]
+                            [% FOR attach IN ticket.attaches %]
+                                <div class="well well-sm"><strong>
+                                [% attach.name %]
+                                </strong><br /><a class="btn btn-link btn-sm" href="/attach/[% attach.id %]">View</a>
+                                [% IF login.is_admin %]
+                                    | <form method="post"><button class="btn btn-link btn-sm"
+                                        name="attachrm" value="[% attach.id %]">Delete</button></form>
+                                    </div>
+                                [% END %]
+                            [% END %]
+                        [% ELSE %]
+                            <p>There are no files related to this ticket</p>
+                        [% END %]
+                </div>
+                    [% IF login.is_admin %]
+                    <button class="btn btn-default" data-toggle="modal" data-target="#myModal">
+                        Attach new...
+                    </button>
+                    [% END %]
+                [% END %]
+            </div>
+        </div>
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form role="form" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Add attachment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newattach">Attach new file</label>
+                        <input type="file" id="newattach" name="newattach"></input>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" name="attach" value="attach" class="btn btn-primary">Attach</button>
+                </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+[% ELSE %]
+    <h3>Tickets</h3>
+    <p>
+        <a href="/ticket/new" class="btn btn-default" role="button">Create new ticket</a>
+    </p>
+    <table class="table table-striped">
+        <tr>
+            <th>Title</th>
+            <th>Site</th>
+            <th>Planned</th>
+            <th>Completed</th>
+        </tr>
+
+        [% FOR ticket IN tickets %]
+        <tr>
+            <td><a href="/ticket/view/[% ticket.id %]">[% ticket.name %]</a></td>
+            <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
+            <td>[% IF ticket.planned %][% ticket.planned.ymd %][% ELSE %](unplanned)[% END %]</td>
+            <td>[% IF ticket.completed %][% ticket.completed.ymd %][% ELSE %](uncompleted)[% END %]</td>
+        </tr>
+        [% END %]
+    </table> 
+[% END %]
+

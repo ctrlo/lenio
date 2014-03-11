@@ -1,0 +1,44 @@
+# This is the main configuration file of your Dancer2 app
+# env-related settings should go to environments/$env.yml
+# all the settings in this file will be loaded at Dancer's startup.
+
+# Your application's name
+appname: "Lenio"
+
+# The default layout to use for your application (located in
+# views/layouts/main.tt)
+layout: "main"
+
+# when the charset is set to UTF-8 Dancer2 will handle for you
+# all the magic of encoding and decoding. You should not care
+# about unicode within your app when this setting is set (recommended).
+charset: "UTF-8"
+
+template: "template_toolkit"
+
+session: "YAML"
+ 
+emailtemplate: "/usr/share/nginx/lenio/email"
+
+siteurl: "http://demo.lenio.co.uk"
+
+engines:
+  session:
+    YAML:
+      session_dir: "/tmp/dancer-sessions"
+
+plugins:
+  DBIC:
+    default:
+      dsn: dbi:mysql:database=lenio;mysql_enable_utf8=1;host=localhost
+      schema_class: Lenio::Schema
+      user: lenio
+      pass: lenio
+      options:
+        RaiseError: 1
+        PrintError: 1
+  Emailesque:
+    from: '"Sender name" <info@domain.com>'
+    driver: sendmail
+    type: text
+

@@ -1,0 +1,239 @@
+[% IF action %]
+    [% task = tasks.last %]
+    [% IF action == "new" %]
+        <h3>Create new service item</h3>
+    [% ELSE %]
+        <h3>[% task.name %]</h3>
+    [% END %]
+    <form role="form" method="post">
+        <div class="form-group">
+            <label for="name">Title</label>
+            <input type="text" name="name" class="form-control" id="name" value="[% task.name %]">
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" name="description" class="form-control" id="description" value="[% task.description %]">
+        </div>
+        <div class="form-group">
+            <label for="site_id">Frequency</label>
+            <div class="row">
+                <div class="col-xs-2">
+                    <input type="text" name="period_qty" class="form-control"
+                        id="period_qty" placeholder="Quantity" value="[% task.period_qty %]">
+                </div>
+                <div class="col-xs-2">
+                    <select class="form-control" id="period_unit" name="period_unit">
+                        [% FOREACH period_unit IN [ 'day' 'week' 'month' 'year' ] %]
+                        <option value="[% period_unit %]"
+                        [% IF task.period_unit == period_unit %]selected[% END %]>[% period_unit FILTER ucfirst %]
+                        </option>
+                        [% END %]
+                    </select>
+                </div>
+            </div>
+        </div>
+        [% UNLESS login.is_admin %]
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="site_id">Site</label>
+                    <select class="form-control" id="site_id" name="site_id" [% readonly %]>
+                        [% FOR site IN login.sites %]
+                        <option value="[% site.id %]" [% IF site.id == task.site_id %]selected[% END %]>[% site.org.name %] ([% site.name %])</option>
+                        [% END %]
+                    </select>
+                </div>
+            </div>
+        </div>
+        [% END %]
+        <div class="form-group">
+            <button type="submit" name="submit" value="submit" class="btn btn-primary">
+                [% IF action == "new" %]Create[% ELSE %]Update[% END %]
+            </button>
+            <a href="/task" role="button" class="btn btn-default">Cancel</a>
+        </div>
+    </form>
+
+[% ELSE %]
+    [% IF site_id OR login.is_admin %]
+        <h3>Service items
+	[% IF login.site %]([% login.site.org.name %] - [% login.site.name %])[% ELSE %](All sites)[% END %]
+	</h3>
+        <div class="row">
+            <div class="col-md-8">
+            [% IF login.is_admin %]
+            <p>
+                <a href="/task/new" class="btn btn-default" role="button">Create new service item</a>
+            </p>
+            [% END %]
+            </div>
+            <div class="col-md-4">
+                [% IF site_id %]
+                <form method="get">
+                    <select class="form-control" name="fy" onchange="this.form.submit()">
+                        [% FOR fy IN login.site_fys %]
+                            <option value="[% fy.year %]" [% IF login.fy == fy.year %]selected[% END %]>[% fy.name %]</option>
+                        [% END %]
+                    </select>
+                </form>
+                [% END %]
+            </div>
+        </div>
+        [% IF login.is_admin %]
+            <form method="post">
+        [% END %]
+        <table class="table table-striped">
+            <tr>
+                [% IF login.is_admin %]<th></th>[% END %]
+                <th>Task</th>
+                <th>Frequency</th>
+                [% IF site_id %]
+                    <th>Planned</th>
+                    <th>Last done</th>
+                    <th>Cost (planned)</th>
+                    <th>Cost (actual to date)</th>
+                [% END %]
+            </tr>
+
+            [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
+            [% FOR task IN tasks %]
+                [% IF site_id AND (NOT task.site_task_id OR NOT task.is_extant) %][% strike = 'class="strike"' %][% ELSE %][% strike = '' %][% END %]
+                <tr [% strike %]>
+                    [% IF login.is_admin AND login.site.id %]
+                        <td>
+                        [% IF strike %]
+                            <button type="submit" class="btn-xs btn-link" name="taskadd" value="[% task.id %]">
+                                <span class="glyphicon glyphicon-unchecked"></span>
+                            </button>
+                        [% ELSE %]
+                            <button type="submit" class="btn-xs btn-link" name="taskrm" value="[% task.id %]">
+                                <span class="glyphicon glyphicon-check"></span>
+                            </button>
+                        [% END %]
+                        </td>
+                    [% ELSIF login.is_admin %]
+                        <td>
+                            <button type="submit" class="btn-xs btn-link" name="taskdel" value="[% task.id %]" title="Delete item">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </td>
+                    [% END %]
+                    <td>
+                        [% IF site_id %]
+                            <a href="/ticket?task=[% task.id %]" title="View tickets related to this task">[% task.name %]</a>
+                            [% IF login.is_admin %]
+                                (<a href="/ticket/new/[% task.id %]/[% site_id %]" title="Create new ticket related to this task">Create ticket</a>)
+                            [% END %]
+                        [% ELSE %]
+                            <a href="/task/view/[% task.id %]">[% task.name %]</a>
+                        [% END %]
+                    </td>
+                    <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
+                    [% IF site_id %]
+                        <td>[% task.planned.ymd %]</td>
+                        <td>
+                            [% IF task.completed %]
+                            [% task.completed.ymd %]
+                            [% ELSE %]
+                            (never)
+                            [% END %]
+                        </td>
+                        <td>[% task.cost_planned %]</td>
+                        <td>[% task.cost_actual %]</td>
+                    [% END %]
+                </tr>
+                [% IF task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
+                [% IF task.cost_actual %][% cost_actual_total = cost_actual_total + task.cost_actual %][% END %]
+            [% END %]
+            [% IF site_id %]
+                <tr>
+                    [% IF login.is_admin %]<th></th>[% END %]
+                    <th>Totals</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>[% FILTER format('%.2f') %][% cost_planned_total %][% END %]</th>
+                    <th>[% FILTER format('%.2f') %][% cost_actual_total %][% END %]</th>
+                </tr>
+            [% END %]
+        </table> 
+        [% IF login.is_admin %]
+        </form>
+        [% END %]
+    [% ELSE %]
+        <p>Please select a site from the menu</p>
+    [% END %]
+    [% IF site_id %]
+
+        <h3>Reactive maintenance</h3>
+        <table class="table table-striped">
+            [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
+            <tr>
+                <th>Title</th>
+                <th>Cost (planned)</th>
+                <th>Cost (actual to date)</th>
+            </tr>
+
+            [% FOR adhoc IN adhocs %]
+                <tr>
+                    <td><a href="/ticket/view/[% adhoc.id %]">[% adhoc.name %]</a></td>
+                    <td>[% adhoc.cost_planned %]</td>
+                    <td>[% adhoc.cost_actual %]</td>
+                </tr>
+                [% IF adhoc.cost_planned %][% cost_planned_total = cost_planned_total + adhoc.cost_planned %][% END %]
+                [% IF adhoc.cost_actual %][% cost_actual_total = cost_actual_total + adhoc.cost_actual %][% END %]
+            [% END %]
+            <tr>
+                <th>Totals</th>
+                <th>[% FILTER format('%.2f') %][% cost_planned_total %][% END %]</th>
+                <th>[% FILTER format('%.2f') %][% cost_actual_total %][% END %]</th>
+            </tr>
+        </table> 
+
+        <h3>Local items</h3>
+
+        [% UNLESS login.is_admin %]
+            <p>
+                <a href="/task/new" class="btn btn-default" role="button">Create new service item</a>
+            </p>
+        [% END %]
+        [% IF tasks_local.size %]
+        <form method="post">
+        <table class="table table-striped">
+            <tr>
+		<th></th>
+                <th>Task</th>
+                <th>Frequency</th>
+                <th>Planned</th>
+                <th>Last done</th>
+            </tr>
+
+                [% FOR task IN tasks_local %]
+                <tr>
+                    <td>
+                        <button type="submit" class="btn-xs btn-link" name="localtaskdel" value="[% task.id %]" title="Delete item">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+		    </td>
+                    <td><a href="/task/view/[% task.id %]">[% task.name %]</a></td>
+                    <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
+                    [% IF site_id %]
+                        <td>[% task.planned.ymd %]</td>
+                        <td>
+                            [% IF task.tickets.first.completed %]
+                            [% task.tickets.first.completed.ymd %]
+                            [% ELSE %]
+                            (never)
+                            [% END %]
+                        </td>
+                    [% END %]
+                </tr>
+                [% END %]
+        </table> 
+        </form>
+        [% ELSE %]
+            <p>No local items created</p>
+        [% END %]
+    [% END %]
+[% END %]
+
