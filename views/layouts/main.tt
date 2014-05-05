@@ -32,7 +32,7 @@
     <div class="container">
 
     <div>
-        <img class="padded" src="http://www.bradbury-consulting.co.uk/wp-content/uploads/2013/05/BC_logo.png">
+        <img class="padded" src="/images/BC_logo.png">
     </div>
     [% UNLESS page=="login" %]
         <nav class="navbar navbar-default" role="navigation">

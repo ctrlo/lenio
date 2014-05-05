@@ -35,7 +35,7 @@ our $VERSION = '0.1';
 hook before => sub {
 
     # Static content
-    return if request->uri =~ m!^/(error|js|css|login|favicon|tmpls|fonts)!;
+    return if request->uri =~ m!^/(error|js|css|login|favicon|tmpls|fonts|images)!;
     # Used to display error messages
     return if param 'error';
 
