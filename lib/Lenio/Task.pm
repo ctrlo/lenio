@@ -60,6 +60,10 @@ sub summary
     my $search  = $args->{onlysite} ? {site_id => $site} : {};
     my $tasks   = $task_rs->search($search, { bind => [$site] });
 
+    my $fy;
+    # Work out date to take costs from (ie the financial year)
+    $fy = Lenio::FY->new($site, $args->{fy}) if $site;
+
     my @tasks;
     my $dtf = schema->storage->datetime_parser;
     while (my $task = $tasks->next)
@@ -83,9 +87,6 @@ sub summary
 
         if ($site)
         {
-            # Work out date to take costs from (ie the financial year)
-            my $fy = Lenio::FY->new($site, $args->{fy});
-
             my $c = rset('Ticket')->search(
                 {
                     'site_task.task_id' => $task->id,
