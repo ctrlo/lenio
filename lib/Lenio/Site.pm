@@ -60,23 +60,13 @@ sub fys($)
     my $fyfrom = $siter->org->fyfrom;
     my $now    = DateTime->now;
     my @fys;
-    if ($fyfrom->month == 1 && $fyfrom->day == 1)
+    while (DateTime->compare($now, $fyfrom) > 0)
     {
-        # Financial year starts at beginning of year. Just show year
-        for my $y ($fyfrom->year..$now->year)
-        {
-            push @fys, { name => $y, year => $y };
-        }
-    }
-    else
-    {
-        for my $y ($fyfrom->year..$now->year-1)
-        {
-            push @fys, { name => "$y-".($y+1), year => $y };
-        }
-        # Push another year on if we're past the FY start in this year
-        push @fys, { name => $now->year."-".($now->year+1), year => $now->year }
-            if $now->month > $fyfrom->month && $now->day > $fyfrom->day;
+        my $y = $fyfrom->year;
+        # Just show year in description if start is 1st jan
+        my $name = ($fyfrom->month == 1 && $fyfrom->day == 1) ? $y : "$y-".($y+1);
+        push @fys, { name => $name, year => $y };
+        $fyfrom->add({ years => 1 });
     }
 
     \@fys;

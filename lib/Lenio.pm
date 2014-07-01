@@ -48,8 +48,6 @@ hook before => sub {
 
     my @notices = $login_rs->login_notices;
  
-    session fy => param('fy') if param('fy');
-    my $fy = session 'fy';
     my $login = {
         id        => session('login_id'),
         username  => $login_rs->username,
@@ -58,7 +56,6 @@ hook before => sub {
         notices   => \@notices,
         surname   => $login_rs->surname,
         firstname => $login_rs->firstname,
-        fy        => $fy,
     };
 
     # Select individual site and check user has access
@@ -72,6 +69,13 @@ hook before => sub {
     session(site_id => @sites[0]->id) unless (defined session('site_id'));
     $login->{site}     = Lenio::Site->site(session('site_id'));
     $login->{site_fys} = Lenio::Site->fys(session('site_id'));
+    my $fy = session 'fy';
+    $fy = param('fy') if param('fy');
+    $fy = $login->{site_fys}[0]->{year}
+        unless grep { $fy == $_->{year} } @{$login->{site_fys}};
+    $login->{fy} = $fy;
+    session 'fy' => $fy;
+
     var login => $login;
     # Assume we've displayed any messages. Reset array.
     session 'messages' => [];
