@@ -90,12 +90,24 @@ sub summary
                 {
                     'site_task.task_id' => $task->id,
                     site_id             => $site,
-                    completed           => {
-                        -between => [
-                            $dtf->format_datetime($fy->costfrom),
-                            $dtf->format_datetime($fy->costto),
+                    -or =>
+                    [
+                        completed           => {
+                            -between => [
+                                $dtf->format_datetime($fy->costfrom),
+                                $dtf->format_datetime($fy->costto),
+                            ],
+                        },
+                        -and => [
+                            planned             => {
+                                -between => [
+                                    $dtf->format_datetime($fy->costfrom),
+                                    $dtf->format_datetime($fy->costto),
+                                ],
+                            },
+                            completed => undef,
                         ],
-                    },
+                    ],
                 },{
                     join      => 'site_task',
                     '+select' => { sum => 'me.cost_planned', sum => 'me.cost_actual' },
