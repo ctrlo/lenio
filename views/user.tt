@@ -28,7 +28,7 @@
                 [% IF login.is_admin %]
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="is_admin" id="is_admin" class="form-control"
+                            <input type="checkbox" name="is_admin" id="is_admin"
                             [% IF l.is_admin %]checked[% END %]
                             >Administrator
                         </label>
