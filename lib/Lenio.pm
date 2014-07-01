@@ -223,7 +223,7 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
             if (hug)
             {
                 messageAdd({ danger => bleep });
-                if ($@->data)
+                if ($@->isa('Ouch') && $@->data)
                 {
                     foreach my $error (@{$@->data})
                     {
