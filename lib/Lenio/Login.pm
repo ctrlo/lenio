@@ -110,6 +110,7 @@ sub new($)
 sub delete($)
 {   my ($class, $id) = @_;
     my $l = rset('Login')->find($id) or return;
+    rset('LoginOrg')->search({ login_id => $l->id })->delete;
     $l->delete;
 }
 
