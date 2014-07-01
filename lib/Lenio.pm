@@ -763,6 +763,7 @@ get '/data' => sub {
             push @tasks, $t if $t;
         }
     }
+    header "Cache-Control" => "max-age=0";
     { success => 1, result => \@tasks };
 };
 
