@@ -66,7 +66,7 @@ hook before => sub {
         session site_id => param('site')
             if Lenio::Login->hasSite($login, param('site'));
     }
-    session(site_id => @sites[0]->id) unless (defined session('site_id'));
+    session(site_id => $sites[0]->id) unless (defined session('site_id'));
     $login->{site}     = Lenio::Site->site(session('site_id'));
     $login->{site_fys} = Lenio::Site->fys(session('site_id'));
     my $fy = session 'fy';
