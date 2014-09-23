@@ -19,3 +19,21 @@
     padding: 5px 5px 5px 5px;
 }
 
+.datepicker{z-index:1151 !important;}
+
+.check-done {
+    background-color: #006400;
+    border-radius: 0%;
+    width: 12px;
+    height: 12px; 
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+}
+.check-due {
+    background-color: #e3bc08;
+    border-radius: 0%;
+    width: 12px;
+    height: 12px; 
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+}

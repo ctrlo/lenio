@@ -77,8 +77,6 @@ hook before => sub {
     session 'fy' => $fy;
 
     var login => $login;
-    # Assume we've displayed any messages. Reset array.
-    session 'messages' => [];
 };
 
 get '/' => sub {
@@ -411,6 +409,43 @@ any qr{^/notice/?([\w]*)/?([\d]*)$} => sub {
     session 'messages' => [];
     $output;
 };
+ 
+any '/check/?' => sub {
+
+    my $site_id = session 'site_id';
+    $site_id or forwardHome({ danger => 'Please select a site before viewing site checks' });
+
+    if (param 'submit_check_done')
+    {
+        # Log the completion of a site check
+        # Check user has permission first
+        my $site_task_id = param('site_task_id');
+        forwardHome(
+            { danger => "You do not have permission for site ID $site_id" } )
+                unless Lenio::Login->hasSiteTask(var('login'), $site_task_id);
+
+        my $params = params;
+        
+        eval { Lenio::Task->check_done(var('login'), $params) };
+        if (hug)
+        {
+            messageAdd({ danger => bleep });
+        }
+        else {
+            messageAdd({ success => 'Site checks have been recorded successfully' }, 'check');
+        }
+    }
+
+    my @site_checks = Lenio::Task->site_checks($site_id);
+    my $output = template 'check' => {
+        site_checks => \@site_checks,
+        messages    => session('messages'),
+        login       => var('login'),
+        page        => 'check',
+    };
+    session 'messages' => [];
+    $output;
+};
 
 any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
     my ( $action, $id, $site_id, $date ) = splat;
@@ -661,7 +696,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
     messageAdd( { danger => bleep } )
         if hug;
 
-    my @tasks; my @tasks_local; my @adhocs;
+    my @tasks; my @tasks_local; my @adhocs; my @site_checks;
     if (  $action eq 'new' ) {
         if ( param('submit') ) {
             my $task = {
@@ -728,12 +763,44 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
         }
         @tasks = ($task);
     }
+    elsif ($action eq "check")
+    {
+        if (param 'submitcheck')
+        {
+            my $params = params;
+            eval { Lenio::Task->check($id, $params) };
+            if (hug)
+            {
+                messageAdd( { danger => bleep } );
+            }
+            elsif(param 'checkitem') {
+                forwardHome(
+                    { success => 'The check item has been added successfully' }, "task/check/$id" );
+            }
+            else {
+                forwardHome(
+                    { success => 'The site check has been successfully updated' }, 'task' );
+            }
+        }
+        my $output = template 'check_edit' => {
+            check       => Lenio::Task->check($id),
+            login       => var('login'),
+            site_id     => session('site_id'),
+            messages    => session('messages'),
+            login       => var('login'),
+            page        => 'check'
+        };
+        session 'messages' => [];
+        return $output;
+    }
     else
     {
         # Get all the local tasks
         @tasks_local = Lenio::Task->summary(session ('site_id') || undef, {global => 0, onlysite => 1, fy => session('fy')});
         # Get all the global tasks.
         @tasks = Lenio::Task->summary(session ('site_id') || undef, {global => 1, fy => session('fy')});
+        # Get all the site checks
+        @site_checks = Lenio::Task->site_checks(session ('site_id') || undef);
         # Get any adhoc tasks
         @adhocs = Lenio::Ticket->all(var('login'), { site_id => session ('site_id'), adhoc_only => 1, fy => session('fy') });
         $action = '';
@@ -743,6 +810,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
         login       => var('login'),
         action      => $action,
         site_id     => session('site_id'),
+        site_checks => \@site_checks,
         tasks       => \@tasks,
         tasks_local => \@tasks_local,
         adhocs      => \@adhocs,
@@ -762,6 +830,7 @@ get '/data' => sub {
               ? ( Lenio::Site->site( session 'site_id' ) )
               : @{var('login')->{sites}};
     foreach my $site (@sites) {
+        push @tasks, Lenio::Task->calendar_check( $from, $to, $site->id, var('login') );
         foreach my $task ( Lenio::Task->calendar( $from, $to, $site->id, var('login') ) ) {
             my $t = Lenio::Task->calPopulate($task, $site);
             push @tasks, $t if $t;

@@ -100,6 +100,21 @@ __PACKAGE__->add_unique_constraint("ticket_id_UNIQUE", ["ticket_id"]);
 
 =head1 RELATIONS
 
+=head2 checks_done
+
+Type: has_many
+
+Related object: L<Lenio::Schema::Result::CheckDone>
+
+=cut
+
+__PACKAGE__->has_many(
+  "checks_done",
+  "Lenio::Schema::Result::CheckDone",
+  { "foreign.site_task_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 site
 
 Type: belongs_to
@@ -156,8 +171,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gEK08Pj7QT4yXusPlN1arQ
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 22:12:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VzPm0ZErFpIto+auiMMsLw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

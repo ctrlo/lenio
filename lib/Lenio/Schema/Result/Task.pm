@@ -65,8 +65,14 @@ __PACKAGE__->table("task");
 
 =head2 global
 
-  data_type: 'tinyint'
+  data_type: 'smallint'
   default_value: 1
+  is_nullable: 0
+
+=head2 site_check
+
+  data_type: 'smallint'
+  default_value: 0
   is_nullable: 0
 
 =cut
@@ -83,7 +89,9 @@ __PACKAGE__->add_columns(
   "period_qty",
   { data_type => "integer", is_nullable => 0 },
   "global",
-  { data_type => "tinyint", default_value => 1, is_nullable => 0 },
+  { data_type => "smallint", default_value => 1, is_nullable => 0 },
+  "site_check",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -114,6 +122,21 @@ __PACKAGE__->add_unique_constraint("name_UNIQUE", ["name"]);
 
 =head1 RELATIONS
 
+=head2 check_items
+
+Type: has_many
+
+Related object: L<Lenio::Schema::Result::CheckItem>
+
+=cut
+
+__PACKAGE__->has_many(
+  "check_items",
+  "Lenio::Schema::Result::CheckItem",
+  { "foreign.task_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 site_tasks
 
 Type: has_many
@@ -130,8 +153,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1CqbMwGXnAnw8BSPBbrDZw
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 19:24:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WVfOtfrtfAKL9fmyassgWg
 
 __PACKAGE__->has_many(
   "site_single_tasks",

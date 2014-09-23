@@ -160,6 +160,66 @@
         [% IF login.is_admin %]
         </form>
         [% END %]
+        <h3>Site Manager Checks
+	[% IF login.site %]([% login.site.org.name %] - [% login.site.name %])[% ELSE %](All sites)[% END %]
+	</h3>
+        [% IF login.is_admin %]
+        <p>
+            <a href="/task/check" class="btn btn-default" role="button">Create new site check</a>
+        </p>
+        [% END %]
+        [% IF login.is_admin %]
+            <form method="post">
+        [% END %]
+        <table class="table table-striped">
+            <tr>
+                [% IF login.is_admin %]<th></th>[% END %]
+                <th>Check</th>
+                <th>Frequency</th>
+                [% IF site_id %]
+                    <th>Last done</th>
+                [% END %]
+            </tr>
+
+            [% FOR check IN site_checks %]
+                [% IF site_id AND check.site == 0 %]
+                    [% strike = 'class="strike"' %]
+                [% ELSE %]
+                    [% strike = '' %]
+                [% END %]
+                <tr [% strike %]>
+                    [% IF login.is_admin AND login.site.id %]
+                        <td>
+                        [% IF strike %]
+                            <button type="submit" class="btn-xs btn-link" name="taskadd" value="[% check.id %]">
+                                <span class="glyphicon glyphicon-unchecked"></span>
+                            </button>
+                        [% ELSE %]
+                            <button type="submit" class="btn-xs btn-link" name="taskrm" value="[% check.id %]">
+                                <span class="glyphicon glyphicon-check"></span>
+                            </button>
+                        [% END %]
+                        </td>
+                    [% ELSIF login.is_admin %]
+                        <td>
+                            <button type="submit" class="btn-xs btn-link" name="taskdel" value="[% check.id %]" title="Delete item">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </td>
+                    [% END %]
+                    <td><a href="/task/check/[% check.id %]">[% check.name %]</a></td>
+                    <td>[% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]</td>
+                    [% IF site_id %]
+                        <td>[% check.last_done %]</td>
+                    [% END %]
+                </tr>
+                [% IF task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
+                [% IF task.cost_actual %][% cost_actual_total = cost_actual_total + task.cost_actual %][% END %]
+            [% END %]
+        </table> 
+        [% IF login.is_admin %]
+        </form>
+        [% END %]
     [% ELSE %]
         <p>Please select a site from the menu</p>
     [% END %]

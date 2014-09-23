@@ -133,6 +133,14 @@ sub hasSite($$;$)
     }
 }
 
+sub hasSiteTask
+{   my ($class, $login, $site_task_id) = @_;
+    return 1 if $login->{is_admin};
+    my $sitetask = rset('SiteTask')->find($site_task_id)
+        or return;
+    return 1 if grep { $_->id == $sitetask->site_id } @{$login->{sites}};
+}
+
 sub resetNew($$)
 {   my ($class, $code) = @_;
     my $login = rset('Login')->search({ pwdreset => $code }) or return;

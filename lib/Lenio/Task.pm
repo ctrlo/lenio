@@ -23,6 +23,7 @@ use Dancer2 ':script';
 use Dancer2::Plugin::DBIC qw(schema resultset rset);
 use DateTime;
 use DateTime::Format::DBI;
+use DateTime::Format::Strptime;
 use Text::Trim;
 use Ouch;
 
@@ -58,6 +59,7 @@ sub summary
 
     my $task_rs = rset('SiteSingleTask');
     my $search  = $args->{onlysite} ? {site_id => $site} : {};
+    $search->{site_check} = 0;
     my $tasks   = $task_rs->search($search, { bind => [$site] });
 
     my $fy;
@@ -124,6 +126,140 @@ sub summary
     @tasks;
 }
 
+sub site_checks
+{   my ($self, $site_id) = @_;
+
+    # XXX There is probably a more efficient way of doing
+    # this, either with a custom join, or with the new join
+    # API for DBIC once it's ready. For now, this will do, and
+    # is not much less efficient
+
+    # First get all the site checks
+    my @checks = rset('Task')->search({
+        site_check => 1,
+    })->all;
+
+    # Now, if site_id is specified, get all the ones
+    # for the particular site
+    my @site_checks;
+    if ($site_id)
+    {
+        @site_checks = rset('Task')->search({
+            site_check => 1,
+            'site.id'  => $site_id,
+        },{
+            join      => { site_tasks => ['site', 'checks_done'] },
+            prefetch  => 'check_items',
+            group_by  => 'me.id',
+            '+select' => [{ max => 'checks_done.datetime', -as => 'last_done' }, { max => 'site_tasks.id', -as => 'site_task_id2'}],
+            '+as'     => ['last_done', 'site_task_id2'],
+        })->all;
+    }
+
+    my @final;
+    foreach my $c (@checks)
+    {
+        my @check_items = $c->check_items;
+        my $check = {
+            id          => $c->id,
+            name        => $c->name,
+            description => $c->description,
+            check_items => \@check_items,
+            period_qty  => $c->period_qty,
+            period_unit => $c->period_unit,
+        };
+        if ($site_id)
+        {
+            if (my ($sc) = grep {$_->id == $c->id} @site_checks)
+            {
+                $check->{last_done}    = $sc->get_column('last_done');
+                $check->{site_task_id} = $sc->get_column('site_task_id2');
+                $check->{site} = 1;
+            }
+            else {
+                $check->{site} = 0;
+            }
+        }
+        push @final, $check;
+    }
+
+    @final;
+}
+
+sub check_done
+{   my ($self, $login, $params) = @_;
+
+    my $parser = DateTime::Format::Strptime->new(
+         pattern   => '%Y-%m-%d',
+         time_zone => 'local',
+    );
+
+    my $datetime;
+    if ($datetime = $params->{completed})
+    {
+        $datetime = $parser->parse_datetime($datetime);
+        $datetime or ouch 'badparam', "Supplied date $datetime is invalid";
+    }
+
+    $datetime = \"NOW()" unless $datetime;
+
+    my $done = rset('CheckDone')->create({
+        site_task_id => $params->{site_task_id},
+        login_id     => $login->{id},
+        datetime     => $datetime,
+    });
+
+    foreach my $key (keys %$params)
+    {
+        next unless $key =~ /^item([0-9]+)/;
+        rset('CheckItemDone')->create({
+            check_item_id => $1,
+            check_done_id => $done->id,
+            status        => $params->{"item$1"},
+        });
+    }
+}
+
+sub check
+{   my ($self, $id, $params) = @_;
+
+    if ($params) {
+        my $update;
+        $update->{name} = $params->{name}
+            or ouch 'badparam', "Please provide a name for the check";
+        $update->{description} = $params->{description}
+            or ouch 'badparam', "Please provide a description for the check";
+        $update->{period_qty} = $params->{period_qty}
+            or ouch 'badparam', "Please specify the period frequency";
+        $update->{period_unit} = $params->{period_unit}
+            or ouch 'badparam', "Please specify the period units";
+
+        if ($id)
+        {
+            my $check = rset('Task')->find($id)
+                or ouch 'badid', "Task ID $id could not be found";
+            $check->update($update);
+        }
+        else {
+            $update->{site_check} = 1;
+            my $check = rset('Task')->create($update);
+            $id = $check->id;
+        }
+
+        if (my $ci = $params->{checkitem})
+        {
+            rset('CheckItem')->create({ task_id => $id, name => $ci });
+        }
+    }
+    elsif ($params)
+    {
+        # Update check items
+    }
+
+    my ($check) = rset('Task')->search({ id => $id, site_check => 1 });
+    $check;
+}
+
 sub new($)
 {   my ($class, $task) = @_;
 
@@ -162,6 +298,7 @@ sub overdue($;$)
             'period_unit'      => $interval,
         };
         $search->{global} = 1 unless $args->{local};
+        $search->{site_check} = 0; # Don't show site manager checks
         my $s = ref $site eq 'ARRAY' ? [ map { $_->id } @$site ] : $site;
         $search->{'site.id'} = $s if $s;
 
@@ -183,6 +320,68 @@ sub overdue($;$)
 
     }
     @tasks;
+}
+
+sub calendar_check
+{   my ($self, $from, $to, $site_id, $login) = @_;
+
+    my @calendar;
+
+    my @done = rset('CheckDone')->search({
+        site_id  => $site_id,
+        datetime => { '>', $from },
+        datetime => { '<', $to },
+    }, {
+        prefetch => {'site_task' => 'task'}
+    });
+
+    foreach my $check (@done)
+    {
+        my $c = {
+            id          => $check->site_task->task->id,
+            title       => $check->site_task->task->name,
+            url         => 'url here',
+            start       => $check->datetime->epoch * 1000,
+            end         => $check->datetime->epoch * 1000,
+            class       => 'check-done'
+        };
+        push @calendar, $c;
+    }
+
+    my $dtf = schema->storage->datetime_parser;
+    my @site_checks = Lenio::Task->site_checks($site_id);
+
+    foreach my $check (@site_checks)
+    {
+        next unless $check->{site};
+        my ($done) = rset('CheckDone')->search({
+            'task.id' => $check->{id},
+        },{
+            'prefetch' => { 'site_task' => 'task' },
+            '+select' => { max => 'me.datetime', -as => 'last_done' },
+            '+as'     => 'last_done',
+        })->all;
+
+        my $ld = $done->get_column('last_done');
+        my $last_done = $ld ? $dtf->parse_datetime($ld) : $from;
+        my $qty  = $done->site_task->task->period_qty;
+        my $unit = $done->site_task->task->period_unit."s";
+        while (DateTime->compare($to, $last_done) >= 0)
+        {
+            # Keep adding until end of this range.
+            $last_done->add( $unit => $qty );
+            next if (DateTime->compare($from, $last_done) > 0); # Last done before this range
+            push @calendar, {
+                id          => $done->site_task->task->name,
+                title       => $done->site_task->task->name,
+                url         => 'url here2',
+                start       => $last_done->epoch * 1000,
+                end         => $last_done->epoch * 1000,
+                class       => 'check-due',
+            };
+        }
+    }
+    @calendar;
 }
 
 sub calendar($$$$)

@@ -57,6 +57,7 @@
                         <li [% IF page == "user" %]class="active"[% END %]><a href="/user">Users</a></li>
                     [% ELSE %]
                         <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Summary</a></li>
+                        <li [% IF page == "check" %]class="active"[% END %]><a href="/check">Site checks</a></li>
                     [% END %]
 
                     <li class="dropdown">
@@ -164,11 +165,11 @@
         <script type="text/javascript" src="/js/login.js"></script>
     [% END %]
 
-    [% IF page == "ticket" %]
+    [% IF page == "ticket" || page == "check" %]
         <script type="text/javascript" src="/js/bootstrap-datepicker.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $('.datepicker').datepicker({format: "yyyy-mm-dd"});
+                $('.datepicker').datepicker({format: "yyyy-mm-dd", autoclose: "true"});
             });
         </script>
     [% END %]
