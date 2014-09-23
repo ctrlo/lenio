@@ -47,12 +47,25 @@ sub all($)
         # Work out date to take costs from (ie the financial year)
         my $dtf = schema->storage->datetime_parser;
         my $fy = Lenio::FY->new($args->{site_id}, $args->{fy});
-        $search->{completed} = {
-            -between => [
-                $dtf->format_datetime($fy->costfrom),
-                $dtf->format_datetime($fy->costto),
-            ],
-        };
+        $search->{'-or'} = [
+            {
+                completed => {
+                    -between => [
+                        $dtf->format_datetime($fy->costfrom),
+                        $dtf->format_datetime($fy->costto),
+                    ],
+                },
+            },
+            {
+                completed => undef,
+                planned   => {
+                    -between => [
+                        $dtf->format_datetime($fy->costfrom),
+                        $dtf->format_datetime($fy->costto),
+                    ],
+                },
+            },
+        ];
     }
 
     rset('Ticket')->search($search, {prefetch => {'site_task' => {'site' => {'org' => 'login_orgs' }}}} );
