@@ -156,6 +156,11 @@ sub site_checks
         })->all;
     }
 
+    my $format = DateTime::Format::Strptime->new(
+         pattern   => '%Y-%m-%d',
+         time_zone => 'local',
+    );
+
     my @final;
     foreach my $c (@checks)
     {
@@ -172,7 +177,7 @@ sub site_checks
         {
             if (my ($sc) = grep {$_->id == $c->id} @site_checks)
             {
-                $check->{last_done}    = $sc->get_column('last_done');
+                $check->{last_done}    = $format->parse_datetime($sc->get_column('last_done')),
                 $check->{site_task_id} = $sc->get_column('site_task_id2');
                 $check->{site} = 1;
             }

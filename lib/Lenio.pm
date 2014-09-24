@@ -810,7 +810,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
 
     my $output = template 'task' => {
         login       => var('login'),
-        dateformart => config->{lenio}->{dateformat},
+        dateformat  => config->{lenio}->{dateformat},
         action      => $action,
         site_id     => session('site_id'),
         site_checks => \@site_checks,
