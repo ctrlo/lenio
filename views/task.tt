@@ -72,7 +72,7 @@
                 <form method="get">
                     <select class="form-control" name="fy" onchange="this.form.submit()">
                         [% FOR fy IN login.site_fys %]
-                            <option value="[% fy.year %]" [% IF login.fy == fy.year %]selected[% END %]>[% fy.name %]</option>
+                            <option value="[% fy.year %]" [% IF login.fy == fy.year %]selected[% END %]>Show costs for [% fy.name %]</option>
                         [% END %]
                     </select>
                 </form>
