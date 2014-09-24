@@ -340,7 +340,7 @@ sub calendar_check
         my $c = {
             id          => $check->site_task->task->id,
             title       => $check->site_task->task->name,
-            url         => 'url here',
+            url         => '/check',
             start       => $check->datetime->epoch * 1000,
             end         => $check->datetime->epoch * 1000,
             class       => 'check-done'
@@ -374,7 +374,7 @@ sub calendar_check
             push @calendar, {
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
-                url         => 'url here2',
+                url         => '/check',
                 start       => $last_done->epoch * 1000,
                 end         => $last_done->epoch * 1000,
                 class       => 'check-due',
