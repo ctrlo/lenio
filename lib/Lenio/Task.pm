@@ -385,7 +385,7 @@ sub calendar_check
         })->all;
 
         my $ld = $done->get_column('last_done');
-        my $last_done = $ld ? $dtf->parse_datetime($ld) : $from;
+        my $last_done = $ld ? $dtf->parse_datetime($ld) : DateTime->now;
         my $qty  = $done->site_task->task->period_qty;
         my $unit = $done->site_task->task->period_unit."s";
         while (DateTime->compare($to, $last_done) >= 0)
