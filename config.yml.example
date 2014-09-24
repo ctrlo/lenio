@@ -18,7 +18,9 @@ template: "template_toolkit"
 
 session: "YAML"
  
-emailtemplate: "/usr/share/nginx/lenio/email"
+lenio:
+  emailtemplate: "/usr/share/nginx/lenio/email"
+  dateformat: "%x"
 
 siteurl: "http://demo.lenio.co.uk"
 

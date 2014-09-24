@@ -130,10 +130,10 @@
                     </td>
                     <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                     [% IF site_id %]
-                        <td>[% task.planned.ymd %]</td>
+                        <td>[% task.planned.strftime(dateformat) %]</td>
                         <td>
                             [% IF task.completed %]
-                            [% task.completed.ymd %]
+                            [% task.completed.strftime(dateformat) %]
                             [% ELSE %]
                             (never)
                             [% END %]
@@ -278,10 +278,10 @@
                     <td><a href="/task/view/[% task.id %]">[% task.name %]</a></td>
                     <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                     [% IF site_id %]
-                        <td>[% task.planned.ymd %]</td>
+                        <td>[% task.planned.strftime(dateformat) %]</td>
                         <td>
                             [% IF task.tickets.first.completed %]
-                            [% task.tickets.first.completed.ymd %]
+                            [% task.tickets.first.completed.strftime(dateformat) %]
                             [% ELSE %]
                             (never)
                             [% END %]

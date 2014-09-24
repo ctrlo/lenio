@@ -60,13 +60,13 @@
                         <label for="planned">Planned</label>
                         <input type="text" name="planned"
                             [% UNLESS readonly %]class="datepicker"[% END %]
-                            id="planned" value="[% ticket.planned.ymd %]" [% readonly %]>
+                            id="planned" value="[% ticket.planned.strftime(dateformat) %]" [% readonly %]>
                     </div>
                     <div class="form-group">
                         <label for="completed">Completed</label>
                         <input type="text" name="completed"
                             [% UNLESS readonly %]class="datepicker"[% END %]
-                            id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
+                            id="completed" value="[% ticket.completed.strftime(dateformat) %]" [% readonly %]>
                     </div>
                 [% END %]
                 [% UNLESS readonly %]
@@ -164,8 +164,8 @@
         <tr>
             <td><a href="/ticket/view/[% ticket.id %]">[% ticket.name %]</a></td>
             <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
-            <td>[% IF ticket.planned %][% ticket.planned.ymd %][% ELSE %](unplanned)[% END %]</td>
-            <td>[% IF ticket.completed %][% ticket.completed.ymd %][% ELSE %](uncompleted)[% END %]</td>
+            <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
+            <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
         </tr>
         [% END %]
     </table> 

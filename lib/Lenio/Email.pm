@@ -32,7 +32,7 @@ sub send($)
     $args->{siteurl} = config->{siteurl};
 
     my $template = Template->new
-       ({INCLUDE_PATH => config->{emailtemplate}});
+       ({INCLUDE_PATH => config->{lenio}->{emailtemplate}});
 
     my $site = Lenio::Site->site($site_id);
     my $org  = sprintf("%s (%s)", $site->org->name, $site->name);

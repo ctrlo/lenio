@@ -86,10 +86,11 @@ get '/' => sub {
               : session('site_id') ? session('site_id') : var('login')->{sites};
     my @overdue = Lenio::Task->overdue( $sites, {local => $local} );
     my $output  = template 'index' => {
-        messages => session('messages'),
-        tasks    => \@overdue,
-        login    => var('login'),
-        page     => 'index'
+        messages   => session('messages'),
+        dateformat => config->{lenio}->{dateformat},
+        tasks      => \@overdue,
+        login      => var('login'),
+        page       => 'index'
     };
     session 'messages' => [];
     $output;
@@ -641,6 +642,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
     my @contractors = Lenio::Contractor->all;
     my $output = template 'ticket' => {
         action      => $action,
+        dateformat  => config->{lenio}->{dateformat},
         id          => $id,
         tickets     => \@tickets,
         contractors => \@contractors,
@@ -808,6 +810,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
 
     my $output = template 'task' => {
         login       => var('login'),
+        dateformart => config->{lenio}->{dateformat},
         action      => $action,
         site_id     => session('site_id'),
         site_checks => \@site_checks,

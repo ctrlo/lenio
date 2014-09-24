@@ -291,6 +291,11 @@ sub overdue($;$)
     my $task_rs = rset('Task');
     my @intervals = ('year', 'month', 'week', 'day');
 
+    my $format = DateTime::Format::Strptime->new(
+         pattern   => '%Y-%m-%d',
+         time_zone => 'local',
+    );
+
     my @tasks;
     foreach my $interval (@intervals)
     {
@@ -302,7 +307,7 @@ sub overdue($;$)
         my $s = ref $site eq 'ARRAY' ? [ map { $_->id } @$site ] : $site;
         $search->{'site.id'} = $s if $s;
 
-        @tasks = (@tasks, $task_rs->search($search
+        my @t = $task_rs->search($search
                 ,{ prefetch   => { 'site_tasks' => ['ticket', {'site' => 'org' } ] },
                    '+select'  => [
                                      { max => 'ticket.planned', -as => 'ticket_planned' },
@@ -316,8 +321,20 @@ sub overdue($;$)
                                              , { '<', \"DATE_SUB(NOW(), INTERVAL period_qty $interval)" }
                                              ] }
             }
-        ));
-
+        )->all;
+        foreach my $t (@t)
+        {
+            foreach my $tt ($t->site_tasks)
+            {
+                push @tasks, {
+                    id               => $tt->task->id,
+                    name             => $tt->task->name,
+                    site             => $tt->site,
+                    ticket_planned   => $format->parse_datetime($tt->get_column('ticket_planned')),
+                    ticket_completed => $format->parse_datetime($tt->get_column('ticket_completed')),
+                }
+            }
+        }
     }
     @tasks;
 }

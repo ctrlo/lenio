@@ -9,30 +9,28 @@
     </tr>
 
     [% FOR task IN tasks %]
-    [% FOR site_task IN task.site_tasks %]
     <tr>
 	<td>[% task.name %]
 	    [% IF login.is_admin OR NOT task.global %]
 	    (<a href="/ticket/new/[% task.id %]/[% site_task.site.id %]">Create ticket</a>)
 	    [% END %]
 	</td>
-        <td>[% site_task.site.org.name %] ([% site_task.site.name %])</td>
+        <td>[% task.site.org.name %] ([% task.site.name %])</td>
         <td>
-            [% IF site_task.get_column('ticket_completed') %]
-            [% site_task.get_column('ticket_completed') %]
+            [% IF task.ticket_completed %]
+            [% task.ticket_completed.strftime(dateformat) %]
             [% ELSE %]
             (never)
             [% END %]
         </td>
 	<td>
-            [% IF site_task.get_column('ticket_planned') %]
-            [% site_task.get_column('ticket_planned') %]
+            [% IF task.ticket_planned %]
+            [% task.ticket_planned.strftime(dateformat) %]
             [% ELSE %]
             (not planned)
             [% END %]
 	</td>
     </tr>
-    [% END %]
     [% END %]
 </table> 
 
