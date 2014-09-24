@@ -826,8 +826,14 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
 };
 
 get '/data' => sub {
-    my $from = DateTime->from_epoch( epoch => ( param('from') / 1000 ) );
-    my $to   = DateTime->from_epoch( epoch => ( param('to') / 1000 ) );
+
+    # Epochs received from the calendar module are based on the timezone of the local
+    # browser. So in BST, 24th August is requested as 23rd August 23:00. Rather than
+    # trying to convert timezones, we keep things simple and round down any "from"
+    # times and round up any "to" times.
+    my $from  = DateTime->from_epoch( epoch => ( param('from') / 1000 ) )->truncate( to => 'day');
+    my $to    = DateTime->from_epoch( epoch => ( param('to') / 1000 ) );
+
     my @tasks;
     my @sites = session('site_id')
               ? ( Lenio::Site->site( session 'site_id' ) )
