@@ -36,14 +36,14 @@
                 [% ELSE %]
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="email_ticket" id="email_ticket" class="form-control"
+                            <input type="checkbox" name="email_ticket" id="email_ticket"
                             [% IF l.email_ticket %]checked[% END %]
                             >Receive emails on ticket updates
                         </label>
                     </div>
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="email_comment" id="email_comment" class="form-control"
+                            <input type="checkbox" name="email_comment" id="email_comment"
                             [% IF l.email_comment %]checked[% END %]
                             >Receive emails on ticket comments
                         </label>
