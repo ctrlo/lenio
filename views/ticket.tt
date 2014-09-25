@@ -162,7 +162,7 @@
 
         [% FOR ticket IN tickets %]
         <tr>
-            <td><a href="/ticket/view/[% ticket.id %]">[% ticket.name %]</a></td>
+            <td><a href="/ticket/view/[% ticket.id %]">[% IF ticket.name %][% ticket.name %][% ELSE %]View ticket[% END %]</a></td>
             <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
             <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
             <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
