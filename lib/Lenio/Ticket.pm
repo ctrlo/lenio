@@ -74,9 +74,30 @@ sub all($)
 sub new($$)
 {   my ($class, $ticket) = @_;
 
-    # Stop 0000-00-00 being inserted as a date for a blank value
-    delete $ticket->{completed} unless $ticket->{completed};
-    delete $ticket->{planned} unless $ticket->{planned};
+    my $parser = DateTime::Format::Strptime->new(
+         pattern   => '%Y-%m-%d',
+         time_zone => 'local',
+    );
+
+    if ($ticket->{planned})
+    {
+        $ticket->{planned} = $parser->parse_datetime($ticket->{planned})
+            or ouch 'badparam', "Please enter a valid planned date";
+    }
+    else {
+        # Stop 0000-00-00 being inserted as a date for a blank value
+        delete $ticket->{planned};
+    }
+
+    if ($ticket->{completed})
+    {
+        $ticket->{completed} = $parser->parse_datetime($ticket->{completed})
+            or ouch 'badparam', "Please enter a completed date";
+    }
+    else {
+        delete $ticket->{completed};
+    }
+
     my $task_id = delete $ticket->{task_id} || undef; # Can be NULL when unrelated to a task
     my $login = delete $ticket->{login};
     my $site_id = delete $ticket->{site_id}
