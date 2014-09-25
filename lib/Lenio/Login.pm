@@ -68,6 +68,8 @@ sub new($)
 
     $login->{password} = password($login->{password}) if $login->{password};
 
+    my $org_ids = delete $login->{org_ids};
+
     my $login_id;
     if ($login->{id})
     {
@@ -87,7 +89,7 @@ sub new($)
     }
 
     # Update organisation membership
-    if (my $org_ids = delete $login->{org_ids})
+    if ($org_ids)
     {
         my $guard = schema->txn_scope_guard;
         my @org_new = @$org_ids;
