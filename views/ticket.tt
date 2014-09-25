@@ -150,7 +150,11 @@
 [% ELSE %]
     <h3>Tickets</h3>
     <p>
-        <a href="/ticket/new" class="btn btn-default" role="button">Create new ticket</a>
+        [% IF task %]
+            <a href="/ticket/new/[% task.id %]/[% login.site.id %]" class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
+        [% ELSE %]
+            <a href="/ticket/new" class="btn btn-default" role="button">Create new ticket</a>
+        [% END %]
     </p>
     <table class="table table-striped">
         <tr>

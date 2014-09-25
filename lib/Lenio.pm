@@ -459,7 +459,7 @@ any '/check/?:task_id?/?:check_done_id?/?' => sub {
 any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
     my ( $action, $id, $site_id, $date ) = splat;
 
-    my @tickets;
+    my @tickets; my $task;
     if ($action eq 'new' || $action eq 'view')
     {
         my $ticket;
@@ -645,6 +645,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
             uncompleted_only => $uncompleted_only,
             task_id          => $task_id,
         });
+        $task = Lenio::Task->view($task_id) if $task_id;
     }
 
     my @contractors = Lenio::Contractor->all;
@@ -652,6 +653,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
         action      => $action,
         dateformat  => config->{lenio}->{dateformat},
         id          => $id,
+        task        => $task,
         tickets     => \@tickets,
         contractors => \@contractors,
         messages    => session('messages'),
