@@ -60,13 +60,13 @@
                         <label for="planned">Planned</label>
                         <input type="text" name="planned"
                             [% UNLESS readonly %]class="datepicker"[% END %]
-                            id="planned" value="[% ticket.planned.strftime(dateformat) %]" [% readonly %]>
+                            id="planned" value="[% ticket.planned.ymd %]" [% readonly %]>
                     </div>
                     <div class="form-group">
                         <label for="completed">Completed</label>
                         <input type="text" name="completed"
                             [% UNLESS readonly %]class="datepicker"[% END %]
-                            id="completed" value="[% ticket.completed.strftime(dateformat) %]" [% readonly %]>
+                            id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
                     </div>
                 [% END %]
                 [% UNLESS readonly %]
