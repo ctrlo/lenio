@@ -411,7 +411,10 @@ any qr{^/notice/?([\w]*)/?([\d]*)$} => sub {
     $output;
 };
  
-any '/check/?' => sub {
+any '/check/?:task_id?/?:check_done_id?/?' => sub {
+
+    my $task_id       = param 'task_id';
+    my $check_done_id = param 'check_done_id';
 
     my $site_id = session 'site_id';
     $site_id or forwardHome({ danger => 'Please select a site before viewing site checks' });
@@ -420,10 +423,9 @@ any '/check/?' => sub {
     {
         # Log the completion of a site check
         # Check user has permission first
-        my $site_task_id = param('site_task_id');
         forwardHome(
             { danger => "You do not have permission for site ID $site_id" } )
-                unless Lenio::Login->hasSiteTask(var('login'), $site_task_id);
+                unless Lenio::Login->hasSiteTask(var('login'), param('site_task_id') );
 
         my $params = params;
         
@@ -437,9 +439,13 @@ any '/check/?' => sub {
         }
     }
 
+    my $check = Lenio::Task->check($site_id, $task_id, $check_done_id) if $task_id;
+
     my @site_checks = Lenio::Task->site_checks($site_id);
     my $output = template 'check' => {
+        check       => $check,
         site_checks => \@site_checks,
+        dateformat  => config->{lenio}->{dateformat},
         messages    => session('messages'),
         login       => var('login'),
         page        => 'check',
@@ -770,7 +776,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
         if (param 'submitcheck')
         {
             my $params = params;
-            eval { Lenio::Task->check($id, $params) };
+            eval { Lenio::Task->check_update($id, $params) };
             if (hug)
             {
                 messageAdd( { danger => bleep } );

@@ -208,24 +208,45 @@ sub check_done
 
     $datetime = \"NOW()" unless $datetime;
 
-    my $done = rset('CheckDone')->create({
-        site_task_id => $params->{site_task_id},
-        login_id     => $login->{id},
-        datetime     => $datetime,
-    });
+    my $done;
+    if (my $cid = $params->{check_done_id})
+    {
+        ($done) = rset('CheckDone')->search({
+            id           => $cid,
+            site_task_id => $params->{site_task_id},
+        }) or ouch 'badparam', "Requested ID $cid not found";
+        $done->update({ datetime => $datetime });
+    }
+    else {
+        $done = rset('CheckDone')->create({
+            site_task_id => $params->{site_task_id},
+            login_id     => $login->{id},
+            datetime     => $datetime,
+        });
+    }
 
     foreach my $key (keys %$params)
     {
         next unless $key =~ /^item([0-9]+)/;
-        rset('CheckItemDone')->create({
+        my ($existing) = rset('CheckItemDone')->search({
             check_item_id => $1,
             check_done_id => $done->id,
-            status        => $params->{"item$1"},
-        });
+        })->all;
+        if ($existing)
+        {
+            $existing->update({ status => $params->{"item$1"} });
+        }
+        else {
+            rset('CheckItemDone')->create({
+                check_item_id => $1,
+                check_done_id => $done->id,
+                status        => $params->{"item$1"},
+            });
+        }
     }
 }
 
-sub check
+sub check_update
 {   my ($self, $id, $params) = @_;
 
     if ($params) {
@@ -263,6 +284,64 @@ sub check
 
     my ($check) = rset('Task')->search({ id => $id, site_check => 1 });
     $check;
+}
+
+sub check
+{   my ($self, $site_id, $task_id, $check_done_id) = @_;
+
+    $task_id or return;
+
+    my $search = {
+        'me.id'              => $task_id,
+        'site_tasks.site_id' => $site_id,
+        site_check           => 1,
+    };
+    $search->{'checks_done.id'} = $check_done_id if $check_done_id;
+
+    my ($check) = rset('Task')->search($search,
+    {
+        collapse => 1,
+        prefetch => [
+            'check_items',
+            {
+                site_tasks => {
+                    checks_done => 'check_items_done'
+                }
+            }
+        ],
+    })->all;
+
+    my %done; my $date;
+    my ($a) = $check->site_tasks;
+    my $site_task_id = $a->id;
+    if ($check_done_id)
+    {
+        my ($b) = $a->checks_done;
+        $date = $b->datetime;
+        foreach my $d ($b->check_items_done)
+        {
+            $done{$d->check_item_id} = $d->status;
+        }
+    }
+
+    my @items;
+    foreach my $i ($check->check_items)
+    {
+        push @items, {
+            id => $i->id,
+            name => $i->name,
+            done => $done{$i->id} || 0,
+        };
+    }
+
+    {
+        id           => $task_id,
+        site_task_id => $site_task_id,
+        name         => $check->name,
+        items        => \@items,
+        date         => $date,
+        exists       => $check_done_id ? 1 : 0,
+    }
 }
 
 sub new($)
@@ -354,25 +433,58 @@ sub calendar_check
         datetime => { '>', $from },
         datetime => { '<', $to },
     }, {
-        prefetch => {'site_task' => 'task'}
+        prefetch => [ {'site_task' => 'task'}, 'check_items_done'],
+        order_by => qw/me.site_task_id me.datetime/,
     });
 
+    # First fill in all the ones that have actually been done.
+    # We also interpolate between when there is a gap.
+    my $previous; my $last_id;
     foreach my $check (@done)
     {
+        $previous  = undef if $last_id != $check->site_task_id;
+        my $qty    = $check->site_task->task->period_qty;
+        my $unit   = $check->site_task->task->period_unit."s";
+        my $status = (grep { $_->status == 0 } $check->check_items_done)
+                   ? 'check-notdone'
+                   : $check->check_items_done->count != $check->site_task->task->check_items->count
+                   ? 'check-partdone'
+                   : 'check-done';
+
+        if ($previous)
+        {
+            $previous->add( $unit => $qty );
+            while (DateTime->compare($check->datetime, $previous) > 0)
+            {
+                push @calendar, {
+                    id          => $check->site_task->task->id,
+                    title       => $check->site_task->task->name,
+                    url         => "/check/".$check->site_task->task->id,
+                    start       => $previous->epoch * 1000,
+                    end         => $previous->epoch * 1000,
+                    class       => 'check-notdone',
+                };
+                $previous->add( $unit => $qty );
+            }
+        }
         my $c = {
             id          => $check->site_task->task->id,
             title       => $check->site_task->task->name,
-            url         => '/check',
+            url         => "/check/".$check->site_task->task->id."/".$check->id,
             start       => $check->datetime->epoch * 1000,
             end         => $check->datetime->epoch * 1000,
-            class       => 'check-done'
+            class       => $status,
         };
         push @calendar, $c;
+        $last_id = $check->site_task_id;
+        $previous = $check->datetime;
     }
 
     my $dtf = schema->storage->datetime_parser;
     my @site_checks = Lenio::Task->site_checks($site_id);
 
+    # Now take the very last completed one, and carry on filling
+    # out the subsequent ones required.
     foreach my $check (@site_checks)
     {
         next unless $check->{site};
@@ -392,14 +504,15 @@ sub calendar_check
         {
             # Keep adding until end of this range.
             $last_done->add( $unit => $qty );
+            my $status = DateTime->compare(DateTime->now, $last_done) > 0 ? 'check-notdone' : 'check-due';
             next if (DateTime->compare($from, $last_done) > 0); # Last done before this range
             push @calendar, {
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
-                url         => '/check',
+                url         => "/check/".$done->site_task->task->id,
                 start       => $last_done->epoch * 1000,
                 end         => $last_done->epoch * 1000,
-                class       => 'check-due',
+                class       => $status,
             };
         }
     }

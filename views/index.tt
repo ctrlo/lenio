@@ -43,11 +43,21 @@
 [% END %]
 
 <h3>Calendar</h3>
-<div class="circle event-important"></div>Task overdue
-<div class="circle event-warning"></div>Task due
-<div class="circle event-info"></div>Task planned
-<div class="circle event-success"></div>Task completed
-<div class="circle event-special"></div>Reactive
+<table>
+    <tr>
+        <td><div class="circle event-important"></div>Task overdue</td>
+        <td><div class="circle event-warning"></div>Task due</td>
+        <td><div class="circle event-info"></div>Task planned</td>
+        <td><div class="circle event-success"></div>Task completed</td>
+        <td><div class="circle event-special"></div>Reactive</td>
+    </tr>
+    <tr>
+        <td><div class="check-margin check-notdone check-margin"></div>Check not done</td>
+        <td><div class="check-margin check-due"></div>Check due</td>
+        <td><div class="check-margin check-partdone"></div>Check partly done</td>
+        <td><div class="check-margin check-done"></div>Check done</td>
+    </tr>
+</table>
 <div class="page-header">
     <div class="pull-right form-inline">
         <div class="btn-group">
