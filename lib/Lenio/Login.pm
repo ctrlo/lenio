@@ -67,8 +67,6 @@ sub new($)
         if @errors;
 
     $login->{password} = password($login->{password}) if $login->{password};
-    my $org_ids = delete $login->{org_ids};
-    my @org_new = @$org_ids;
 
     my $login_id;
     if ($login->{id})
@@ -89,21 +87,25 @@ sub new($)
     }
 
     # Update organisation membership
-    my $guard = schema->txn_scope_guard;
-    my @org_old = rset('LoginOrg')->search({ login_id => $login_id })->all;
-    # Delete organisation memberships that are no longer needed
-    foreach my $org_old (@org_old)
+    if (my $org_ids = delete $login->{org_ids})
     {
-        rset('LoginOrg')->search({ login_id => $login_id, org_id => $org_old->org_id })->delete
-            unless grep { $org_old->org_id == $_ } @org_new;
+        my $guard = schema->txn_scope_guard;
+        my @org_new = @$org_ids;
+        my @org_old = rset('LoginOrg')->search({ login_id => $login_id })->all;
+        # Delete organisation memberships that are no longer needed
+        foreach my $org_old (@org_old)
+        {
+            rset('LoginOrg')->search({ login_id => $login_id, org_id => $org_old->org_id })->delete
+                unless grep { $org_old->org_id == $_ } @org_new;
+        }
+        # Add organisation memberships that are not already there
+        foreach my $org_new (@org_new)
+        {
+            rset('LoginOrg')->create({ login_id => $login_id, org_id => $org_new })
+                unless grep { $org_new == $_->org_id } @org_old;
+        }
+        $guard->commit;
     }
-    # Add organisation memberships that are not already there
-    foreach my $org_new (@org_new)
-    {
-        rset('LoginOrg')->create({ login_id => $login_id, org_id => $org_new })
-            unless grep { $org_new == $_->org_id } @org_old;
-    }
-    $guard->commit;
     1;
 }
 

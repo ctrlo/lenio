@@ -205,11 +205,6 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
         if ( param('submit') ) {
             my $adm = $is_admin && param('is_admin') ? 1 : 0;
             # param org_ids can be a scalar, array or undefined, depending how many where submitted
-            my $org_ids = !defined param('org_ids')
-                        ? []
-                        : ref param('org_ids') eq 'ARRAY'
-                        ? param('org_ids')
-                        : [ param('org_ids') ];
             my $login = {
                 username      => param('email'),
                 email         => param('email'),
@@ -217,9 +212,16 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
                 surname       => param('surname'),
                 email_comment => param('email_comment') ? 1 : 0,
                 email_ticket  => param('email_ticket') ? 1 : 0,
-                org_ids       => $org_ids,
                 is_admin      => $adm,
             };
+            if ($is_admin)
+            {
+                $login->{org_ids} = !defined param('org_ids')
+                            ? []
+                            : ref param('org_ids') eq 'ARRAY'
+                            ? param('org_ids')
+                            : [ param('org_ids') ];
+            }
             $login->{id} = $id if $id;
             $login->{password} = param('password') if param('password');
             eval {Lenio::Login->new($login)};
