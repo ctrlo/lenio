@@ -84,6 +84,9 @@ sub new($)
             if rset('Login')->search({ username => $login->{username} })->count;
         ouch 'exists', "The email address already exists"
             if rset('Login')->search({ email => $login->{email} })->count;
+        # Set default email settings
+        $login->{email_comment} = 1;
+        $login->{email_ticket} = 1;
         $login_id = rset('Login')->create($login)->id
             or ouch 'dbfail', "There was a database error when creating the user";
     }
