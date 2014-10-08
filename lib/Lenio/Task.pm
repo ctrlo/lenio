@@ -444,7 +444,7 @@ sub calendar_check
     my $previous; my $last_id;
     foreach my $check (@done)
     {
-        $previous  = undef if $last_id != $check->site_task_id;
+        $previous  = undef if !$last_id || $last_id != $check->site_task_id;
         my $qty    = $check->site_task->task->period_qty;
         my $unit   = $check->site_task->task->period_unit."s";
         my $status = (grep { $_->status == 0 } $check->check_items_done)
