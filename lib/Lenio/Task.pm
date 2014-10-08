@@ -428,10 +428,12 @@ sub calendar_check
 
     my @calendar;
 
+    my $dtf = schema->storage->datetime_parser;
+
     my @done = rset('CheckDone')->search({
         site_id  => $site_id,
-        datetime => { '>', $from },
-        datetime => { '<', $to },
+        datetime => { '>', $dtf->format_datetime($from) },
+        datetime => { '<', $dtf->format_datetime($to)   },
     }, {
         prefetch => [ {'site_task' => 'task'}, 'check_items_done'],
         order_by => [qw/me.site_task_id me.datetime/],
@@ -480,7 +482,6 @@ sub calendar_check
         $previous = $check->datetime;
     }
 
-    my $dtf = schema->storage->datetime_parser;
     my @site_checks = Lenio::Task->site_checks($site_id);
 
     # Now take the very last completed one, and carry on filling
