@@ -434,7 +434,7 @@ sub calendar_check
         datetime => { '<', $to },
     }, {
         prefetch => [ {'site_task' => 'task'}, 'check_items_done'],
-        order_by => qw/me.site_task_id me.datetime/,
+        order_by => [qw/me.site_task_id me.datetime/],
     });
 
     # First fill in all the ones that have actually been done.
