@@ -30,6 +30,8 @@ use Lenio::Email;
 use Ouch;
 
 set serializer => 'JSON';
+set behind_proxy => config->{behind_proxy};
+
 our $VERSION = '0.1';
 
 hook before => sub {
