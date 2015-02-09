@@ -148,7 +148,7 @@
     </div><!-- /.modal -->
 
 [% ELSE %]
-    <h3>Tickets</h3>
+    <h3>New ticket</h3>
     <p>
         [% IF task %]
             <a href="/ticket/new/[% task.id %]/[% login.site.id %]" class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
@@ -156,6 +156,7 @@
             <a href="/ticket/new" class="btn btn-default" role="button">Create new reactive ticket</a>
         [% END %]
     </p>
+    <h3>Existing tickets</h3>
     <table class="table table-striped">
         <tr>
             <th>Title</th>
