@@ -210,7 +210,7 @@
                     <td><a href="/task/check/[% check.id %]">[% check.name %]</a></td>
                     <td>[% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]</td>
                     [% IF site_id %]
-                        <td>[% check.last_done %]</td>
+                        <td>[% check.last_done.ymd %]</td>
                     [% END %]
                 </tr>
                 [% IF task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
