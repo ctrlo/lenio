@@ -225,7 +225,7 @@
     [% END %]
     [% IF site_id %]
 
-        <h3>Reactive maintenance</h3>
+        <h3>Reactive maintenance and quotes</h3>
         <table class="table table-striped">
             [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
             <tr>
