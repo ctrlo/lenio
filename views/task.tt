@@ -122,7 +122,7 @@
                         [% IF site_id %]
                             <a href="/ticket?task=[% task.id %]" title="View tickets related to this task">[% task.name %]</a>
                             [% IF login.is_admin %]
-                                (<a href="/ticket/new/[% task.id %]/[% site_id %]" title="Create new ticket related to this task">Create ticket</a>)
+                            (<a href="/ticket/new/[% task.id %]/[% site_id %]" title="Create new ticket related to this task">Create ticket</a> | <a href="/task/view/[% task.id %]">Edit task</a>)
                             [% END %]
                         [% ELSE %]
                             <a href="/task/view/[% task.id %]">[% task.name %]</a>
