@@ -165,4 +165,14 @@ sub attachGet($)
     $attach_rs->find($attach);
 }
 
+sub delete
+{   my ($self, $id) = @_;
+    my $ticket = rset('Ticket')->find($id)
+        or ouch 'invalidid', "Unable to find specified ticket ID";
+    rset('SiteTask')->search({ ticket_id => $id })->delete;
+    rset('Comment')->search({ ticket_id => $id })->delete;
+    rset('Attach')->search({ ticket_id => $id })->delete;
+    $ticket->delete;
+}
+
 1;

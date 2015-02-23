@@ -533,6 +533,16 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
                     messageAdd({ success => 'Attachment has been deleted successfully' });
                 }
             }
+            if (param 'delete')
+            {
+                forwardHome(
+                    { danger => 'You do not have permission to delete this ticket' }
+                ) unless var('login')->{is_admin} || $ticket->site_task->task->global == 0;
+                Lenio::Ticket->delete($id);
+                forwardHome(
+                    { success => "Ticket has been successfully deleted" }, 'ticket');
+            }
+
             push @tickets, $ticket;
         }
 
