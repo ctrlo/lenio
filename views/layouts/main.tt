@@ -103,7 +103,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="/user/view/[% login.id %]">Account settings</a></li>
                         <li class="divider"></li>
-                        <li><a href="/login?logout">Logout</a></li>
+                        <li><a href="/logout">Logout</a></li>
                     </ul>
                     </li>
                 </ul>
@@ -163,6 +163,7 @@
     [% END %]
     [% IF page == "login" %]
         <script type="text/javascript" src="/js/login.js"></script>
+        <script type="text/javascript" src="/js/bootstrap-show-password.js"></script>
     [% END %]
 
     [% IF page == "ticket" || page == "check" %]

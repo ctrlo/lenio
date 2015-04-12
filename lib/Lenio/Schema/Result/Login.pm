@@ -220,6 +220,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 login_permissions
+
+Type: has_many
+
+Related object: L<Lenio::Schema::Result::LoginPermission>
+
+=cut
+
+__PACKAGE__->has_many(
+  "login_permissions",
+  "Lenio::Schema::Result::LoginPermission",
+  { "foreign.login_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 site_checks_done
 
 Type: has_many
@@ -236,8 +251,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 22:12:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9Kx23MJdXGlWhHNsNHTvwQ
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2015-04-12 22:31:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UJjPMVmSSI7LJgJ2eQ6VYw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

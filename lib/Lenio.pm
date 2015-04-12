@@ -29,6 +29,9 @@ use Lenio::Contractor;
 use Lenio::Email;
 use Ouch;
 
+use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Auth::Extensible;
+
 set serializer => 'JSON';
 set behind_proxy => config->{behind_proxy};
 
@@ -37,21 +40,23 @@ our $VERSION = '0.1';
 hook before => sub {
 
     # Static content
-    return if request->uri =~ m!^/(error|js|css|login|favicon|tmpls|fonts|images)!;
+    return if request->uri =~ m!^/(error|js|css|login|logout|favicon|tmpls|fonts|images)!;
     # Used to display error messages
     return if param 'error';
 
-    redirect '/login' unless session('login_id');
-    my $login_rs = Lenio::Login->login({ id => session('login_id') });
+    my $user = logged_in_user
+        or return;
+
+    my $login_rs = Lenio::Login->login({ id => $user->{id} });
 
     # Sites associated with the user 
     forward '/error', { 'error' => 'There are no sites associated with this username' }
-        unless (my @sites = Lenio::Site->all(session 'login_id'));
+        unless (my @sites = Lenio::Site->all($user->{id}));
 
     my @notices = $login_rs->login_notices;
  
     my $login = {
-        id        => session('login_id'),
+        id        => $user->{id},
         username  => $login_rs->username,
         sites     => \@sites,
         is_admin  => $login_rs->is_admin,
@@ -81,7 +86,7 @@ hook before => sub {
     var login => $login;
 };
 
-get '/' => sub {
+get '/' => require_login sub {
     my $local = var('login')->{is_admin} ? 0 : 1; # Only show local tasks for non-admin
     my $sites = var('login')->{is_admin}
               ? session('site_id')
@@ -98,86 +103,28 @@ get '/' => sub {
     $output;
 };
 
-any '/login' => sub {
-
-    if (defined param('logout'))
-    {
-        context->destroy_session;
-        forwardHome();
-    }
-
-    # Request a password reset
-    if (param('resetpwd'))
-    {
-        Lenio::Login->resetRequest(param 'emailreset')
-        ? messageAdd( { success => 'An email has been sent to your email address
-            with a link to reset your password' } )
-        : messageAdd( { danger => 'Failed to send a password reset link.
-            Did you enter a valid email address?' } );
-    }
-
-    # Process a password reset
-    my $reset;
-    if (param('reset'))
-    {
-        my $args = {
-            code      => param('reset'),
-            password  => param('password'),
-            password2 => param('password2'),
-        };
-
-        eval { $reset = Lenio::Login->resetProcess($args) };
-        if (hug)
-        {
-            $reset = 1 if kiss('nomatch'); # Only show reset page for no match
-            messageAdd({ danger => bleep });
-        }
-        elsif (!$reset) {
-            forwardHome({ success => "Password was reset successfully" });
-        }
-    }
-
-    # Attempt to login a user
-    if (param('email'))
-    {
-        my $login;
-        eval {
-            $login = Lenio::Login->login({
-                username => param('email'),
-                password => param('password'),
-            });
-        };
-        messageAdd({ danger => bleep }) if (hug);
-
-        if ($login)
-        {
-            # Remember username?
-            param('remember')
-                ? cookie username => param('email'), expires => "60 days"
-                : cookie username => '', expires => "-1 hour";
-            session 'login_id' => $login->id;
-            forwardHome();
-        }
-    }
-    
+sub login_page_handler
+{
     my $messages = session('messages') || undef;
-    my $username = cookie('username') || undef;
-    my $output  = template 'login' => {
-        reset    => $reset,
-        messages => $messages,
-        username => $username,
-        page     => 'login',
+    messageAdd({ success => "A password reset request has been sent if the email address
+           entered was valid" }) if defined param('reset_sent');
+    my $output = template login => {
+        page                => 'login',
+        messages            => $messages,
+        new_password        => param('new_password'),
+        password_code_valid => param('password_code_valid'),
+        reset_code          => param('new_password') || param('password_code_valid'),
     };
     session 'messages' => [];
     $output;
-};
+}
 
 # Dismiss a notice
-get '/close/:id' => sub {
+get '/close/:id' => require_login sub {
     Lenio::Notice->dismiss(var('login'), param('id'));
 };
 
-get '/error' => sub {
+get '/error' => require_login sub {
     my $output  = template 'error' => {
         error => param('error'),
         page  => 'error',
@@ -186,15 +133,19 @@ get '/error' => sub {
     $output;
 };
 
-any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
+any qr{^/user/?([\w]*)/?([\d]*)$} => require_login sub {
     my ( $action, $id ) = splat;
 
     my $is_admin = var('login')->{is_admin};
 
+    my $username;
     # Stop normal users performing admin tasks on other users
-    unless ($is_admin)
+    if ($is_admin)
     {
-        $id     = var('login')->{id};
+        $username = param('username');
+    }
+    else {
+        $username = logged_in_user->{username};
         $action = 'view';
     }
 
@@ -207,7 +158,7 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
         if ( param('submit') ) {
             my $adm = $is_admin && param('is_admin') ? 1 : 0;
             # param org_ids can be a scalar, array or undefined, depending how many where submitted
-            my $login = {
+            my %login = (
                 username      => param('email'),
                 email         => param('email'),
                 firstname     => param('firstname'),
@@ -215,18 +166,20 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
                 email_comment => param('email_comment') ? 1 : 0,
                 email_ticket  => param('email_ticket') ? 1 : 0,
                 is_admin      => $adm,
-            };
-            if ($is_admin)
+            );
+            if ($username)
             {
-                $login->{org_ids} = !defined param('org_ids')
-                            ? []
-                            : ref param('org_ids') eq 'ARRAY'
-                            ? param('org_ids')
-                            : [ param('org_ids') ];
+                update_user $username, realm => 'dbic', %login;
             }
-            $login->{id} = $id if $id;
-            $login->{password} = param('password') if param('password');
-            eval {Lenio::Login->new($login)};
+            else {
+                if (Lenio::Login->exists($login{username}))
+                {
+                    eval { ouch 'exists', "The email address already exists" };
+                }
+                else {
+                    my $newuser = create_user %login, realm => 'dbic', email_welcome => 1;
+                }
+            }
             if (hug)
             {
                 messageAdd({ danger => bleep });
@@ -239,6 +192,15 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
                 }
             }
             else {
+                if ($is_admin)
+                {
+                    my $org_ids = !defined param('org_ids')
+                                ? []
+                                : ref param('org_ids') eq 'ARRAY'
+                                ? param('org_ids')
+                                : [ param('org_ids') ];
+                    Lenio::Login->update_orgs($username, $org_ids);
+                }
                 my $a = $action eq 'new' ? 'added' : 'updated';
                 forwardHome({ success => "User has been successfully $a" }, 'user');
             }
@@ -269,7 +231,7 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => sub {
     $output;
 };
 
-any qr{^/contractor/?([\w]*)/?([\d]*)$} => sub {
+any qr{^/contractor/?([\w]*)/?([\d]*)$} => require_login sub {
     my ( $action, $id ) = splat;
 
     var('login')->{is_admin}
@@ -341,7 +303,7 @@ any qr{^/contractor/?([\w]*)/?([\d]*)$} => sub {
     $output;
 };
 
-any qr{^/notice/?([\w]*)/?([\d]*)$} => sub {
+any qr{^/notice/?([\w]*)/?([\d]*)$} => require_login sub {
     my ( $action, $id ) = splat;
 
     var('login')->{is_admin}
@@ -415,7 +377,7 @@ any qr{^/notice/?([\w]*)/?([\d]*)$} => sub {
     $output;
 };
  
-any '/check/?:task_id?/?:check_done_id?/?' => sub {
+any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 
     my $task_id       = param 'task_id';
     my $check_done_id = param 'check_done_id';
@@ -458,7 +420,7 @@ any '/check/?:task_id?/?:check_done_id?/?' => sub {
     $output;
 };
 
-any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
+any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
     my ( $action, $id, $site_id, $date ) = splat;
 
     my @tickets; my $task;
@@ -676,7 +638,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => sub {
     $output;
 };
 
-get '/attach/:file' => sub {
+get '/attach/:file' => require_login sub {
     my $file = Lenio::Ticket->attachGet(param 'file');
     $file or 
         forwardHome({ danger => 'File not found' });
@@ -691,7 +653,7 @@ get '/attach/:file' => sub {
     }
 };
 
-any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
+any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
     my ( $action, $id ) = splat;
 
     if (var('login')->{is_admin})
@@ -847,7 +809,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => sub {
     $output;
 };
 
-get '/data' => sub {
+get '/data' => require_login sub {
 
     # Epochs received from the calendar module are based on the timezone of the local
     # browser. So in BST, 24th August is requested as 23rd August 23:00. Rather than

@@ -53,65 +53,31 @@ sub login($)
     }
 }
 
-sub new($)
-{   my ($class, $login) = @_;
-    my @errors;
-    $login->{username}  or push @errors, "Please enter a username";
-    $login->{email}     or push @errors, "Please enter an email address";
-    $login->{firstname} or push @errors, "Please enter a firstname";
-    $login->{surname}   or push @errors, "Please enter a surname";
-    Email::Valid->address($login->{email})
-        or push @errors, "Please enter a valid email address";
+sub exists
+{   my ($class, $username) = @_;
+    rset('Login')->search({ username => $username })->count;
+}
 
-    ouch 'invalid', "There were some errors in the data supplied", \@errors
-        if @errors;
-
-    $login->{password} = password($login->{password}) if $login->{password};
-
-    my $org_ids = delete $login->{org_ids};
-
-    my $login_id;
-    if ($login->{id})
+sub update_orgs
+{   my ($class, $username, $org_ids) = @_;
+    my $guard = schema->txn_scope_guard;
+    my @org_new = @$org_ids;
+    my ($login) = rset('Login')->search({ username => $username })->all;
+    my $login_id = $login->id;
+    my @org_old = rset('LoginOrg')->search({ login_id => $login_id })->all;
+    # Delete organisation memberships that are no longer needed
+    foreach my $org_old (@org_old)
     {
-        my $l = rset('Login')->find($login->{id})
-            or ouch 'notfound', "The requested user cannot be found";
-        $l->update($login)
-            or ouch 'dbfail', "There was a database error creating the user";
-        $login_id = $login->{id};
-    } else
-    {
-        ouch 'exists', "The username already exists"
-            if rset('Login')->search({ username => $login->{username} })->count;
-        ouch 'exists', "The email address already exists"
-            if rset('Login')->search({ email => $login->{email} })->count;
-        # Set default email settings
-        $login->{email_comment} = 1;
-        $login->{email_ticket} = 1;
-        $login_id = rset('Login')->create($login)->id
-            or ouch 'dbfail', "There was a database error when creating the user";
+        rset('LoginOrg')->search({ login_id => $login_id, org_id => $org_old->org_id })->delete
+            unless grep { $org_old->org_id == $_ } @org_new;
     }
-
-    # Update organisation membership
-    if ($org_ids)
+    # Add organisation memberships that are not already there
+    foreach my $org_new (@org_new)
     {
-        my $guard = schema->txn_scope_guard;
-        my @org_new = @$org_ids;
-        my @org_old = rset('LoginOrg')->search({ login_id => $login_id })->all;
-        # Delete organisation memberships that are no longer needed
-        foreach my $org_old (@org_old)
-        {
-            rset('LoginOrg')->search({ login_id => $login_id, org_id => $org_old->org_id })->delete
-                unless grep { $org_old->org_id == $_ } @org_new;
-        }
-        # Add organisation memberships that are not already there
-        foreach my $org_new (@org_new)
-        {
-            rset('LoginOrg')->create({ login_id => $login_id, org_id => $org_new })
-                unless grep { $org_new == $_->org_id } @org_old;
-        }
-        $guard->commit;
+        rset('LoginOrg')->create({ login_id => $login_id, org_id => $org_new })
+            unless grep { $org_new == $_->org_id } @org_old;
     }
-    1;
+    $guard->commit;
 }
 
 sub delete($)
