@@ -108,6 +108,8 @@ sub login_page_handler
     my $messages = session('messages') || undef;
     messageAdd({ success => "A password reset request has been sent if the email address
            entered was valid" }) if defined param('reset_sent');
+    messageAdd({ danger => "Username or password not valid" })
+        if defined param('login_failed');
     my $output = template login => {
         page                => 'login',
         messages            => $messages,
