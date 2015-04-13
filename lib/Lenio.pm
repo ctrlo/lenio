@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package Lenio;
 use Dancer2;
 use Dancer2::Core::Cookie;
+use JSON qw(encode_json);
 use Lenio::Task;
 use Lenio::Ticket;
 use Lenio::Site;
@@ -32,7 +33,6 @@ use Ouch;
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Extensible;
 
-set serializer => 'JSON';
 set behind_proxy => config->{behind_proxy};
 
 our $VERSION = '0.1';
@@ -829,8 +829,10 @@ get '/data' => require_login sub {
             push @tasks, $t if $t;
         }
     }
-    header "Cache-Control" => "max-age=0";
-    { success => 1, result => \@tasks };
+    _send_json ({
+        success => 1,
+        result => \@tasks
+    });
 };
 
 sub forwardHome {
@@ -852,6 +854,12 @@ sub messageAdd($) {
     my $msgs    = session 'messages';
     push @$msgs, { text => $text, type => $type };
     session 'messages' => $msgs;
+}
+
+sub _send_json
+{   header "Cache-Control" => "max-age=0, must-revalidate, private";
+    content_type 'application/json';
+    encode_json(shift);
 }
 
 true;
