@@ -364,6 +364,16 @@ sub new($)
 
 sub update($$)
 {   my ($class, $task) = @_;
+    $task->{name}
+        or ouch 'badname', "Please provide a name for the task";
+    $task->{description}
+        or ouch 'baddesc', "Please provide a description for the task";
+    $task->{period_qty}
+        or ouch 'badperiodqty', "Please specify the period frequency";
+    $task->{period_unit}
+        or ouch 'badperiodunit', "Please specify the period units";
+
+    $task->{name} = trim($task->{name});
     my $t = rset('Task')->find($task->{id})
         or ouch 'badid', "Unable to find the specified ID";
     $t->update($task)
@@ -567,6 +577,8 @@ sub calendar($$$$)
                 $count++;
                 my $ticket_id;
                 # Calculate next time it's due
+                $task->{period_qty}
+                    or ouch 'badparam', "period_qty is zero - will cause infinite loop";
                 $completed->add($period => $task->{period_qty});
                 last unless DateTime->compare($to, $completed)   > 0;
                 foreach my $d (grep { $_->{task_id} && $_->{task_id} == $task->{id} } @calendar1)
