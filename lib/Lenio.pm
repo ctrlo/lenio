@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =cut
 
 package Lenio;
+use Crypt::YAPassGen;
 use Dancer2;
 use Dancer2::Core::Cookie;
 use JSON qw(encode_json);
@@ -863,6 +864,12 @@ sub _send_json
 {   header "Cache-Control" => "max-age=0, must-revalidate, private";
     content_type 'application/json';
     encode_json(shift);
+}
+
+sub password_generator
+{
+    my $passgen  = Crypt::YAPassGen->new(algorithm  =>  'linear', length => 8);
+    $passgen->generate();
 }
 
 true;
