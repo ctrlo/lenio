@@ -180,6 +180,7 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => require_login sub {
                 }
                 else {
                     my $newuser = create_user %login, realm => 'dbic', email_welcome => 1;
+                    $username = $login{username};
                 }
             }
             if (hug)
