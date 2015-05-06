@@ -44,26 +44,26 @@ __PACKAGE__->table("login");
 =head2 username
 
   data_type: 'varchar'
-  is_nullable: 0
-  size: 45
+  is_nullable: 1
+  size: 128
 
 =head2 email
 
   data_type: 'varchar'
-  is_nullable: 0
-  size: 45
+  is_nullable: 1
+  size: 128
 
 =head2 firstname
 
   data_type: 'varchar'
   is_nullable: 1
-  size: 45
+  size: 128
 
 =head2 surname
 
   data_type: 'varchar'
   is_nullable: 1
-  size: 45
+  size: 128
 
 =head2 password
 
@@ -101,13 +101,13 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "username",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "email",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "firstname",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "surname",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "password",
   { data_type => "varchar", is_nullable => 0, size => 128 },
   "is_admin",
@@ -251,8 +251,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2015-04-12 22:31:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UJjPMVmSSI7LJgJ2eQ6VYw
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2015-04-30 15:01:52
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7bzc0KgafHk0py347aY8xg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
