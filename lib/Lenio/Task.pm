@@ -442,8 +442,10 @@ sub calendar_check
 
     my @done = rset('CheckDone')->search({
         site_id  => $site_id,
-        datetime => { '>', $dtf->format_datetime($from) },
-        datetime => { '<', $dtf->format_datetime($to)   },
+        datetime => {
+            '>', $dtf->format_datetime($from),
+            '<', $dtf->format_datetime($to),
+        },
     }, {
         prefetch => [ {'site_task' => 'task'}, 'check_items_done'],
         order_by => [qw/me.site_task_id me.datetime/],
