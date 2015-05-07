@@ -503,6 +503,7 @@ sub calendar_check
         next unless $check->{site};
         my ($done) = rset('CheckDone')->search({
             'task.id' => $check->{id},
+            'site_task.site_id' => $site_id,
         },{
             'prefetch' => { 'site_task' => 'task' },
             '+select' => { max => 'me.datetime', -as => 'last_done' },
@@ -510,6 +511,7 @@ sub calendar_check
         })->all;
 
         my $ld = $done->get_column('last_done');
+        # If not ever done, start it off from today
         my $last_done = $ld ? $dtf->parse_datetime($ld) : DateTime->now;
         my $qty  = $done->site_task->task->period_qty;
         my $unit = $done->site_task->task->period_unit."s";
