@@ -819,8 +819,9 @@ get '/data' => require_login sub {
     # browser. So in BST, 24th August is requested as 23rd August 23:00. Rather than
     # trying to convert timezones, we keep things simple and round down any "from"
     # times and round up any "to" times.
-    my $from  = DateTime->from_epoch( epoch => ( param('from') / 1000 ) )->truncate( to => 'day');
-    my $to    = DateTime->from_epoch( epoch => ( param('to') / 1000 ) );
+    my $utc_offset = param('utc_offset') * -1;
+    my $from  = DateTime->from_epoch( epoch => ( param('from') / 1000 ) )->add( minutes => $utc_offset );
+    my $to    = DateTime->from_epoch( epoch => ( param('to') / 1000 ) )->add(minutes => $utc_offset );
 
     my @tasks;
     my @sites = session('site_id')
