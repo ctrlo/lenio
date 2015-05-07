@@ -487,6 +487,32 @@ sub calendar_check
                 $previous->add( $unit => $qty );
             }
         }
+        else {
+            # It's the first in the series for this month, so fill in any
+            # previous ones not done, but only if it's been done in a
+            # previous month
+            my $first = $check->datetime->clone->subtract( $unit => $qty );
+            while (DateTime->compare(
+                $first->clone->set(hour => 0, minute => 0, second => 0),
+                $from,
+            ) > 0)
+            {
+                my $count = rset('CheckDone')->search({
+                    id => $check->id,
+                    datetime => { '<', $dtf->format_datetime($from) },
+                })->count;
+                push @calendar, {
+                    id          => $check->site_task->task->id,
+                    title       => $check->site_task->task->name,
+                    url         => "/check/".$check->site_task->task->id,
+                    start       => $first->epoch * 1000,
+                    end         => $first->epoch * 1000,
+                    class       => 'check-notdone',
+                } if $count;
+                $first->subtract( $unit => $qty );
+            }
+        }
+
         my $c = {
             id          => $check->site_task->task->id,
             title       => $check->site_task->task->name,
