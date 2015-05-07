@@ -492,14 +492,11 @@ sub calendar_check
             # previous ones not done, but only if it's been done in a
             # previous month
             my $first = $check->datetime->clone->subtract( $unit => $qty );
-            while (DateTime->compare(
-                $first->clone->set(hour => 0, minute => 0, second => 0),
-                $from,
-            ) > 0)
+            while (DateTime->compare($first, $from) >= 0)
             {
                 my $count = rset('CheckDone')->search({
-                    id => $check->id,
-                    datetime => { '<', $dtf->format_datetime($from) },
+                    site_task_id => $check->site_task_id,
+                    datetime     => { '<', $dtf->format_datetime($from) },
                 })->count;
                 push @calendar, {
                     id          => $check->site_task->task->id,
