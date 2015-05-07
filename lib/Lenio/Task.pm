@@ -468,7 +468,13 @@ sub calendar_check
         if ($previous)
         {
             $previous->add( $unit => $qty );
-            while (DateTime->compare($check->datetime, $previous) > 0)
+            # Check whether there is a check missing between this one and the previous.
+            # Round dates, otherwise a check completed at 8am one day and 10am the next
+            # will show as being not completed.
+            while (DateTime->compare(
+                $check->datetime->clone->set(hour => 0, minute => 0, second => 0),
+                $previous->clone->set(hour => 0, minute => 0, second => 0),
+            ) > 0)
             {
                 push @calendar, {
                     id          => $check->site_task->task->id,
