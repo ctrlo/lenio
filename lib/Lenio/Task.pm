@@ -518,8 +518,9 @@ sub calendar_check
         while (DateTime->compare($to, $last_done) >= 0)
         {
             # Keep adding until end of this range.
-            my $status = DateTime->compare(DateTime->now, $last_done) > 0 ? 'check-notdone' : 'check-due';
+            $last_done->add( $unit => $qty );
             next if (DateTime->compare($from, $last_done) > 0); # Last done before this range
+            my $status = DateTime->compare(DateTime->now, $last_done) > 0 ? 'check-notdone' : 'check-due';
             push @calendar, {
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
@@ -527,8 +528,7 @@ sub calendar_check
                 start       => $last_done->epoch * 1000,
                 end         => $last_done->epoch * 1000,
                 class       => $status,
-            };
-            $last_done->add( $unit => $qty );
+            } if DateTime->compare($to, $last_done) >= 0;
         }
     }
     @calendar;
