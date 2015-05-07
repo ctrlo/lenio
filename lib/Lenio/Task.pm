@@ -557,7 +557,7 @@ sub calendar_check
                 start       => $last_done->epoch * 1000,
                 end         => $last_done->epoch * 1000,
                 class       => $status,
-            } if DateTime->compare($to, $last_done) >= 0;
+            } if DateTime->compare($to, $last_done) > 0;
         }
     }
     @calendar;
