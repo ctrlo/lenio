@@ -166,10 +166,21 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => require_login sub {
                 email         => param('email'),
                 firstname     => param('firstname'),
                 surname       => param('surname'),
-                email_comment => param('email_comment') ? 1 : 0,
-                email_ticket  => param('email_ticket') ? 1 : 0,
                 is_admin      => $adm,
             );
+            if ($is_admin && $action eq 'new')
+            {
+                # Default to on
+                $login{email_comment} = 1;
+                $login{email_ticket} = 1;
+            }
+            elsif (!$is_admin)
+            {
+                # Option not presented to admins
+                $login{email_comment} = param('email_comment') ? 1 : 0;
+                $login{email_ticket}  = param('email_ticket') ? 1 : 0;
+            }
+
             if ($username)
             {
                 update_user $username, realm => 'dbic', %login;
