@@ -38,8 +38,11 @@ sub send($)
     my $org  = sprintf("%s (%s)", $site->org->name, $site->name);
     $args->{org} = $org;
 
+    # Will get undefined when args passed to template
+    my $template_name = $args->{template};
+
     my $message;
-    $template->process("$args->{template}.tt", $args, \$message)
+    $template->process("$template_name.tt", $args, \$message)
 	or error "Template process failed: " . $template->error();
     $message = autoformat $message, {all => 1, break=>break_wrap};
 
@@ -51,9 +54,9 @@ sub send($)
         );
         foreach my $user (@users)
         {
-            if ($user->email_comment && $args->{template} eq 'ticket/comment'
-                || $user->email_ticket && $args->{template} eq 'ticket/new'
-                || $user->email_ticket && $args->{template} eq ' ticket/update'
+            if ($user->email_comment && $template_name eq 'ticket/comment'
+                || $user->email_ticket && $template_name eq 'ticket/new'
+                || $user->email_ticket && $template_name eq ' ticket/update'
             ) {
                 email {
                     to      => $user->email,
