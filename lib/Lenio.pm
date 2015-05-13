@@ -206,7 +206,8 @@ any qr{^/user/?([\w]*)/?([\d]*)$} => require_login sub {
                     Lenio::Login->update_orgs($username, $org_ids);
                 }
                 my $a = $action eq 'new' ? 'added' : 'updated';
-                forwardHome({ success => "User has been successfully $a" }, 'user');
+                my $forward = $is_admin ? 'user' : '';
+                forwardHome({ success => "User has been successfully $a" }, $forward);
             }
         }
         if ($action eq 'view')
