@@ -215,13 +215,17 @@ sub check_done
             id           => $cid,
             site_task_id => $params->{site_task_id},
         }) or ouch 'badparam', "Requested ID $cid not found";
-        $done->update({ datetime => $datetime });
+        $done->update({
+            datetime => $datetime,
+            comment  => $params->{comment},
+        });
     }
     else {
         $done = rset('CheckDone')->create({
             site_task_id => $params->{site_task_id},
             login_id     => $login->{id},
             datetime     => $datetime,
+            comment      => $params->{comment},
         });
     }
 
@@ -311,13 +315,14 @@ sub check
         ],
     })->all;
 
-    my %done; my $date;
+    my %done; my $date; my $comment;
     my ($a) = $check->site_tasks;
     my $site_task_id = $a->id;
     if ($check_done_id)
     {
         my ($b) = $a->checks_done;
-        $date = $b->datetime;
+        $date    = $b->datetime;
+        $comment = $b->comment;
         foreach my $d ($b->check_items_done)
         {
             $done{$d->check_item_id} = $d->status;
@@ -338,6 +343,7 @@ sub check
         id           => $task_id,
         site_task_id => $site_task_id,
         name         => $check->name,
+        comment      => $comment,
         items        => \@items,
         date         => $date,
         exists       => $check_done_id ? 1 : 0,
