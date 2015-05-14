@@ -555,7 +555,12 @@ sub calendar_check
             # Keep adding until end of this range.
             $last_done->add( $unit => $qty );
             next if (DateTime->compare($from, $last_done) > 0); # Last done before this range
-            my $status = DateTime->compare(DateTime->now, $last_done) > 0 ? 'check-notdone' : 'check-due';
+            my $status
+                = DateTime->compare(DateTime->now, $last_done) > 0
+                ? 'check-notdone'
+                : $qty == 1 && $unit eq 'days'
+                ? 'check-due-daily'
+                : 'check-due';
             push @calendar, {
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
