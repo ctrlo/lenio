@@ -53,7 +53,7 @@
     </tr>
     <tr>
         <td><div class="check-margin check-notdone check-margin"></div>Check not done</td>
-        <td><div class="check-margin check-due"></div>Check due</td>
+        <td><div class="check-margin check-due-daily"></div>Check due</td>
         <td><div class="check-margin check-partdone"></div>Check partly done</td>
         <td><div class="check-margin check-done"></div>Check done</td>
     </tr>
