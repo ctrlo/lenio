@@ -28,6 +28,7 @@ engines:
   session:
     YAML:
       session_dir: "/tmp/dancer-sessions"
+      cookie_duration: 7200
 
 plugins:
   DBIC:
@@ -43,4 +44,26 @@ plugins:
     from: '"Sender name" <info@domain.com>'
     driver: sendmail
     type: text
+  Auth::Extensible:
+    mailer:
+      module: Mail::Message
+      options:
+        via: sendmail
+    reset_password_handler: 1
+    password_generator: Lenio::password_generator
+    mail_from: '"Bradbury Consulting" <info@bradbury-consulting.co.uk>'
+    login_page_handler: Lenio::login_page_handler
+    exit_page: '/'
+    realms:
+      dbic:
+        provider: DBIC
+        users_table: login
+        roles_table: permission
+        user_roles_table: login_permission
+        roles_role_column: name
+        roles_key: permission
+        users_pwresetcode_column: pwdreset
+        encryption_algorithm: SHA-512
+        user_valid_conditions:
+          deleted: null
 
