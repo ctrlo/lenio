@@ -34,11 +34,15 @@ sub login($)
 {   my ($class, $args) = @_;
     if ($args->{id})
     {
-        rset('Login')->find($args->{id});
+        my ($login) = rset('Login')->search({
+            'me.id'      => $args->{id},
+            'me.deleted' => undef,
+        })->all;
+        $login;
     }
     elsif ($args->{username})
     {
-        my $login = rset('Login')->search({ username => $args->{username} })
+        my $login = rset('Login')->search({ username => $args->{username}, deleted => undef })
             or ouch 'dbfail', "There was a database error when retrieving the user";
         $login->count
             or ouch 'notfound', "The requested user could not be found";
@@ -55,14 +59,14 @@ sub login($)
 
 sub exists
 {   my ($class, $username) = @_;
-    rset('Login')->search({ username => $username })->count;
+    rset('Login')->search({ username => $username, deleted => undef })->count;
 }
 
 sub update_orgs
 {   my ($class, $username, $org_ids) = @_;
     my $guard = schema->txn_scope_guard;
     my @org_new = @$org_ids;
-    my ($login) = rset('Login')->search({ username => $username })->all;
+    my ($login) = rset('Login')->search({ username => $username, deleted => undef })->all;
     my $login_id = $login->id;
     my @org_old = rset('LoginOrg')->search({ login_id => $login_id })->all;
     # Delete organisation memberships that are no longer needed
@@ -84,17 +88,23 @@ sub delete($)
 {   my ($class, $id) = @_;
     my $l = rset('Login')->find($id) or return;
     rset('LoginOrg')->search({ login_id => $l->id })->delete;
-    $l->delete;
+    $l->update({ deleted => DateTime->now });
 }
 
 sub view($)
 {   my ($class, $id) = @_;
-    rset('Login')->find($id);
+    my ($login) = rset('Login')->search({
+        'me.id'      => $id,
+        'me.deleted' => undef,
+    })->all;
+    $login;
 }
 
 sub all
 {   my $class = shift;
-    rset('Login')->search;
+    rset('Login')->search({
+        deleted => undef,
+    })->all;
 }
 
 sub hasSite($$;$)
