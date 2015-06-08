@@ -439,7 +439,7 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
     my ( $action, $id, $site_id, $date ) = splat;
 
-    my @tickets; my $task;
+    my @tickets; my $task; my $attaches;
     if ($action eq 'new' || $action eq 'view')
     {
         my $ticket;
@@ -451,6 +451,9 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
             forwardHome(
                 { danger => "You do not have permission for ticket ID $id" } )
                     unless Lenio::Login->hasSite(var('login'), $ticket->site_task->site_id);
+
+            # Get attachment summary (so as not to retrieve file content)
+            $attaches = Lenio::Ticket->attach_summary($id);
 
             if ( param('addcomment') ) {
                 my $iss = {
@@ -645,6 +648,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
         id          => $id,
         task        => $task,
         tickets     => \@tickets,
+        attaches    => $attaches,
         contractors => \@contractors,
         messages    => session('messages'),
         login       => var('login'),

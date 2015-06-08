@@ -31,6 +31,16 @@ sub view($)
     $ticket_rs->find($id);
 }
 
+sub attach_summary
+{   my ($class, $ticket_id) = @_;
+    my @attaches = rset('Attach')->search({
+        ticket_id => $ticket_id,
+    },{
+        select => [qw/id name mimetype/],
+    })->all;
+    \@attaches;
+}
+
 sub all($)
 {   my ($class, $login, $args) = @_;
     my $search = {};

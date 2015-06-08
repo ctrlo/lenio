@@ -107,8 +107,8 @@
                 [% UNLESS action == "new" %]
                 <div class="form-group">
                         <label for="attach">Attachments</label>
-                        [% IF ticket.attaches.size %]
-                            [% FOR attach IN ticket.attaches %]
+                        [% IF attaches.size %]
+                            [% FOR attach IN attaches %]
                                 <div class="well well-sm"><strong>
                                 [% attach.name %]
                                 </strong><br /><a class="btn btn-link btn-sm" href="/attach/[% attach.id %]">View</a>
