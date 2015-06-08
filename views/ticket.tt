@@ -88,7 +88,11 @@
                     <label for="comment">Comments</label>
                     [% FOR comment IN ticket.comments %]
                     <div class="well well-sm"><strong>
-                            By [% comment.login.surname %], [% comment.login.firstname %] ([% comment.datetime %])
+                            [% dt = comment.datetime %]
+                            [%# Timezone floating from DB. Set to UTC then local %]
+                            [% dt = dt.set_time_zone('UTC') %]
+                            [% dt = dt.set_time_zone('Europe/London') %]
+                            By [% comment.login.surname %], [% comment.login.firstname %] ([% dt %])
                     </strong><br />[% comment.text %]</div>
                     [% END %]
                     <textarea name="comment" id="comments" class="form-control" rows="3"></textarea>
