@@ -86,7 +86,7 @@ sub new($$)
     }
     else {
         # Stop 0000-00-00 being inserted as a date for a blank value
-        delete $ticket->{planned};
+        $ticket->{planned} = undef;
     }
 
     if ($ticket->{completed})
@@ -95,7 +95,7 @@ sub new($$)
             or ouch 'badparam', "Please enter a completed date";
     }
     else {
-        delete $ticket->{completed};
+        $ticket->{completed} = undef;
     }
 
     my $task_id = delete $ticket->{task_id} || undef; # Can be NULL when unrelated to a task
