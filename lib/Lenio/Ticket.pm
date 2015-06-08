@@ -78,7 +78,17 @@ sub all($)
         ];
     }
 
-    rset('Ticket')->search($search, {prefetch => {'site_task' => {'site' => {'org' => 'login_orgs' }}}} );
+    rset('Ticket')->search($search, {
+        prefetch => {
+            'site_task' => {
+                'site' => {
+                    'org' => 'login_orgs'
+                }
+            }
+        }
+    },{
+        order_by => 'me.id',
+    });
 }
 
 sub new($$)

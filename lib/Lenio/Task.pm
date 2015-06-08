@@ -62,7 +62,10 @@ sub summary
     my $task_rs = rset('SiteSingleTask');
     my $search  = $args->{onlysite} ? {site_id => $site} : {};
     $search->{site_check} = 0;
-    my $tasks   = $task_rs->search($search, { bind => [$site] });
+    my $tasks   = $task_rs->search($search, {
+        order_by => 'me.name',
+        bind     => [$site],
+    });
 
     my $fy;
     # Work out date to take costs from (ie the financial year)
@@ -147,6 +150,8 @@ sub site_checks
     # First get all the site checks
     my @checks = rset('Task')->search({
         site_check => 1,
+    },{
+            order_by => 'me.name',
     })->all;
 
     # Now, if site_id is specified, get all the ones
