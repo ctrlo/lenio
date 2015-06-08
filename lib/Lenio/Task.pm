@@ -90,28 +90,37 @@ sub summary
 
         if ($site)
         {
+            my @dates = (
+                completed           => {
+                    -between => [
+                        $dtf->format_datetime($fy->costfrom),
+                        $dtf->format_datetime($fy->costto),
+                    ],
+                },
+                -and => [
+                    planned             => {
+                        -between => [
+                            $dtf->format_datetime($fy->costfrom),
+                            $dtf->format_datetime($fy->costto),
+                        ],
+                    },
+                    completed => undef,
+                ],
+            );
+            # Also search for tickets without a planned date (in order to
+            # add costs), but only if currently viewed dates are this FY year.
+            push @dates, (
+                -and => [
+                    completed => undef,
+                    planned   => undef,
+                ],
+            ) if (DateTime->compare(DateTime->now, $fy->costfrom) > 0)
+                && (DateTime->compare(DateTime->now, $fy->costto) < 0);
             my $c = rset('Ticket')->search(
                 {
                     'site_task.task_id' => $task->id,
                     site_id             => $site,
-                    -or =>
-                    [
-                        completed           => {
-                            -between => [
-                                $dtf->format_datetime($fy->costfrom),
-                                $dtf->format_datetime($fy->costto),
-                            ],
-                        },
-                        -and => [
-                            planned             => {
-                                -between => [
-                                    $dtf->format_datetime($fy->costfrom),
-                                    $dtf->format_datetime($fy->costto),
-                                ],
-                            },
-                            completed => undef,
-                        ],
-                    ],
+                    -or                 => [ @dates ],
                 },{
                     join      => 'site_task',
                     '+select' => { sum => 'me.cost_planned', sum => 'me.cost_actual' },

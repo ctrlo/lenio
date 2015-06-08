@@ -29,7 +29,7 @@
                 [% IF task.ticket_planned %]
                 [% task.ticket_planned.strftime(dateformat) %]
                 [% ELSE %]
-                (not planned)
+                (no planned date)
                 [% END %]
             </td>
         </tr>
