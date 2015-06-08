@@ -90,7 +90,7 @@ __PACKAGE__->belongs_to(
   "org",
   "Lenio::Schema::Result::Org",
   { id => "org_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 site_checks_done
@@ -124,8 +124,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 22:12:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vFF63RP1qTVADjHiXQo1Qg
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BXkb7LXmKXShZCetXJuZnw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -97,7 +97,7 @@ __PACKAGE__->belongs_to(
   "check_done",
   "Lenio::Schema::Result::CheckDone",
   { id => "check_done_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 check_item
@@ -112,12 +112,12 @@ __PACKAGE__->belongs_to(
   "check_item",
   "Lenio::Schema::Result::CheckItem",
   { id => "check_item_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 22:12:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qq74ZGUki+Z7fo8VQJTWmA
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5hfbk2Vqq+jvlNU9d/uv2Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

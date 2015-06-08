@@ -90,7 +90,7 @@ __PACKAGE__->belongs_to(
   "login",
   "Lenio::Schema::Result::Login",
   { id => "login_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 permission
@@ -105,12 +105,12 @@ __PACKAGE__->belongs_to(
   "permission",
   "Lenio::Schema::Result::Permission",
   { id => "permission_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2015-04-12 22:31:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IhocuVcdLTOrl5LGKuWyJA
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gmQJ3lTduSWxZBIayuBtsA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
