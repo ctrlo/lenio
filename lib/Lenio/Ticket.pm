@@ -107,7 +107,7 @@ sub new($$)
 
     if (my $comment = delete $ticket->{comment})
     {
-        $ticket->{comments} = [{ text => $comment, datetime => \"NOW()", login_id => $login->{id} }];
+        $ticket->{comments} = [{ text => $comment, datetime => DateTime->now, login_id => $login->{id} }];
     }
 
     # site_id is in the relationship site_task, not main table. Only for create new
@@ -134,7 +134,7 @@ sub commentAdd($$$)
         ticket_id => $ticket->{id},
         text     => $ticket->{comment},
         login_id => $ticket->{login}->{id},
-        datetime => \"NOW()",
+        datetime => DateTime->now,
     }) or ouch 'dbfail', "There was a database error when adding the comment";
 }
 

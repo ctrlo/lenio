@@ -30,6 +30,8 @@ use Ouch;
 use Lenio::Schema;
 use Lenio::FY;
 
+my $dtf = schema->storage->datetime_parser;
+
 sub site($)
 {   my ($class, $id) = @_;
     my $task_rs = rset('Task');
@@ -67,7 +69,6 @@ sub summary
     $fy = Lenio::FY->new($site, $args->{fy}) if $site;
 
     my @tasks;
-    my $dtf = schema->storage->datetime_parser;
     while (my $task = $tasks->next)
     {
         if (defined $args->{global})
@@ -206,7 +207,7 @@ sub check_done
         $datetime or ouch 'badparam', "Supplied date $datetime is invalid";
     }
 
-    $datetime = \"NOW()" unless $datetime;
+    $datetime = DateTime->now unless $datetime;
 
     my $done;
     if (my $cid = $params->{check_done_id})
@@ -407,6 +408,7 @@ sub overdue($;$)
         my $s = ref $site eq 'ARRAY' ? [ map { $_->id } @$site ] : $site;
         $search->{'site.id'} = $s if $s;
 
+        my $now = $dtf->format_date(DateTime->now);
         my @t = $task_rs->search($search
                 ,{ prefetch   => { 'site_tasks' => ['ticket', {'site' => 'org' } ] },
                    '+select'  => [
@@ -418,7 +420,7 @@ sub overdue($;$)
                                  ,'site_tasks.site_id'
                                  ],
                    having     => { 'ticket_completed' => [ undef
-                                             , { '<', \"DATE_SUB(NOW(), INTERVAL period_qty $interval)" }
+                                             , { '<', \"DATE_SUB('$now', INTERVAL period_qty $interval)" }
                                              ] }
             }
         )->all;
@@ -443,8 +445,6 @@ sub calendar_check
 {   my ($self, $from, $to, $site_id, $login) = @_;
 
     my @calendar;
-
-    my $dtf = schema->storage->datetime_parser;
 
     my @done = rset('CheckDone')->search({
         site_id  => $site_id,
