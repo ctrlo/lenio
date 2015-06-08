@@ -85,8 +85,7 @@ sub all($)
                     'org' => 'login_orgs'
                 }
             }
-        }
-    },{
+        },
         order_by => 'me.id',
     });
 }
