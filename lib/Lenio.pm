@@ -811,7 +811,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
     }
     else
     {
-        my $csv = param('csv') || ""; # prevent warnings
+        my $csv = (var('login')->{site} && param('csv')) || ""; # prevent warnings. not for all sites
         # Get all the global tasks.
         @tasks = Lenio::Task->summary(session ('site_id') || undef, {global => 1, fy => session('fy')});
         if ($csv eq 'service')
