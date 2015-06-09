@@ -503,7 +503,7 @@ sub calendar_check
                     start       => $previous->epoch * 1000,
                     end         => $previous->epoch * 1000,
                     class       => 'check-notdone',
-                };
+                } unless $previous->day_of_week > 5; # Not weekend
                 $previous->add( $unit => $qty );
             }
         }
@@ -525,7 +525,7 @@ sub calendar_check
                     start       => $first->epoch * 1000,
                     end         => $first->epoch * 1000,
                     class       => 'check-notdone',
-                } if $count;
+                } if $count && $first->day_of_week < 6; # Not weekend
                 $first->subtract( $unit => $qty );
             }
         }
@@ -538,7 +538,8 @@ sub calendar_check
             end         => $check->datetime->epoch * 1000,
             class       => $status,
         };
-        push @calendar, $c;
+        # Don't add if it's a check not done and it's the weekend
+        push @calendar, $c unless $status eq 'check-notdone' && $check->datetime->day_of_week > 5;
         $last_id = $check->site_task_id;
         $previous = $check->datetime;
     }
@@ -582,7 +583,7 @@ sub calendar_check
                 start       => $last_done->epoch * 1000,
                 end         => $last_done->epoch * 1000,
                 class       => $status,
-            } if DateTime->compare($to, $last_done) > 0;
+            } if DateTime->compare($to, $last_done) > 0 && $last_done->day_of_week < 6; # Not weekend
         }
     }
     @calendar;
