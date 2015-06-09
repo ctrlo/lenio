@@ -90,6 +90,7 @@ sub summary
         $t->{site_task_id} = $task->site_task_id;
         $t->{global}      = $task->global;
         $t->{is_extant}   = $task->is_extant == -1 ? 1 : 0;
+        $t->{strike}      = $site && (!$task->site_task_id || !$t->{is_extant});
 
         if ($site)
         {

@@ -30,6 +30,7 @@ use Lenio::Notice;
 use Lenio::Contractor;
 use Lenio::Email;
 use Ouch;
+use Text::CSV;
 
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Extensible;
@@ -807,14 +808,69 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
     }
     else
     {
-        # Get all the local tasks
-        @tasks_local = Lenio::Task->summary(session ('site_id') || undef, {global => 0, onlysite => 1, fy => session('fy')});
+        my $csv = param('csv') || ""; # prevent warnings
         # Get all the global tasks.
         @tasks = Lenio::Task->summary(session ('site_id') || undef, {global => 1, fy => session('fy')});
-        # Get all the site checks
-        @site_checks = Lenio::Task->site_checks(session ('site_id') || undef);
+        if ($csv eq 'service')
+        {
+            my $csv = Text::CSV->new;
+            my @headings = qw/task applicable frequency_qty frequency_unit planned last_done cost_planned cost_actual/;
+            $csv->combine(@headings);
+            my $csvout = $csv->string."\n";
+            foreach my $task (@tasks)
+            {
+                my @row = (
+                    $task->{name},
+                    $task->{strike} ? 'No' : 'Yes',
+                    $task->{period_qty},
+                    $task->{period_unit},
+                    $task->{planned} && $task->{planned}->ymd,
+                    $task->{completed} && $task->{completed}->ymd,
+                    $task->{cost_planned},
+                    $task->{cost_actual}
+                );
+                $csv->combine(@row);
+                $csvout .= $csv->string."\n";
+            }
+            my $now = DateTime->now->ymd;
+            my $site = var('login')->{site}->org->name;
+            return send_file(
+                \$csvout,
+                content_type => 'text/csv',
+                filename     => "$site service items $now.csv"
+            );
+        }
+
         # Get any adhoc tasks
         @adhocs = Lenio::Ticket->all(var('login'), { site_id => session ('site_id'), adhoc_only => 1, fy => session('fy') });
+        if ($csv eq 'reactive')
+        {
+            my $csv = Text::CSV->new;
+            my @headings = qw/title cost_planned cost_actual/;
+            $csv->combine(@headings);
+            my $csvout = $csv->string."\n";
+            foreach my $adhoc (@adhocs)
+            {
+                my @row = (
+                    $adhoc->name,
+                    $adhoc->cost_planned,
+                    $adhoc->cost_actual,
+                );
+                $csv->combine(@row);
+                $csvout .= $csv->string."\n";
+            }
+            my $now = DateTime->now->ymd;
+            my $site = var('login')->{site}->org->name;
+            return send_file(
+                \$csvout,
+                content_type => 'text/csv',
+                filename     => "$site reactive $now.csv"
+            );
+        }
+        # Get all the local tasks
+        @tasks_local = Lenio::Task->summary(session ('site_id') || undef, {global => 0, onlysite => 1, fy => session('fy')});
+        # Get all the site checks
+        @site_checks = Lenio::Task->site_checks(session ('site_id') || undef);
         $action = '';
     }
 

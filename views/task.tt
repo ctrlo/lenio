@@ -57,7 +57,12 @@
 [% ELSE %]
     [% IF site_id OR login.is_admin %]
         <h3>Service items
-	[% IF login.site %]([% login.site.org.name %] - [% login.site.name %])[% ELSE %](All sites)[% END %]
+	[% IF login.site %]
+            ([% login.site.org.name %] - [% login.site.name %])
+            <small><a href="?csv=service">Download</a></small>
+        [% ELSE %]
+            (All sites)
+        [% END %]
 	</h3>
         <div class="row">
             <div class="col-md-8">
@@ -97,7 +102,7 @@
 
             [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
             [% FOR task IN tasks %]
-                [% IF site_id AND (NOT task.site_task_id OR NOT task.is_extant) %][% strike = 'class="strike"' %][% ELSE %][% strike = '' %][% END %]
+                [% IF task.strike %][% strike = 'class="strike"' %][% ELSE %][% strike = '' %][% END %]
                 <tr [% strike %]>
                     [% IF login.is_admin AND login.site.id %]
                         <td>
@@ -225,7 +230,9 @@
     [% END %]
     [% IF site_id %]
 
-        <h3>Reactive maintenance and quotes</h3>
+        <h3>Reactive maintenance and quotes
+            <small><a href="?csv=reactive">Download</a></small>
+        </h3>
         <table class="table table-striped">
             [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
             <tr>
