@@ -82,6 +82,12 @@ __PACKAGE__->table("ticket");
   is_nullable: 1
   size: [10,2]
 
+=head2 local_only
+
+  data_type: 'smallint'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -101,6 +107,8 @@ __PACKAGE__->add_columns(
   { data_type => "decimal", is_nullable => 1, size => [10, 2] },
   "cost_actual",
   { data_type => "decimal", is_nullable => 1, size => [10, 2] },
+  "local_only",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -183,8 +191,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TL08cGzz/cjuJXU1riFcag
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-09 10:25:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4nUUbU5VN4lI9K26qKpK/Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

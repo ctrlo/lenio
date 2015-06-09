@@ -547,6 +547,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
                 contractor_id  => param('contractor'),
                 cost_planned   => param('cost_planned'),
                 cost_actual    => param('cost_actual'),
+                local_only     => param('local_only'),
                 completed      => $completed,
                 planned        => $planned,
             };
@@ -557,7 +558,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
             {
                 forwardHome(
                     { danger => 'You do not have permission to edit this ticket' }
-                ) unless var('login')->{is_admin} || $ticket->site_task->task->global == 0;
+                ) unless var('login')->{is_admin} || $ticket->local_only || $ticket->site_task->task->global == 0;
                 $iss->{id} = $id;
             }
             else {
@@ -595,8 +596,13 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
                              planned     => param('planned'),
                              completed   => param('completed'),
                            };
-                Lenio::Email->send($args)
-                    unless $t->site_task->task && $t->site_task->task->global == 0; # Don't email local tasks
+                # Assume send update to admin
+                my $send_email = 1;
+                # Do not send email update if new ticket and local, or is local_only and not changed
+                $send_email = 0 if ((!$ticket && $t->local_only) || ($ticket && $ticket->local_only == 1 && $t->local_only == 1));
+                # Send email update if not local site task
+                $send_email = 0 if ($t->site_task->task && $t->site_task->task->global == 0);
+                Lenio::Email->send($args) if $send_email;
                 forwardHome(
                     { success => "Ticket has been successfully $status" }, 'ticket');
             }

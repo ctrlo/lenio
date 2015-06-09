@@ -6,7 +6,7 @@
     [% END %]
     [% ticket = tickets.last %]
 
-    [% UNLESS action == "new" OR login.is_admin OR ticket.site_task.task.global == 0 %]
+    [% UNLESS action == "new" OR login.is_admin OR ticket.site_task.task.global == 0 OR ticket.local_only %]
         [% readonly = "readonly" %]
     [% END %]
     <form role="form" method="post">
@@ -31,6 +31,14 @@
 			    [% END %]
                             <option value="[% site.id %]" [% sel %]>[% site.org.name %] ([% site.name %])</option>
                         [% END %]
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="local_only">Actionee</label>
+                    <select class="form-control" id="local_only" name="local_only" [% readonly %]>
+                        [% IF ticket.local_only %][% sel_local = "selected" %][% ELSE %][% sel_external = "selected" %][% END %]
+                        <option value="0" [% sel_external %]>To be rectified by external contractor</option>
+                        <option value="1" [% sel_local %]>Site to rectify locally</option>
                     </select>
                 </div>
                 [% IF (NOT action == "new") OR ticket.site_task.task.global == 0 OR login.is_admin %]
