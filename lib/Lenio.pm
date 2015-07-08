@@ -593,7 +593,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
                 my $args = { login       => var('login'),
                              site_id     => param('site_id'),
                              template    => $template,
-                             url         => "/ticket/$action/".$t->id,
+                             url         => "/ticket/view/".$t->id,
                              name        => $t->name,
                              subject     => $subject,
                              description => $t->description,
