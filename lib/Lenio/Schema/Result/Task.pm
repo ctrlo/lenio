@@ -156,17 +156,19 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 19:24:09
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WVfOtfrtfAKL9fmyassgWg
 
-__PACKAGE__->has_many(
-  "site_single_tasks",
-  "Lenio::Schema::Result::SiteTask",
-  sub {
+__PACKAGE__->load_components(qw(ParameterizedJoinHack));
+__PACKAGE__->parameterized_has_many(
+  site_single_tasks => 'Lenio::Schema::Result::SiteTask',
+  [ [ qw(site_id) ], sub {
       my $args = shift;
-      return {
-        "$args->{foreign_alias}.task_id" => { -ident => "$args->{self_alias}.id" },
-        "$args->{foreign_alias}.site_id" => { '=', "1" },
-      };
-  },
-  { cascade_copy => 0, cascade_delete => 0 },
+      +{
+        "$args->{foreign_alias}.task_id" =>
+          { -ident => "$args->{self_alias}.id" },
+        "$args->{foreign_alias}.site_id" =>
+          $_{site_id}
+      }
+    }
+  ]
 );
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

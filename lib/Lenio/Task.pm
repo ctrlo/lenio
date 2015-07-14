@@ -59,12 +59,38 @@ sub delete($)
 sub summary
 {   my ($self, $site, $args) = @_;
 
-    my $task_rs = rset('SiteSingleTask');
-    my $search  = $args->{onlysite} ? {site_id => $site} : {};
-    $search->{site_check} = 0;
-    my $tasks   = $task_rs->search($search, {
+    my $task_rs = rset('Task');
+
+    my $tasks = rset('Task')->with_parameterized_join(
+        site_single_tasks => {
+            site_id => $site
+        }
+    )->search({
+        site_check        => 0,
+    }, {
         order_by => 'me.name',
-        bind     => [$site],
+        group_by => 'me.id',
+        prefetch => { site_single_tasks => [qw/site ticket/] },
+        select => [
+            'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global', 'me.site_check',
+            'site_single_tasks.site_id', 'site_single_tasks.id',
+            {
+                max => 'ticket.completed',
+                -as => 'completed'
+            }, {
+                max => 'ticket.planned',
+                -as => 'planned'
+            }, {
+                sum => 'ticket.cost_planned',
+                -as => 'cost_planned'
+            }, {
+                sum => 'ticket.cost_actual',
+                -as => 'cost_actual'
+            }, {
+                min => \"IFNULL(ticket_id, -1)",
+                -as => 'is_extant'
+            },
+        ]
     });
 
     my $fy;
@@ -87,10 +113,11 @@ sub summary
             if $task->get_column('completed');
         $t->{planned}     = $dtf->parse_date($task->get_column('planned'))
             if $task->get_column('planned');
-        $t->{site_task_id} = $task->site_task_id;
+        my ($site_single_task) = $task->site_single_tasks->all;
+        $t->{site_task_id} = $site_single_task ? $site_single_task->id : undef;
         $t->{global}      = $task->global;
-        $t->{is_extant}   = $task->is_extant == -1 ? 1 : 0;
-        $t->{strike}      = $site && (!$task->site_task_id || !$t->{is_extant});
+        $t->{is_extant}   = $task->get_column('is_extant') == -1 ? 1 : 0;
+        $t->{strike}      = $site && (!$t->{site_task_id} || !$t->{is_extant});
 
         if ($site)
         {
