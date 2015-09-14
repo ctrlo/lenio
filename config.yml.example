@@ -24,8 +24,6 @@ lenio:
   email_from: '"Email from" <from@example.com>' # "from" header
   email_sender: 'sender@example.com' # "sender", if different
 
-siteurl: "http://demo.lenio.co.uk"
-
 engines:
   session:
     YAML:

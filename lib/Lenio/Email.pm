@@ -30,7 +30,7 @@ sub send($)
 
     my $login = $args->{login} or return;
     my $site_id = $args->{site_id} or return;
-    $args->{siteurl} = config->{siteurl};
+    $args->{siteurl} = request->uri_base;
 
     my $template = Template->new
        ({INCLUDE_PATH => config->{lenio}->{emailtemplate}});
