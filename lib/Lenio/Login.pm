@@ -20,12 +20,10 @@ package Lenio::Login;
 
 use Dancer2 ':script';
 use Dancer2::Plugin::DBIC qw(schema resultset rset);
-use Dancer2::Plugin::Emailesque;
 use Ouch;
 use String::Random;
 use Text::Autoformat qw(autoformat break_wrap);
 use Crypt::SaltedHash;
-use Email::Valid;
 schema->storage->debug(1);
 
 use Lenio::Schema;
@@ -152,29 +150,6 @@ sub resetProcess($$)
     my $password = password($args->{password});
     return 0 if $login->update({ password => $password, pwdreset => undef });
     ouch 'dbfail', "Failed to update the new password in the database";
-}
-
-sub resetRequest($)
-{   my ($class, $email) = @_;
-    $email or return;
-    my $random = String::Random->new;
-    my $reset  = $random->randregex('[A-Za-z]{32}');
-    my $login  = rset('Login')->search({ email => $email }) or return;
-    $login->update({ pwdreset => $reset }) or return;
-    my $link    = config->{siteurl}."/login?reset=$reset";
-    my $message = <<__MSG;
-A request to reset your Lenio password was recently received.
-Please use the following link to reset the password: $link
-
-If you did not make this request, please ignore and delete this email.
-__MSG
-    $message = autoformat $message, {all => 1, break=>break_wrap};
-    email {
-        to      => $email,
-        subject => "Lenio password reset request",
-        message => $message,
-    };
-    return 1; # For some reason, email() does not return true on success
 }
 
 # Returns an encrypted password

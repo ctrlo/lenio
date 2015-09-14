@@ -19,9 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package Lenio::Email;
 
 use Dancer2 ':script';
-use Dancer2::Plugin::Emailesque;
 use Dancer2::Plugin::DBIC qw(schema resultset rset);
 schema->storage->debug(1);
+use Mail::Message;
+use Mail::Message::Field::Address;
 use Text::Autoformat qw(autoformat break_wrap);
 
 sub send($)
@@ -58,11 +59,11 @@ sub send($)
                 || $user->email_ticket && $template_name eq 'ticket/new'
                 || $user->email_ticket && $template_name eq ' ticket/update'
             ) {
-                email {
+                _email(
                     to      => $user->email,
                     subject => $args->{subject}.$org,
                     message => $message,
-                }
+                );
             }
         }
     }
@@ -70,13 +71,33 @@ sub send($)
     {
         foreach my $admin (rset('Login')->search({ is_admin => 1 }))
         {
-            email {
+            _email(
                 to      => $admin->email,
                 subject => $args->{subject}.$org,
                 message => $message
-            };
+            );
         }
     }
+}
+
+sub _email
+{   my (%options) = @_;
+    my $from = Mail::Message::Field::Address->parse(config->{lenio}->{email_from});
+    my $sender = config->{lenio}->{email_sender}
+        ? Mail::Message::Field::Address->parse(config->{lenio}->{email_sender})
+        : $from;
+    Mail::Message->build(
+        To             => $options{to},
+        From           => $from,
+        Sender         => $sender,
+        'Return-Path'  => $sender->address,
+        'Content-Type' => 'text/plain',
+        Subject        => $options{subject},
+        data           => $options{message},
+    )->send(
+        via              => 'sendmail',
+        sendmail_options => [-f => $sender->address],
+    );
 }
 
 1;
