@@ -624,7 +624,29 @@ sub calendar($$$$)
     my @calendar1; my @calendar2;
 
     my $ticket_rs = rset('Ticket');
-    my @tickets = $ticket_rs->search({ site_id => $site }, {prefetch => {'site_task' => 'task'}});
+    my @tickets = $ticket_rs->search(
+        {
+            -or => [
+                completed           => {
+                    -between => [
+                        $dtf->format_datetime($from),
+                        $dtf->format_datetime($to),
+                    ],
+                },
+                planned             => {
+                    -between => [
+                        $dtf->format_datetime($from),
+                        $dtf->format_datetime($to),
+                    ],
+                },
+            ],
+            site_id => $site
+        },{
+            prefetch => {
+                'site_task' => 'task'
+            }
+        }
+    );
     foreach my $ticket (@tickets)
     {
         # Skip if logged in as admin and it's a local site task
