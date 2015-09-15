@@ -52,6 +52,12 @@ sub all($)
     {
         $search->{completed} = undef;
     }
+    if (defined $args->{task_tickets})
+    {
+        $search->{task_id} = $args->{task_tickets}
+            ? { '!=' => undef }
+            : undef;
+    }
     elsif ($args->{fy} && $args->{site_id})
     {
         # Work out date to take costs from (ie the financial year)

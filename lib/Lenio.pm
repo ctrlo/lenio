@@ -443,6 +443,21 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
     my ( $action, $id, $site_id, $date ) = splat;
 
+    if (defined param('task_tickets'))
+    {
+        my $tt = param('task_tickets');
+        my $task_tickets = $tt eq '1'
+            ? 1
+            : $tt eq '0'
+            ? 0
+            : undef;
+        session task_tickets => $task_tickets;
+    }
+    elsif (!exists session->{task_tickets})
+    {
+        session 'task_tickets' => 0; # Default to only reactionary
+    }
+
     my @tickets; my $task; my $attaches;
     if ($action eq 'new' || $action eq 'view')
     {
@@ -647,22 +662,24 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
             site_id          => session ('site_id'),
             uncompleted_only => $uncompleted_only,
             task_id          => $task_id,
+            task_tickets     => session('task_tickets'),
         });
         $task = Lenio::Task->view($task_id) if $task_id;
     }
 
     my @contractors = Lenio::Contractor->all;
     my $output = template 'ticket' => {
-        action      => $action,
-        dateformat  => config->{lenio}->{dateformat},
-        id          => $id,
-        task        => $task,
-        tickets     => \@tickets,
-        attaches    => $attaches,
-        contractors => \@contractors,
-        messages    => session('messages'),
-        login       => var('login'),
-        page        => 'ticket'
+        action       => $action,
+        dateformat   => config->{lenio}->{dateformat},
+        id           => $id,
+        task         => $task,
+        tickets      => \@tickets,
+        attaches     => $attaches,
+        contractors  => \@contractors,
+        task_tickets => session('task_tickets'),
+        messages     => session('messages'),
+        login        => var('login'),
+        page         => 'ticket'
     };
     session 'messages' => [];
     $output;
