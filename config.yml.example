@@ -40,6 +40,7 @@ plugins:
       options:
         RaiseError: 1
         PrintError: 1
+        mysql_enable_utf8: 1
   Auth::Extensible:
     mailer:
       module: Mail::Message
