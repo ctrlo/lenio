@@ -705,7 +705,7 @@ sub calendar($$$$)
                 $newtask->{due} = $completed->clone;
                 $newtask->{task_id} = $task->{id};
                 $newtask->{overdue} = 1 if DateTime->compare($task->{completed}->clone->add($period => $task->{period_qty}), DateTime->now) < 0; 
-                push @calendar2, $newtask if DateTime->compare($completed, $from) > 0;
+                push @calendar2, $newtask if DateTime->compare($completed, $from) >= 0;
             }
         }
     }
