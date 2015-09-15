@@ -24,6 +24,7 @@ schema->storage->debug(1);
 use Mail::Message;
 use Mail::Message::Field::Address;
 use Text::Autoformat qw(autoformat break_wrap);
+use utf8;
 
 sub send($)
 {   my ($class, $args) = @_;
@@ -86,14 +87,18 @@ sub _email
     my $sender = config->{lenio}->{email_sender}
         ? Mail::Message::Field::Address->parse(config->{lenio}->{email_sender})
         : $from;
-    Mail::Message->build(
+
+    utf8::decode($options{message});
+    my $body = Mail::Message::Body::Lines->new(
+        data => $options{message},
+    );
+
+    Mail::Message->buildFromBody(
+        $body,
         To             => $options{to},
         From           => $from,
         Sender         => $sender,
-        'Return-Path'  => $sender->address,
-        'Content-Type' => 'text/plain',
         Subject        => $options{subject},
-        data           => $options{message},
     )->send(
         via              => 'sendmail',
         sendmail_options => [-f => $sender->address],
