@@ -769,6 +769,19 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
             { danger => "You do not have permission for service item $id" } )
                 unless $task->global || Lenio::Login->hasSite(var('login'), @sites);
 
+        if ( var('login')->{is_admin} && param('tasktype_add') )
+        {
+            eval { Lenio::Task->tasktype_add(param 'tasktype_name') };
+            if (hug)
+            {
+                messageAdd( { danger => bleep } );
+            }
+            else {
+                forwardHome(
+                    { success => 'Task type has been added' }, "task/view/$id" );
+            }
+        }
+
         if ( param('submit') ) {
             forwardHome(
                 { danger => 'You do not have permission to edit this item' } )
@@ -778,6 +791,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
                 id          => $id,
                 name        => param('name'),
                 description => param('description'),
+                tasktype_id => param('tasktype_id'),
                 period_qty  => param('period_qty'),
                 period_unit => param('period_unit'),
             };
@@ -902,6 +916,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
         site_checks => \@site_checks,
         tasks       => \@tasks,
         tasks_local => \@tasks_local,
+        tasktypes   => [Lenio::Task->tasktypes],
         adhocs      => \@adhocs,
         messages    => session('messages'),
         login       => var('login'),

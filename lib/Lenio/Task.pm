@@ -68,9 +68,12 @@ sub summary
             site_id => $site
         }
     )->search($search, {
-        order_by => 'me.name',
+        order_by => ['tasktype.name', 'me.name'],
         group_by => 'me.id',
-        prefetch => { site_single_tasks => [qw/site ticket/] },
+        prefetch => [
+            'tasktype',
+            { site_single_tasks => [qw/site ticket/] },
+        ],
         select => [
             'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global', 'me.site_check',
             'site_single_tasks.site_id', 'site_single_tasks.id',
@@ -116,6 +119,7 @@ sub summary
         my ($site_single_task) = $task->site_single_tasks->all;
         $t->{site_task_id} = $site_single_task ? $site_single_task->id : undef;
         $t->{global}      = $task->global;
+        $t->{tasktype}    = $task->tasktype->name if $task->tasktype;
         $t->{is_extant}   = $task->get_column('is_extant') == -1 ? 1 : 0;
         $t->{strike}      = $site && (!$t->{site_task_id} || !$t->{is_extant});
 
@@ -421,12 +425,28 @@ sub update($$)
         or ouch 'badperiodqty', "Please specify the period frequency";
     $task->{period_unit}
         or ouch 'badperiodunit', "Please specify the period units";
+    $task->{tasktype_id} = undef unless $task->{tasktype_id}; # Empty string from form
 
     $task->{name} = trim($task->{name});
     my $t = rset('Task')->find($task->{id})
         or ouch 'badid', "Unable to find the specified ID";
     $t->update($task)
         or ouch 'dbfail', "There was a database error when updating the task";
+}
+
+sub tasktype_add
+{   my ($class, $name) = @_;
+    rset('Tasktype')->create({
+        name => $name,
+    });
+}
+
+sub tasktypes
+{   my ($class, $name) = @_;
+    my @all = rset('Tasktype')->search({},{
+        order_by => 'name',
+    })->all;
+    @all;
 }
 
 sub overdue($;$)
