@@ -197,9 +197,10 @@
     </p>
     <div class="row">
         <div class="col-md-8">
-            <h3>Existing tickets</h3>
+            <h3>Existing tickets[% IF task %] ([% task.name %])[% END %]</h3>
         </div>
         <div class="col-md-4">
+            [% UNLESS task %]
             <form method="get">
                 <select class="form-control" name="task_tickets" onchange="this.form.submit()">
                     <option value="" [% IF task_tickets.defined %]selected[% END %]>Show all tickets</option>
@@ -207,6 +208,7 @@
                     <option value="1" [% IF task_tickets == 1 %]selected[% END %]>Show only tickets related to tasks</option>
                 </select>
             </form>
+            [% END %]
         </div>
     </div>
     <table class="table table-striped">

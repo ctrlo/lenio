@@ -662,7 +662,7 @@ any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
             site_id          => session ('site_id'),
             uncompleted_only => $uncompleted_only,
             task_id          => $task_id,
-            task_tickets     => session('task_tickets'),
+            task_tickets     => param('task') ? undef : session('task_tickets'),
         });
         $task = Lenio::Task->view($task_id) if $task_id;
     }
