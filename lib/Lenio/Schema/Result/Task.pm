@@ -75,6 +75,12 @@ __PACKAGE__->table("task");
   default_value: 0
   is_nullable: 0
 
+=head2 tasktype_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -92,6 +98,8 @@ __PACKAGE__->add_columns(
   { data_type => "smallint", default_value => 1, is_nullable => 0 },
   "site_check",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "tasktype_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -152,9 +160,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 tasktype
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-09-06 19:24:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WVfOtfrtfAKL9fmyassgWg
+Type: belongs_to
+
+Related object: L<Lenio::Schema::Result::Tasktype>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "tasktype",
+  "Lenio::Schema::Result::Tasktype",
+  { id => "tasktype_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mrxO7r3zukvdTmr3R5FuOg
 
 __PACKAGE__->load_components(qw(ParameterizedJoinHack));
 __PACKAGE__->parameterized_has_many(

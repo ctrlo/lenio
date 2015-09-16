@@ -44,13 +44,13 @@ __PACKAGE__->table("login");
 =head2 username
 
   data_type: 'varchar'
-  is_nullable: 1
+  is_nullable: 0
   size: 128
 
 =head2 email
 
   data_type: 'varchar'
-  is_nullable: 1
+  is_nullable: 0
   size: 128
 
 =head2 firstname
@@ -107,9 +107,9 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "username",
-  { data_type => "varchar", is_nullable => 1, size => 128 },
+  { data_type => "varchar", is_nullable => 0, size => 128 },
   "email",
-  { data_type => "varchar", is_nullable => 1, size => 128 },
+  { data_type => "varchar", is_nullable => 0, size => 128 },
   "firstname",
   { data_type => "varchar", is_nullable => 1, size => 128 },
   "surname",
@@ -221,24 +221,9 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 site_checks_done
 
-Type: has_many
-
-Related object: L<Lenio::Schema::Result::SiteCheckDone>
-
-=cut
-
-__PACKAGE__->has_many(
-  "site_checks_done",
-  "Lenio::Schema::Result::SiteCheckDone",
-  { "foreign.login_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 16:10:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8n+cV6tIA1Tvfv/bt3ZzSg
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cv++JIacEgBu3PcKeqElCw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
