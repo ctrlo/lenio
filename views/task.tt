@@ -150,8 +150,8 @@
                     </td>
                     <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                     [% IF site_id %]
-                        <td>[% task.planned.strftime(dateformat) %]</td>
-                        <td>
+                        <td style="white-space:nowrap">[% task.planned.strftime(dateformat) %]</td>
+                        <td style="white-space:nowrap">
                             [% IF task.completed %]
                             [% task.completed.strftime(dateformat) %]
                             [% ELSE %]
