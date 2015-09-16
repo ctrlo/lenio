@@ -61,13 +61,13 @@ sub summary
 
     my $task_rs = rset('Task');
 
+    my $search  = { site_check => 0 };
+    $search->{site_id} = $site if $args->{onlysite};
     my $tasks = rset('Task')->with_parameterized_join(
         site_single_tasks => {
             site_id => $site
         }
-    )->search({
-        site_check        => 0,
-    }, {
+    )->search($search, {
         order_by => 'me.name',
         group_by => 'me.id',
         prefetch => { site_single_tasks => [qw/site ticket/] },
