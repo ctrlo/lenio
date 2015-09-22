@@ -20,11 +20,11 @@ package Lenio::Email;
 
 use Dancer2 ':script';
 use Dancer2::Plugin::DBIC qw(schema resultset rset);
-schema->storage->debug(1);
+use Encode qw(decode encode);
 use Mail::Message;
 use Mail::Message::Field::Address;
 use Text::Autoformat qw(autoformat break_wrap);
-use utf8;
+schema->storage->debug(1);
 
 sub send($)
 {   my ($class, $args) = @_;
@@ -88,10 +88,14 @@ sub _email
         ? Mail::Message::Field::Address->parse(config->{lenio}->{email_sender})
         : $from;
 
-    utf8::decode($options{message});
     my $body = Mail::Message::Body::Lines->new(
-        data => $options{message},
-    );
+        charset  => 'utf8',
+        mimetype => 'text/plain',
+        data     => encode(utf8 => $options{message}),
+    )->encode(
+       transfer_encoding => 'Quoted-printable',
+       charset           => 'utf8',
+   );
 
     Mail::Message->buildFromBody(
         $body,
