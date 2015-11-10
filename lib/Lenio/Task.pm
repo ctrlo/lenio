@@ -764,12 +764,12 @@ sub calPopulate($$)
         if ( $task->{completed} ) {
             $t->{class} = 'event-success';
             $t->{start} = $task->{completed}->epoch * 1000;
-            $t->{end}   = $task->{completed}->epoch * 1000 + 864000;
+            $t->{end}   = $task->{completed}->epoch * 1000;
         }
         else {
             $t->{class} = $task->{task_id} ? 'event-info' : 'event-special';
             $t->{start} = $task->{planned}->epoch * 1000;
-            $t->{end}   = $task->{planned}->epoch * 1000 + 86400;
+            $t->{end}   = $task->{planned}->epoch * 1000;
         }
 
     }
