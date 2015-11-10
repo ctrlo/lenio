@@ -503,6 +503,10 @@ sub overdue($;$)
     @tasks;
 }
 
+sub _round_to_day
+{   shift->clone->set(hour => 0, minute => 0, second => 0);
+}
+
 sub calendar_check
 {   my ($self, $from, $to, $site_id, $login) = @_;
 
@@ -540,16 +544,16 @@ sub calendar_check
             # Round dates, otherwise a check completed at 8am one day and 10am the next
             # will show as being not completed.
             while (DateTime->compare(
-                $check->datetime->clone->set(hour => 0, minute => 0, second => 0),
-                $previous->clone->set(hour => 0, minute => 0, second => 0),
+                _round_to_day($check->datetime),
+                _round_to_day($previous),
             ) > 0)
             {
                 push @calendar, {
                     id          => $check->site_task->task->id,
                     title       => $check->site_task->task->name,
                     url         => "/check/".$check->site_task->task->id,
-                    start       => $previous->epoch * 1000,
-                    end         => $previous->epoch * 1000,
+                    start       => _round_to_day($previous)->epoch * 1000,
+                    end         => _round_to_day($previous)->epoch * 1000,
                     class       => 'check-notdone',
                 } unless $previous->day_of_week > 5; # Not weekend
                 $previous->add( $unit => $qty );
@@ -570,20 +574,25 @@ sub calendar_check
                     id          => $check->site_task->task->id,
                     title       => $check->site_task->task->name,
                     url         => "/check/".$check->site_task->task->id,
-                    start       => $first->epoch * 1000,
-                    end         => $first->epoch * 1000,
+                    start       => _round_to_day($first)->epoch * 1000,
+                    end         => _round_to_day($first)->epoch * 1000,
                     class       => 'check-notdone',
                 } if $count && $first->day_of_week < 6; # Not weekend
                 $first->subtract( $unit => $qty );
             }
         }
 
+        # Only show actual time if check is completed. Otherwise
+        # show just the day
+        my $ctime = $status eq 'check-notdone'
+                  ? _round_to_day($check->datetime)->epoch
+                  : $check->datetime->epoch;
         my $c = {
             id          => $check->site_task->task->id,
             title       => $check->site_task->task->name,
             url         => "/check/".$check->site_task->task->id."/".$check->id,
-            start       => $check->datetime->epoch * 1000,
-            end         => $check->datetime->epoch * 1000,
+            start       => $ctime * 1000,
+            end         => $ctime * 1000,
             class       => $status,
         };
         # Don't add if it's a check not done and it's the weekend
@@ -628,8 +637,8 @@ sub calendar_check
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
                 url         => "/check/".$done->site_task->task->id,
-                start       => $last_done->epoch * 1000,
-                end         => $last_done->epoch * 1000,
+                start       => _round_to_day($last_done)->epoch * 1000,
+                end         => _round_to_day($last_done)->epoch * 1000,
                 class       => $status,
             } if DateTime->compare($to, $last_done) > 0 && $last_done->day_of_week < 6; # Not weekend
         }
