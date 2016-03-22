@@ -80,7 +80,7 @@ hook before => sub {
     $login->{site_fys} = Lenio::Site->fys(session('site_id'));
     my $fy = session 'fy';
     $fy = param('fy') if param('fy');
-    if ($login->{site_fys})
+    if ($login->{site_fys} && @{$login->{site_fys}})
     {
         $fy = $login->{site_fys}[-1]->{year}
             unless grep { $fy == $_->{year} } @{$login->{site_fys}};
