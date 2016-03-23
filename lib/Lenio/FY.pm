@@ -26,17 +26,20 @@ use DateTime;
 use Lenio::Schema;
 
 sub new($$;$)
-{   my ($class, $site_id, $fy) = @_;
+{   my ($class, $site_id, $year) = @_;
     my $self   = bless {}, $class;
 
     # First get financial year start of organisation
     my $costfrom = rset('Site')->find($site_id)->org->fyfrom;
-    my $now  = DateTime->now;
     # Use fy setting if selected, otherwise default to current year
-    my $year = $fy || $now->year;
+    unless ($year)
+    {
+        my $now  = DateTime->now;
+        $now->set_year($year-1) # Take year off if it's in future
+            if $now->month < $costfrom->month || ($now->month == $costfrom->month && $now->day < $costfrom->day);
+        $year = $now->year;
+    }
     $costfrom->set_year($year);  # Set FY to the required year
-    $costfrom->set_year($year-1) # Take year off if it's in future
-        if DateTime->compare($now, $costfrom) == -1;
     my $costto = $costfrom->clone->add( years => 1);
     $self->{costfrom} = $costfrom;
     $self->{costto}   = $costto;
