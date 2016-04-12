@@ -1,7 +1,7 @@
     [% IF check.id %]
-        <h3>Create new site check</h3>
-    [% ELSE %]
         <h3>[% check.name %]</h3>
+    [% ELSE %]
+        <h3>Create new site check</h3>
     [% END %]
     <form role="form" method="post">
         <div class="form-group">
