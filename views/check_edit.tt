@@ -37,7 +37,7 @@
                     <button class="btn btn-default" data-toggle="modal" data-target="#modalnew">Create new check</button>
                 </p>
                 <table class="table table-striped">
-                    [% FOREACH check_item IN check.check_items %]
+                    [% FOREACH check_item IN check.items %]
                         <tr>
                             <td>[% check_item.name %]</td>
                         </tr>
