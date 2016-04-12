@@ -47,7 +47,7 @@
         [% END %]
         <div class="form-group">
             <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">
-                [% IF action == "new" %]Create[% ELSE %]Update[% END %]
+                [% IF check.id %]Update[% ELSE %]Create[% END %]
             </button>
             <a href="/task" role="button" class="btn btn-default">Cancel</a>
         </div>
