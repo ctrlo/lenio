@@ -30,19 +30,21 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label>Checks</label>
-            <p>
-                <button class="btn btn-default" data-toggle="modal" data-target="#modalnew">Create new check</button>
-            </p>
-            <table class="table table-striped">
-                [% FOREACH check_item IN check.check_items %]
-                    <tr>
-                        <td>[% check_item.name %]</td>
-                    </tr>
-                [% END %]
-            </table>
-        </div>
+        [% IF check.id %]
+            <div class="form-group">
+                <label>Checks</label>
+                <p>
+                    <button class="btn btn-default" data-toggle="modal" data-target="#modalnew">Create new check</button>
+                </p>
+                <table class="table table-striped">
+                    [% FOREACH check_item IN check.check_items %]
+                        <tr>
+                            <td>[% check_item.name %]</td>
+                        </tr>
+                    [% END %]
+                </table>
+            </div>
+        [% END %]
         <div class="form-group">
             <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">
                 [% IF action == "new" %]Create[% ELSE %]Update[% END %]
