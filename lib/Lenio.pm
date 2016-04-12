@@ -829,8 +829,9 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
                     { success => 'The site check has been successfully updated' }, 'task' );
             }
         }
+        my $check = Lenio::Task->check(session('site_id'), $id);
         my $output = template 'check_edit' => {
-            check       => Lenio::Task->check($id),
+            check       => $check,
             login       => var('login'),
             site_id     => session('site_id'),
             messages    => session('messages'),
