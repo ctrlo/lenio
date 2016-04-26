@@ -51,7 +51,10 @@ sub send($)
     if ($login->{is_admin})
     {
         my @users = rset('Login')->search(
-             { 'sites.id' => $site_id },
+             {
+                 'sites.id' => $site_id,
+                 deleted    => undef,
+             },
              { join    => {'login_orgs' => {'org' => 'sites' }}}
         );
         foreach my $user (@users)
@@ -70,7 +73,7 @@ sub send($)
     }
     else
     {
-        foreach my $admin (rset('Login')->search({ is_admin => 1 }))
+        foreach my $admin (rset('Login')->search({ is_admin => 1, deleted => undef }))
         {
             _email(
                 to      => $admin->email,
