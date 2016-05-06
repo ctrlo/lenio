@@ -213,7 +213,7 @@
                 [% IF check.site OR login.is_admin %]
                     <tr [% strike %]>
                         [% IF login.is_admin AND login.site.id %]
-                            <td>OO
+                            <td>
                             [% IF strike %]
                                 <button type="submit" class="btn-xs btn-link" name="taskadd" value="[% check.id %]">
                                     <span class="glyphicon glyphicon-unchecked"></span>
