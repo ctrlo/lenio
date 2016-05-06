@@ -50,8 +50,12 @@ sub delete($)
     my $task_rs = rset('Task');
     my $t = $task_rs->find($id)
         or ouch 'badid', "The specified ID could not be found";
-    rset('SiteTask')->search({ task_id => $id })->delete
-        or ouch 'dbfail', "There was a database error when deleting the site/task relations";
+    rset('CheckDone')->search({
+        task_id => $id,
+    },{
+        join => 'site_task',
+    })->delete;
+    rset('SiteTask')->search({ task_id => $id })->delete;
     $t->delete
         or ouch 'dbfail', "There was a database error when deleting the task";
 }

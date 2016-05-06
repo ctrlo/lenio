@@ -78,8 +78,14 @@ sub taskRm($$)
 {   my ($class, $site, $task) = @_;
     $site && $task
         or ouch 'baddata', "Site or task information missing";
-    rset('SiteTask')->search({ task_id => $task, site_id => $site, ticket_id => undef })->delete
-        or ouch 'dbfail', "There was a database error when removing the task";
+    rset('CheckDone')->search({
+        task_id   => $task,
+        site_id   => $site,
+        ticket_id => undef,
+    },{
+        join => 'site_task',
+    })->delete;
+    rset('SiteTask')->search({ task_id => $task, site_id => $site, ticket_id => undef })->delete;
 }
 
 sub taskAdd($$)
