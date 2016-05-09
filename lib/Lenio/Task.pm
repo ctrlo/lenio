@@ -50,6 +50,13 @@ sub delete($)
     my $task_rs = rset('Task');
     my $t = $task_rs->find($id)
         or ouch 'badid', "The specified ID could not be found";
+    rset('CheckItemDone')->search({
+        task_id => $id,
+    },{
+        join => {
+            check_done => 'site_task',
+        },
+    })->delete;
     rset('CheckDone')->search({
         task_id => $id,
     },{
