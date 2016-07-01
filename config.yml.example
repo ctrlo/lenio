@@ -29,6 +29,8 @@ engines:
     YAML:
       session_dir: "/tmp/dancer-sessions"
       cookie_duration: 7200
+      cookie_name: lenio.session
+      is_secure: 1
 
 plugins:
   DBIC:
