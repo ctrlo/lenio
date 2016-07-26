@@ -562,14 +562,19 @@ sub calendar_check
                 _round_to_day($previous),
             ) > 0)
             {
+                my $dt = $previous->clone;
+                $dt->add( days => 1 )
+                    if $unit eq 'months' && $dt->day_of_week == 7;
+                $dt->add( days => 2 )
+                    if $unit eq 'months' && $dt->day_of_week == 6;
                 push @calendar, {
                     id          => $check->site_task->task->id,
                     title       => $check->site_task->task->name,
                     url         => "/check/".$check->site_task->task->id,
-                    start       => _round_to_day($previous)->epoch * 1000,
-                    end         => _round_to_day($previous)->epoch * 1000,
+                    start       => _round_to_day($dt)->epoch * 1000,
+                    end         => _round_to_day($dt)->epoch * 1000,
                     class       => 'check-notdone',
-                } unless $previous->day_of_week > 5; # Not weekend
+                } unless $dt->day_of_week > 5; # Not weekend
                 $previous->add( $unit => $qty );
             }
         }
@@ -584,14 +589,19 @@ sub calendar_check
                     site_task_id => $check->site_task_id,
                     datetime     => { '<', $dtf->format_datetime($from) },
                 })->count;
+                my $clone = $first->clone;
+                $clone->add( days => 1 )
+                    if $unit eq 'months' && $clone->day_of_week == 7;
+                $clone->add( days => 2 )
+                    if $unit eq 'months' && $clone->day_of_week == 6;
                 push @calendar, {
                     id          => $check->site_task->task->id,
                     title       => $check->site_task->task->name,
                     url         => "/check/".$check->site_task->task->id,
-                    start       => _round_to_day($first)->epoch * 1000,
-                    end         => _round_to_day($first)->epoch * 1000,
+                    start       => _round_to_day($clone)->epoch * 1000,
+                    end         => _round_to_day($clone)->epoch * 1000,
                     class       => 'check-notdone',
-                } if $count && $first->day_of_week < 6; # Not weekend
+                } if $count && $clone->day_of_week < 6; # Not weekend
                 $first->subtract( $unit => $qty );
             }
         }
@@ -599,18 +609,22 @@ sub calendar_check
         # Only show actual time if check is completed. Otherwise
         # show just the day
         my $ctime = $status eq 'check-notdone'
-                  ? _round_to_day($check->datetime)->epoch
-                  : $check->datetime->epoch;
+                  ? _round_to_day($check->datetime)->clone
+                  : $check->datetime->clone;
+        $ctime->add( days => 1 )
+            if $unit eq 'months' && $ctime->day_of_week == 7;
+        $ctime->add( days => 2 )
+            if $unit eq 'months' && $ctime->day_of_week == 6;
         my $c = {
             id          => $check->site_task->task->id,
             title       => $check->site_task->task->name,
             url         => "/check/".$check->site_task->task->id."/".$check->id,
-            start       => $ctime * 1000,
-            end         => $ctime * 1000,
+            start       => $ctime->epoch * 1000,
+            end         => $ctime->epoch * 1000,
             class       => $status,
         };
         # Don't add if it's a check not done and it's the weekend
-        push @calendar, $c unless $status eq 'check-notdone' && $check->datetime->day_of_week > 5;
+        push @calendar, $c unless $status eq 'check-notdone' && $ctime->day_of_week > 5;
         $last_id = $check->site_task_id;
         $previous = $check->datetime;
     }
@@ -640,9 +654,14 @@ sub calendar_check
         {
             # Keep adding until end of this range.
             $last_done->add( $unit => $qty );
-            next if (DateTime->compare($from, $last_done) > 0); # Last done before this range
+            my $clone = $last_done->clone;
+            $clone->add( days => 1 )
+                if $unit eq 'months' && $clone->day_of_week == 7;
+            $clone->add( days => 2 )
+                if $unit eq 'months' && $clone->day_of_week == 6;
+            next if (DateTime->compare($from, $clone) > 0); # Last done before this range
             my $status
-                = DateTime->compare(DateTime->now, $last_done) > 0
+                = DateTime->compare(DateTime->now, $clone) > 0
                 ? 'check-notdone'
                 : $qty == 1 && $unit eq 'days'
                 ? 'check-due-daily'
@@ -651,10 +670,10 @@ sub calendar_check
                 id          => $done->site_task->task->name,
                 title       => $done->site_task->task->name,
                 url         => "/check/".$done->site_task->task->id,
-                start       => _round_to_day($last_done)->epoch * 1000,
-                end         => _round_to_day($last_done)->epoch * 1000,
+                start       => _round_to_day($clone)->epoch * 1000,
+                end         => _round_to_day($clone)->epoch * 1000,
                 class       => $status,
-            } if DateTime->compare($to, $last_done) > 0 && $last_done->day_of_week < 6; # Not weekend
+            } if DateTime->compare($to, $clone) > 0 && $clone->day_of_week < 6; # Not weekend
         }
     }
     @calendar;
