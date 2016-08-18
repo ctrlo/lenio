@@ -1,4 +1,3 @@
-[% IF check %]
 <h3>[% check.name %]
     <small>
         [% IF check.exists %]
@@ -8,61 +7,35 @@
         [% END %]
     </small>
 </h3>
-    <form class="form" role="form" method="post">
-        <input type="hidden" name="site_task_id" value="[% check.site_task_id %]">
-        [% FOREACH item IN check.items %]
-            <div class="form-group">
-                <label for="item[% item.id %]" class="control-label">[% item.name %]</label>
-                <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
-                    <option value="0" [% IF item.done == 0 %]selected[% END %]>Not completed</option>
-                    <option value="1" [% IF item.done == 1 %]selected[% END %]>Completed</option>
-                    <option value="-1" [% IF item.done == -1 %]selected[% END %]>Not applicable</option>
-                </select>
-            </div>
-        [% END %]
+<form class="form" role="form" method="post">
+    <input type="hidden" name="site_task_id" value="[% check.site_task_id %]">
+    [% FOREACH item IN check.check_items %]
         <div class="form-group">
-            <label for="completed" class="control-label">Date</label>
-            <input type="text" name="completed" value="[% check.date.ymd %]"
-                class="form-control datepicker"
-                id="completed" value="" placeholder="Leave blank for today">
+            <label for="item[% item.id %]" class="control-label">[% item.name %]</label>
+            <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
+                <option value="0" [% IF item.done == 0 %]selected[% END %]>Not completed</option>
+                <option value="1" [% IF item.done == 1 %]selected[% END %]>Completed</option>
+                <option value="-1" [% IF item.done == -1 %]selected[% END %]>Not applicable</option>
+            </select>
         </div>
-        <div class="form-group">
-            <label for="comment" class="control-label">Comments:</label>
-            <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check.comment %]</textarea>
-        </div>
-        <button type="submit" name="submit_check_done" value="submit" class="btn btn-primary">
-            [% IF check.exists %]
-                Update
-            [% ELSE %]
-                Save
-            [% END %]
-        </button>
-        <a href="/" class="btn btn-default">Cancel</a>
-    </form>
-    <p></p>
-[% ELSE %]
-    <h3>Site checks ([% login.site.org.name %] - [% login.site.name %])</h3>
-    <table class="table table-striped">
-        <tr>
-            <th>Name</th>
-            <th>Frequency</th>
-            <th>Last recorded</th>
-        </tr>
-
-        [% FOR check IN site_checks %]
-            [% NEXT UNLESS check.site %]
-            <tr>
-                <td>
-                    [% check.name %] (<a href="/check/[% check.id %]">Log done</a>)
-                </td>
-                <td>
-                    [% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]
-                </td>
-                <td>
-                    [% check.last_done.strftime(dateformat) %]
-                </td>
-            </tr>
+    [% END %]
+    <div class="form-group">
+        <label for="completed" class="control-label">Date</label>
+        <input type="text" name="completed" value="[% check.date.ymd %]"
+            class="form-control datepicker"
+            id="completed" value="" placeholder="Leave blank for today">
+    </div>
+    <div class="form-group">
+        <label for="comment" class="control-label">Comments:</label>
+        <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check.comment %]</textarea>
+    </div>
+    <button type="submit" name="submit_check_done" value="submit" class="btn btn-primary">
+        [% IF check.exists %]
+            Update
+        [% ELSE %]
+            Save
         [% END %]
-    </table>
-[% END %]
-
+    </button>
+    <a href="/" class="btn btn-default">Cancel</a>
+</form>
+<p></p>

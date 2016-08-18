@@ -1,0 +1,23 @@
+<h3>Users</h3>
+<p>
+    <a href="/user/0" class="btn btn-default" role="button">Add new user</a>
+</p>
+[% IF logins.size %]
+    <table class="table table-striped">
+        <tr>
+            <th>Email</th>
+            <th>Firstname</th>
+            <th>Surname</th>
+        </tr>
+
+        [% FOR l IN logins %]
+            <tr>
+                <td><a href="/user/[% l.id %]">[% l.username %]</a></td>
+                <td>[% l.firstname %]</td>
+                <td>[% l.surname %]</td>
+            </tr>
+        [% END %]
+    </table>
+[% ELSE %]
+    <p>There are no existing users</p>
+[% END %]

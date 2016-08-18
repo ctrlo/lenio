@@ -25,7 +25,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "+Lenio::DBIC");
 
 =head1 TABLE: C<site_task>
 
@@ -98,6 +98,8 @@ __PACKAGE__->set_primary_key("id");
 
 __PACKAGE__->add_unique_constraint("ticket_id_UNIQUE", ["ticket_id"]);
 
+__PACKAGE__->add_unique_constraint("site_task_ticket_UNIQUE", ["site_id", "task_id", "ticket_id"]);
+
 =head1 RELATIONS
 
 =head2 checks_done
@@ -145,7 +147,7 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "NO ACTION",
+    on_delete     => "CASCADE",
     on_update     => "NO ACTION",
   },
 );
@@ -173,6 +175,22 @@ __PACKAGE__->belongs_to(
 
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NpjKDBZ5omfMRzdJNZeVag
+
+sub last_completed
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $last_completed = $self->get_column('last_completed')
+        or return;
+    $self->parse_dt($last_completed);
+}
+
+sub last_planned
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $last_planned = $self->get_column('last_planned')
+        or return;
+    $self->parse_dt($last_planned);
+}
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

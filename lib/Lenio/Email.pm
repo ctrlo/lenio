@@ -18,26 +18,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package Lenio::Email;
 
-use Dancer2 ':script';
-use Dancer2::Plugin::DBIC qw(schema resultset rset);
 use Encode qw(decode encode);
+use Log::Report;
 use Mail::Message;
 use Mail::Message::Field::Address;
+use Template;
 use Text::Autoformat qw(autoformat break_wrap);
-schema->storage->debug(1);
+
+use Moo;
+use MooX::Types::MooseLike::Base qw/:all/;
+
+has config => (
+    is       => 'ro',
+    isa      => HashRef,
+    required => 1,
+);
+
+has site => (
+    is       => 'ro',
+    required => 1,
+);
+
+has schema => (
+    is       => 'ro',
+    required => 1,
+);
+
+has uri_base => (
+    is       => 'ro',
+    required => 1,
+);
 
 sub send($)
-{   my ($class, $args) = @_;
+{   my ($self, $args) = @_;
 
     my $login = $args->{login} or return;
-    my $site_id = $args->{site_id} or return;
-    $args->{siteurl} = request->uri_base;
+    $args->{siteurl} = $self->uri_base;
 
     my $template = Template->new
-       ({INCLUDE_PATH => config->{lenio}->{emailtemplate}});
+       ({INCLUDE_PATH => $self->config->{lenio}->{emailtemplate}});
 
-    my $site = Lenio::Site->site($site_id);
-    my $org  = sprintf("%s (%s)", $site->org->name, $site->name);
+    my $org  = sprintf("%s (%s)", $self->site->org->name, $self->site->name);
     $args->{org} = $org;
 
     # Will get undefined when args passed to template
@@ -46,13 +67,13 @@ sub send($)
     my $message;
     $template->process("$template_name.tt", $args, \$message)
 	or error "Template process failed: " . $template->error();
-    $message = autoformat $message, {all => 1, break=>break_wrap};
+    $message = autoformat $message, {all => 1, break => break_wrap};
 
-    if ($login->{is_admin})
+    if ($login->is_admin)
     {
-        my @users = rset('Login')->search(
+        my @users = $self->schema->resultset('Login')->search(
              {
-                 'sites.id' => $site_id,
+                 'sites.id' => $self->site->id,
                  deleted    => undef,
              },
              { join    => {'login_orgs' => {'org' => 'sites' }}}
@@ -63,7 +84,7 @@ sub send($)
                 || $user->email_ticket && $template_name eq 'ticket/new'
                 || $user->email_ticket && $template_name eq ' ticket/update'
             ) {
-                _email(
+                $self->_email(
                     to      => $user->email,
                     subject => $args->{subject}.$org,
                     message => $message,
@@ -71,11 +92,10 @@ sub send($)
             }
         }
     }
-    else
-    {
-        foreach my $admin (rset('Login')->search({ is_admin => 1, deleted => undef }))
+    else {
+        foreach my $admin ($self->schema->resultset('Login')->search({ is_admin => 1, deleted => undef }))
         {
-            _email(
+            $self->_email(
                 to      => $admin->email,
                 subject => $args->{subject}.$org,
                 message => $message
@@ -85,10 +105,10 @@ sub send($)
 }
 
 sub _email
-{   my (%options) = @_;
-    my $from = Mail::Message::Field::Address->parse(config->{lenio}->{email_from});
-    my $sender = config->{lenio}->{email_sender}
-        ? Mail::Message::Field::Address->parse(config->{lenio}->{email_sender})
+{   my ($self, %options) = @_;
+    my $from = Mail::Message::Field::Address->parse($self->config->{lenio}->{email_from});
+    my $sender = $self->config->{lenio}->{email_sender}
+        ? Mail::Message::Field::Address->parse($self->config->{lenio}->{email_sender})
         : $from;
 
     my $body = Mail::Message::Body::Lines->new(

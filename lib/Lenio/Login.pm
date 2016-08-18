@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package Lenio::Login;
 
-use Dancer2 ':script';
-use Dancer2::Plugin::DBIC qw(schema resultset rset);
+use Dancer2;
+use Dancer2::Plugin::DBIC;
 use Ouch;
 use String::Random;
 use Text::Autoformat qw(autoformat break_wrap);
@@ -27,38 +27,6 @@ use Crypt::SaltedHash;
 schema->storage->debug(1);
 
 use Lenio::Schema;
-
-sub login($)
-{   my ($class, $args) = @_;
-    if ($args->{id})
-    {
-        my ($login) = rset('Login')->search({
-            'me.id'      => $args->{id},
-            'me.deleted' => undef,
-        })->all;
-        $login;
-    }
-    elsif ($args->{username})
-    {
-        my $login = rset('Login')->search({ username => $args->{username}, deleted => undef })
-            or ouch 'dbfail', "There was a database error when retrieving the user";
-        $login->count
-            or ouch 'notfound', "The requested user could not be found";
-        my ($l) = $login->all;
-        Crypt::SaltedHash->validate($l->password, $args->{'password'})
-            or ouch 'wrongpwd', "The password entered is incorrect";
-        $l;
-    }
-    else
-    {
-        ouch 'badparams', "Neither a user ID nor username were supplied";
-    }
-}
-
-sub exists
-{   my ($class, $username) = @_;
-    rset('Login')->search({ username => $username, deleted => undef })->count;
-}
 
 sub update_orgs
 {   my ($class, $username, $org_ids) = @_;
@@ -82,29 +50,6 @@ sub update_orgs
     $guard->commit;
 }
 
-sub delete($)
-{   my ($class, $id) = @_;
-    my $l = rset('Login')->find($id) or return;
-    rset('LoginOrg')->search({ login_id => $l->id })->delete;
-    $l->update({ deleted => DateTime->now });
-}
-
-sub view($)
-{   my ($class, $id) = @_;
-    my ($login) = rset('Login')->search({
-        'me.id'      => $id,
-        'me.deleted' => undef,
-    })->all;
-    $login;
-}
-
-sub all
-{   my $class = shift;
-    rset('Login')->search({
-        deleted => undef,
-    })->all;
-}
-
 sub hasSite($$;$)
 {   my ($class, $login, @site_ids) = @_;
     return 1 if $login->{is_admin};
@@ -120,44 +65,6 @@ sub hasSiteTask
     my $sitetask = rset('SiteTask')->find($site_task_id)
         or return;
     return 1 if grep { $_->id == $sitetask->site_id } @{$login->{sites}};
-}
-
-sub resetNew($$)
-{   my ($class, $code) = @_;
-    my $login = rset('Login')->search({ pwdreset => $code }) or return;
-    my $self = bless {}, $class;
-    $self->{login} = $login;
-    $self->{code}  = $code;
-    $self;
-}
-
-# Return value from this function is 1 or 0 depending on whether
-# to display the password reset page. On success, 0 is returned, as
-# the password reset page should not be displayed
-sub resetProcess($$)
-{   my ($class, $args) = @_;
-    $args->{code}
-        or ouch 'nocode', "Please provide a password reset code";
-    my $login = rset('Login')->search({ pwdreset => $args->{code} })
-        or ouch 'dbfail', "There was a database error accessing the code provided";
-    $login->count
-        or ouch 'notfound', "The password reset code was not found";
-    # If a new password wasn't provided, then we just check the
-    # code (above) and return. This can be used to validate the code provided
-    return 1 unless ($args->{password});
-    $args->{password} eq $args->{password2}
-        or ouch 'nomatch', "The 2 passwords entered do not match";
-    my $password = password($args->{password});
-    return 0 if $login->update({ password => $password, pwdreset => undef });
-    ouch 'dbfail', "Failed to update the new password in the database";
-}
-
-# Returns an encrypted password
-sub password($)
-{
-    my $crypt=Crypt::SaltedHash->new(algorithm=>'SHA-512');
-    $crypt->add(shift);
-    $crypt->generate;
 }
 
 1;

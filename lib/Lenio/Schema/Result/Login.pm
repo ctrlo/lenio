@@ -225,6 +225,74 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cv++JIacEgBu3PcKeqElCw
 
+sub update_orgs
+{   my ($self, @org_new) = @_;
+    my $schema = $self->result_source->schema;
+    my $guard = $schema->txn_scope_guard;
+    my @org_old = $schema->resultset('LoginOrg')->search({ login_id => $self->id })->all;
+    # Delete organisation memberships that are no longer needed
+    foreach my $org_old (@org_old)
+    {
+        $schema->resultset('LoginOrg')->search({ login_id => $self->id, org_id => $org_old->org_id })->delete
+            unless grep { $org_old->org_id == $_ } @org_new;
+    }
+    # Add organisation memberships that are not already there
+    foreach my $org_new (@org_new)
+    {
+        $schema->resultset('LoginOrg')->create({ login_id => $self->id, org_id => $org_new })
+            unless grep { $org_new == $_->org_id } @org_old;
+    }
+    $guard->commit;
+}
+
+sub has_site
+{   my ($self, @site_ids) = @_;
+    return 1 if $self->is_admin;
+    $self->result_source->resultset->search({
+        'me.id'    => $self->id,
+        'sites.id' => [@site_ids],
+    },{
+        join => {
+            login_orgs => {
+                org => 'sites',
+            },
+        },
+    })->count;
+}
+
+sub has_site_task
+{   my ($self, $site_task_id) = @_;
+    return 1 if $self->is_admin;
+    $self->result_source->resultset->search({
+        'me.id'         => $self->id,
+        'site_tasks.id' => $site_task_id,
+    },{
+        join => {
+            login_orgs => {
+                org => {
+                    'sites' => 'site_tasks',
+                },
+            },
+        },
+    })->count;
+}
+
+sub sites
+{   my $self = shift;
+    my @sites;
+    if ($self->is_admin)
+    {
+        my $site_rs = $self->result_source->schema->resultset('Site')->search({}, { prefetch => 'org' });
+        @sites = $site_rs->all;
+    }
+    else {
+        my @login_orgs = $self->login_orgs->all;
+        foreach my $login_org (@login_orgs) {
+            push @sites, $login_org->org->sites->all;
+        }
+    }
+    @sites;
+}
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

@@ -17,23 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =cut
 
 package Lenio;
+
 use Crypt::YAPassGen;
 use Dancer2;
 use Dancer2::Core::Cookie;
 use JSON qw(encode_json);
-use Lenio::Task;
-use Lenio::Ticket;
-use Lenio::Site;
-use Lenio::Org;
-use Lenio::Login;
-use Lenio::Notice;
-use Lenio::Contractor;
+use Lenio::Calendar;
 use Lenio::Email;
-use Ouch;
 use Text::CSV;
 
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Extensible;
+use Dancer2::Plugin::LogReport;
 
 set behind_proxy => config->{behind_proxy};
 
@@ -41,71 +36,62 @@ our $VERSION = '0.1';
 
 hook before => sub {
 
-    # Static content
-    return if request->uri =~ m!^/(error|js|css|login|logout|favicon|tmpls|fonts|images)!;
     # Used to display error messages
     return if param 'error';
 
     my $user = logged_in_user
         or return;
 
-    my $login_rs = Lenio::Login->login({ id => $user->{id} });
+    my $login = rset('Login')->find($user->{id});
 
     # Sites associated with the user 
     forward '/error', { 'error' => 'There are no sites associated with this username' }
-        unless (my @sites = Lenio::Site->all($user->{id}));
-
-    my @notices = $login_rs->login_notices;
+        unless $login->sites;
  
-    my $login = {
-        id        => $user->{id},
-        username  => $login_rs->username,
-        sites     => \@sites,
-        is_admin  => $login_rs->is_admin,
-        notices   => \@notices,
-        surname   => $login_rs->surname,
-        firstname => $login_rs->firstname,
-    };
-
     # Select individual site and check user has access
     if ( param('site') && param('site') eq 'all' ) {
         session site_id => '';
     }
     elsif ( param('site') ) {
         session site_id => param('site')
-            if Lenio::Login->hasSite($login, param('site'));
+            if $login->has_site(param('site'));
     }
-    session(site_id => $sites[0]->id) unless (defined session('site_id'));
-    $login->{site}     = Lenio::Site->site(session('site_id'));
-    $login->{site_fys} = Lenio::Site->fys(session('site_id'));
+    session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
+
     my $fy = session 'fy';
     $fy = param('fy') if param('fy');
-    if ($login->{site_fys} && @{$login->{site_fys}})
-    {
-        $fy = $login->{site_fys}[-1]->{year}
-            unless grep { $fy == $_->{year} } @{$login->{site_fys}};
-        $login->{fy} = $fy;
-    }
     session 'fy' => $fy;
 
     var login => $login;
 };
 
+hook before_template => sub {
+    my $tokens = shift;
+
+    my $base = $tokens->{base} || request->base;
+    $tokens->{url}->{css}  = "${base}css";
+    $tokens->{url}->{js}   = "${base}js";
+    $tokens->{url}->{page} = $base;
+    $tokens->{url}->{page} =~ s!.*/!!; # Remove trailing slash
+    $tokens->{scheme}    ||= request->scheme; # May already be set for phantomjs requests
+    $tokens->{hostlocal}   = config->{gads}->{hostlocal};
+
+    $tokens->{messages} = session('messages');
+    $tokens->{login}    = var('login');
+};
+
+
 get '/' => require_login sub {
-    my $local = var('login')->{is_admin} ? 0 : 1; # Only show local tasks for non-admin
-    my $sites = var('login')->{is_admin}
+    my $local = var('login')->is_admin ? 0 : 1; # Only show local tasks for non-admin
+    my $sites = var('login')->is_admin
               ? session('site_id')
-              : session('site_id') ? session('site_id') : var('login')->{sites};
-    my @overdue = Lenio::Task->overdue( $sites, {local => $local} );
-    my $output  = template 'index' => {
-        messages   => session('messages'),
+              : session('site_id') ? session('site_id') : var('login')->sites;
+    my @overdue = rset('Task')->overdue( site_id => $sites, local => $local );
+    template 'index' => {
         dateformat => config->{lenio}->{dateformat},
         tasks      => \@overdue,
-        login      => var('login'),
         page       => 'index'
     };
-    session 'messages' => [];
-    $output;
 };
 
 sub login_page_handler
@@ -115,583 +101,556 @@ sub login_page_handler
            entered was valid" }) if defined param('reset_sent');
     messageAdd({ danger => "Username or password not valid" })
         if defined param('login_failed');
-    my $output = template login => {
+    template login => {
         page                => 'login',
-        messages            => $messages,
         new_password        => param('new_password'),
         password_code_valid => param('password_code_valid'),
         reset_code          => param('new_password') || param('password_code_valid'),
     };
-    session 'messages' => [];
-    $output;
 }
 
 # Dismiss a notice
 get '/close/:id' => require_login sub {
-    Lenio::Notice->dismiss(var('login'), param('id'));
+    my $notice = rset('LoginNotice')->find(param 'id') or return;
+    $notice->delete if $notice->login_id == var('login')->id;
 };
 
 get '/error' => require_login sub {
-    my $output  = template 'error' => {
+    template 'error' => {
         error => param('error'),
         page  => 'error',
     };
-    session 'messages' => [];
-    $output;
 };
 
-any qr{^/user/?([\w]*)/?([\d]*)$} => require_login sub {
-    my ( $action, $id ) = splat;
+any '/user/:id' => require_login sub {
 
-    my $is_admin = var('login')->{is_admin};
+    my $is_admin = var('login')->is_admin;
+    my $id       = $is_admin ? route_parameters->get('id') : var('login')->id;
 
-    my $username;
-    # Stop normal users performing admin tasks on other users
-    if ($is_admin)
+    my $email_comment = param('email_comment') ? 1 : 0;
+    my $email_ticket  = param('email_ticket') ? 1 : 0;
+    if (!$id && $is_admin && param('submit'))
     {
-        $username = param('username');
-    }
-    else {
-        $username = logged_in_user->{username};
-        $action = 'view';
+        my $email = param('email');
+        # check existing
+        rset('Login')->search({ email => $email })->count
+            and error __x"The email address {email} already exists", email => $email;
+        my $newuser = create_user username => $email, realm => 'dbic', email_welcome => 1;
+        $id = $newuser->{id};
+        # Default to on
+        $email_comment = 1;
+        $email_ticket  = 1;
     }
 
-    Lenio::Login->delete(param('delete'))
+    my $login    = $id && rset('Login')->find($id);
+    $id && !$login and error "User ID {id} not found", id => $id;
+
+    $login->delete
         if $is_admin && param('delete');
 
-    my @logins;
-    if ( $action eq 'new' || $action eq 'view' ) {
+    if (param 'submit') {
+        $login->username(param 'email');
+        $login->email(param 'email');
+        $login->firstname(param 'firstname');
+        $login->surname(param 'surname');
+        $login->email_comment($email_comment);
+        $login->email_ticket($email_ticket);
 
-        if ( param('submit') ) {
-            my $adm = $is_admin && param('is_admin') ? 1 : 0;
-            # param org_ids can be a scalar, array or undefined, depending how many where submitted
-            my %login = (
-                username      => param('email'),
-                email         => param('email'),
-                firstname     => param('firstname'),
-                surname       => param('surname'),
-                is_admin      => $adm,
-            );
-            if ($is_admin && $action eq 'new')
-            {
-                # Default to on
-                $login{email_comment} = 1;
-                $login{email_ticket} = 1;
-            }
-            elsif (!$is_admin)
-            {
-                # Option not presented to admins
-                $login{email_comment} = param('email_comment') ? 1 : 0;
-                $login{email_ticket}  = param('email_ticket') ? 1 : 0;
-            }
-
-            if ($username)
-            {
-                update_user $username, realm => 'dbic', %login;
-            }
-            else {
-                if (Lenio::Login->exists($login{username}))
-                {
-                    eval { ouch 'exists', "The email address already exists" };
-                }
-                else {
-                    my $newuser = create_user %login, realm => 'dbic', email_welcome => 1;
-                    $username = $login{username};
-                }
-            }
-            if (hug)
-            {
-                messageAdd({ danger => bleep });
-                if ($@->isa('Ouch') && $@->data)
-                {
-                    foreach my $error (@{$@->data})
-                    {
-                        messageAdd({ danger => $error });
-                    }
-                }
-            }
-            else {
-                if ($is_admin)
-                {
-                    my $org_ids = !defined param('org_ids')
-                                ? []
-                                : ref param('org_ids') eq 'ARRAY'
-                                ? param('org_ids')
-                                : [ param('org_ids') ];
-                    Lenio::Login->update_orgs($username, $org_ids);
-                }
-                my $a = $action eq 'new' ? 'added' : 'updated';
-                my $forward = $is_admin ? 'user' : '';
-                forwardHome({ success => "User has been successfully $a" }, $forward);
-            }
-        }
-        if ($action eq 'view')
+        if ($is_admin && !$login->is_admin)
         {
-            my $login = Lenio::Login->view($id)
-              or forwardHome({ danger => 'Requested user not found' });
-            push @logins, $login;
+            $login->is_admin(param('is_admin') ? 1 : 0);
+            my @org_ids = body_parameters->get_all('org_ids');
+            $login->update_orgs(@org_ids);
+        }
+        if (process sub { $login->update_or_insert } )
+        {
+            my $forward = $is_admin ? 'users' : '';
+            forwardHome({ success => "User has been submitted successfully" }, $forward);
         }
     }
-    else {
-        $action = '';
-        @logins = Lenio::Login->all;
-    }
 
-    my @orgs = Lenio::Org->all;
-    my $output = template 'user' => {
-        action    => $action,
-        id        => $id,
-        logins    => \@logins,
-        orgs      => \@orgs,
-        messages  => session('messages'),
-        login     => var('login'),
-        page      => 'user'
+    my @orgs = rset('Org')->all;
+    template 'user' => {
+        id         => $id,
+        orgs       => \@orgs,
+        edit_login => $login,
+        page       => 'user'
     };
-    session 'messages' => [];
-    $output;
 };
 
-any qr{^/contractor/?([\w]*)/?([\d]*)$} => require_login sub {
-    my ( $action, $id ) = splat;
+get '/users/?' => require_login sub {
 
-    var('login')->{is_admin}
+    var('login')->is_admin
+        or error "You do not have access to this page";
+
+    template 'users' => {
+        logins    => [rset('Login')->all],
+        page      => 'user'
+    };
+};
+
+any '/contractor/?:id?' => require_login sub {
+
+    var('login')->is_admin
         or forwardHome({ danger => 'You do not have permission to view contractors' });
+
+    my $contractor;
+    my $id = route_parameters->get('id');
+    if (defined $id)
+    {
+        $contractor = rset('Contractor')->find($id) || rset('Contractor')->new({});
+    }
 
     if (param('delete'))
     {
-        eval { Lenio::Contractor->delete(param('delete')) };
-        if (hug)
+        if (process (sub { $contractor->delete } ) )
         {
-            messageAdd({ danger => bleep });
-        }
-        else {
             forwardHome({ success => 'Contractor has been successfully deleted' }, 'contractor');
         }
     }
 
-    my @contractors;
-    if (  $action eq 'new' )
+    if (param 'submit')
     {
-        if ( param('submit') )
+        $contractor->name(param 'name');
+        if (process sub { $contractor->update_or_insert })
         {
-            my $contractor = {name => param('name')};
-            eval { Lenio::Contractor->new($contractor) };
-            if (hug)
-            {
-                messageAdd({ danger => bleep });
-            }
-            else {
-                forwardHome({ success => 'Contractor has been successfully added' }, 'contractor');
-            }
+            forwardHome({ success => 'Contractor has been successfully added' }, 'contractor');
         }
-    }
-    elsif ( $action eq 'view' )
-    {
-        if ( param('submit') )
-        {
-            my $contractor = {
-                name => param('name'),
-                id   => $id,
-            };
-            eval { Lenio::Contractor->update($contractor) };
-            if (hug)
-            {
-                messageAdd({ danger => bleep });
-            }
-            else {
-                forwardHome({ success => 'Contractor has been successfully updated' }, 'contractor');
-            }
-        }
-        my $contractor = Lenio::Contractor->view($id)
-            or forwardHome({ danger => 'Requested contractor not found' });
-        push @contractors, $contractor;
-    }
-    else {
-        $action = '';
-        @contractors = Lenio::Contractor->all;
     }
 
-    my $output = template 'contractor' => {
-        action      => $action,
+    template 'contractor' => {
         id          => $id,
-        contractors => \@contractors,
-        messages    => session('messages'),
-        login       => var('login'),
+        contractor  => $contractor,
+        contractors => [rset('Contractor')->all],
         page        => 'contractor'
     };
-    session 'messages' => [];
-    $output;
 };
 
-any qr{^/notice/?([\w]*)/?([\d]*)$} => require_login sub {
-    my ( $action, $id ) = splat;
+any '/notice/?:id?' => require_login sub {
 
-    var('login')->{is_admin}
+    var('login')->is_admin
         or forwardHome({ danger => 'You do not have permission to view notice settings' });
+
+    my $id = route_parameters->get('id');
+    my $notice = defined $id && (rset('Notice')->find($id) || rset('Notice')->new({}));
 
     if (param('delete'))
     {
-        eval { Lenio::Notice->delete(param('delete')) };
-        if (hug)
+        if (process (sub { $notice->delete } ) )
         {
-            messageAdd( { danger => bleep } );
-        }
-        else {
-            forwardHome( { success => "The notice has been deleted" } );
+            forwardHome({ success => 'The notice has been successfully deleted' }, 'notice');
         }
     }
 
-    my @notices;
-    if ($action eq 'new')
+    if (param 'submit')
     {
-        if (param('submit'))
+        $notice->text(param 'text');
+        if (process sub { $notice->update_or_insert })
         {
-            my $notice = { text => param('text') };
-            eval { Lenio::Notice->new($notice) };
-            if (hug)
-            {
-                messageAdd( { danger => bleep } );
-            }
-            else {
-                forwardHome(
-                    { success => 'Notice has been successfully created' }, 'notice');
-            }
+            forwardHome({ success => 'The notice has been successfully created' }, 'notice');
         }
-    }
-    elsif ( $action eq 'view' )
-    {
-        if ( param('submit') )
-        {
-            my $notice = {
-                text        => param('text'),
-                id          => $id,
-            };
-            eval { Lenio::Notice->update($notice) };
-            if (hug)
-            {
-                messageAdd( { danger => bleep } );
-            }
-            else {
-                forwardHome(
-                    { success => 'Notice has been successfully updated' }, 'notice');
-            }
-        }
-        my $notice = Lenio::Notice->view($id)
-            or forwardHome({ danger => 'Requested notice not found' });
-        push @notices, $notice;
-    }
-    else {
-        $action = '';
-        @notices = Lenio::Notice->all;
     }
 
-    my $output = template 'notice' => {
-        action   => $action,
-        id       => $id,
-        notices  => \@notices,
-        messages => session('messages'),
-        login    => var('login'),
-        page     => 'notice'
+    template 'notice' => {
+        id      => $id,
+        notice  => $notice,
+        notices => [rset('Notice')->all_with_count],
+        page    => 'notice'
     };
-    session 'messages' => [];
-    $output;
 };
  
+any '/check_edit/:id' => require_login sub {
+
+    my $id = route_parameters->get('id');
+
+    my $check = ($id && rset('Task')->find($id)) || rset('Task')->new({ site_check => 1 });
+
+    if (param 'submitcheck')
+    {
+        if (my $ci = param('checkitem'))
+        {
+            if (process sub { rset('CheckItem')->create({ task_id => $id, name => $ci }) } )
+            {
+                forwardHome(
+                    { success => 'The check item has been added successfully' }, "check_edit/$id" );
+            }
+        }
+        else {
+            $check->name(param 'name');
+            $check->description(param 'description');
+            $check->period_qty(param 'period_qty');
+            $check->period_unit(param 'period_unit');
+            if (process sub { $check->update_or_insert })
+            {
+                forwardHome(
+                    { success => 'The site check has been successfully updated' }, 'task' );
+            }
+        }
+    }
+
+    template 'check_edit' => {
+        check       => $check,
+        site_id     => session('site_id'),
+        page        => 'check_edit'
+    };
+};
+
+any '/checks/?' => require_login sub {
+
+    my $site_id = session 'site_id'
+        or error __"Please select a site before viewing site checks";
+
+    template 'checks' => {
+        site_checks => [rset('Task')->site_checks($site_id)],
+        dateformat  => config->{lenio}->{dateformat},
+        page        => 'check',
+    };
+};
+
 any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 
-    my $task_id       = param 'task_id';
-    my $check_done_id = param 'check_done_id';
+    my $task_id       = route_parameters->get('task_id');
+    my $check_done_id = route_parameters->get('check_done_id');
 
-    my $site_id = session 'site_id';
-    $site_id or forwardHome({ danger => 'Please select a site before viewing site checks' });
+    my $site_id = session 'site_id'
+        or error __"Please select a site before viewing site checks";
 
     if (param 'submit_check_done')
     {
+        my $check_done = $check_done_id ? rset('CheckDone')->find($check_done_id) : rset('CheckDone')->new({});
+        my $site_task_id = $check_done_id ? $check_done->site_task_id : rset('SiteTask')->search({
+            task_id => $task_id,
+            site_id => $site_id,
+        })->next->id;
         # Log the completion of a site check
         # Check user has permission first
-        forwardHome(
-            { danger => "You do not have permission for site ID $site_id" } )
-                unless Lenio::Login->hasSiteTask(var('login'), param('site_task_id') );
+        error __x"You do not have permission for site ID {id}", id => $site_id
+            unless var('login')->has_site_task( $site_task_id );
+
+        my $datetime = _to_dt(param 'completed') || DateTime->now;
+
+        $check_done->datetime($datetime);
+        $check_done->comment(param 'comment');
+        $check_done->site_task_id($site_task_id);
+        $check_done->login_id(var('login')->id);
+        $check_done->update_or_insert;
 
         my $params = params;
-        
-        eval { Lenio::Task->check_done(var('login'), $params) };
-        if (hug)
+        foreach my $key (keys %$params)
         {
-            messageAdd({ danger => bleep });
+            next unless $key =~ /^item([0-9]+)/;
+            my $check_item_id = $1;
+            my $check_item_done = rset('CheckItemDone')->update_or_create({
+                check_item_id => $check_item_id,
+                check_done_id => $check_done->id,
+                status        => param("item$check_item_id"),
+            });
         }
-        else {
-            messageAdd({ success => 'Site checks have been recorded successfully' }, 'check');
-        }
+        forwardHome({ success => "Check has been recorded successfully" }, 'checks');
     }
 
-    my $check = Lenio::Task->check($site_id, $task_id, $check_done_id) if $task_id;
-
-    my @site_checks = Lenio::Task->site_checks($site_id);
-    my $output = template 'check' => {
-        check       => $check,
-        site_checks => \@site_checks,
+    template 'check' => {
+        check       => rset('Task')->find($task_id),
         dateformat  => config->{lenio}->{dateformat},
-        messages    => session('messages'),
-        login       => var('login'),
         page        => 'check',
     };
-    session 'messages' => [];
-    $output;
 };
 
-any qr{^/ticket/?([\w]*)/?([\d]*)/?([\d]*)/?([-\d]*)$} => require_login sub {
-    my ( $action, $id, $site_id, $date ) = splat;
+any '/ticket/:id?' => require_login sub {
 
-    if (defined param('task_tickets'))
+    my $date    = query_parameters->get('date');
+    my $id      = route_parameters->get('id');
+    # task_id can be specified in posted form or prefilled in ticket url
+    my $task;
+    if (my $task_id = body_parameters->get('task_id') || query_parameters->get('task_id'))
     {
-        my $tt = param('task_tickets');
-        my $task_tickets = $tt eq '1'
-            ? 1
-            : $tt eq '0'
-            ? 0
-            : undef;
-        session task_tickets => $task_tickets;
-    }
-    elsif (!exists session->{task_tickets})
-    {
-        session 'task_tickets' => 0; # Default to only reactionary
+        $task = rset('Task')->find($task_id);
     }
 
-    my @tickets; my $task; my $attaches;
-    if ($action eq 'new' || $action eq 'view')
+    my $ticket;
+    if (defined($id) && $id)
     {
-        my $ticket;
-        if ($action eq 'view')
+        $ticket = rset('Ticket')->find($id);
+        # Check whether the user has access to this ticket
+        error __x"You do not have permission for ticket ID {id}", id => $id
+            unless var('login')->has_site($ticket->site_task->site_id);
+        # Existing ticket, get task from DB
+        $task = (rset('SiteTask')->search({
+            ticket_id => $ticket->id,
+        }))[0]->task;
+    }
+    elsif (defined($id) && !param('submit'))
+    {
+        # If applicable, Prefill ticket fields with initial values based on task
+        if ($task)
         {
-            # Check whether the user has access to this ticket
-            $ticket = Lenio::Ticket->view($id)
-                or forwardHome({ danger => 'Requested ticket not found' });
-            forwardHome(
-                { danger => "You do not have permission for ticket ID $id" } )
-                    unless Lenio::Login->hasSite(var('login'), $ticket->site_task->site_id);
-
-            # Get attachment summary (so as not to retrieve file content)
-            $attaches = Lenio::Ticket->attach_summary($id);
-
-            if ( param('addcomment') ) {
-                my $iss = {
-                    id      => $id,
-                    comment => param('comment'),
-                    login   => var('login'),
-                };
-                eval { Lenio::Ticket->commentAdd($iss) };
-                if (hug)
-                {
-                    messageAdd( { danger => bleep });
-                }
-                else {
-                    my $args = { login       => var('login'),
-                                 site_id     => $ticket->site_task->site_id,
-                                 template    => 'ticket/comment',
-                                 url         => "/ticket/view/".$id,
-                                 name        => $ticket->name,
-                                 subject     => "Ticket updated - ",
-                                 description => $ticket->description,
-                                 comment     => param('comment'),
-                               };
-                    Lenio::Email->send($args);
-                }
-            }
-            if ( param('attach') ) {
-                forwardHome(
-                    { danger => 'You do not have permission to add attachments' } )
-                        unless var('login')->{is_admin};
-
-                my $file = request->upload('newattach');
-                if ($file)
-                {
-                    eval { Lenio::Ticket->attachAdd($file, $id) };
-                    if (hug)
-                    {
-                        messageAdd({ danger => bleep });
-                    }
-                    else {
-                        messageAdd({ success => 'File has been added successfully' });
-                    }
-                }
-                else {
-                    messageAdd({ danger => 'Failed to receive uploaded file' });
-                }
-            }
-            if ( param('attachrm') ) {
-                forwardHome(
-                    { danger => 'You do not have permission to delete attachments' } )
-                        unless var('login')->{is_admin};
-
-                eval { Lenio::Ticket->attachRm(param 'attachrm') };
-                if (hug)
-                {
-                    messageAdd({ danger => bleep });
-                }
-                else {
-                    messageAdd({ success => 'Attachment has been deleted successfully' });
-                }
-            }
-            if (param 'delete')
-            {
-                forwardHome(
-                    { danger => 'You do not have permission to delete this ticket' }
-                ) unless var('login')->{is_admin} || $ticket->site_task->task->global == 0;
-                Lenio::Ticket->delete($id);
-                forwardHome(
-                    { success => "Ticket has been successfully deleted" }, 'ticket');
-            }
-
-            push @tickets, $ticket;
-        }
-
-        if ( param('submit') ) {
-
-            my $global;
-            if ($action eq 'new')
-            {
-                # Find out if this is related to locally created task.
-                # If so, allow dates to be input
-                my $task = Lenio::Task->view($id);
-                $global  = $task && $task->global ? 1 : 0;
-            }
-
-            my $completed = var('login')->{is_admin} || !$global ? param('completed') : undef;
-            my $planned   = var('login')->{is_admin} || !$global ? param('planned') : undef;
-            my $iss = {
-                name           => param('name'),
-                description    => param('description'),
-                site_id        => param('site_id'),
-                contractor_id  => param('contractor'),
-                cost_planned   => param('cost_planned'),
-                cost_actual    => param('cost_actual'),
-                local_only     => param('local_only'),
-                completed      => $completed,
-                planned        => $planned,
-            };
-
-            # A normal user cannot edit a ticket that has already been created,
-            # unless it is related to a locally created task
-            if ($action eq 'view')
-            {
-                forwardHome(
-                    { danger => 'You do not have permission to edit this ticket' }
-                ) unless var('login')->{is_admin} || $ticket->local_only || $ticket->site_task->task->global == 0;
-                $iss->{id} = $id;
-            }
-            else {
-                $iss->{task_id} = $id;
-                $iss->{comment} = param('comment');
-                $iss->{login}   = var('login');
-            }
-
-            my $t; # Returned ticket
-            eval { $t = Lenio::Ticket->new($iss) };
-            if (hug)
-            {
-                messageAdd({ danger => bleep });
-            }
-            else {
-                my $template; my $subject; my $status;
-                if ($action eq 'view')
-                {
-                    $template = 'ticket/update';
-                    $subject = "Ticket updated - ";
-                    $status = 'updated';
-                }
-                else {
-                    $template = 'ticket/new';
-                    $subject = "New ticket - ";
-                    $status = 'created';
-                }
-                my $args = { login       => var('login'),
-                             site_id     => param('site_id'),
-                             template    => $template,
-                             url         => "/ticket/view/".$t->id,
-                             name        => $t->name,
-                             subject     => $subject,
-                             description => $t->description,
-                             planned     => param('planned'),
-                             completed   => param('completed'),
-                           };
-                # Assume send update to admin
-                my $send_email = 1;
-                # Do not send email update if new ticket and local, or is local_only and not changed
-                $send_email = 0 if ((!$ticket && $t->local_only) || ($ticket && $ticket->local_only == 1 && $t->local_only == 1));
-                # Send email update if not local site task
-                $send_email = 0 if ($t->site_task->task && $t->site_task->task->global == 0);
-                Lenio::Email->send($args) if $send_email;
-                forwardHome(
-                    { success => "Ticket has been successfully $status" }, 'ticket');
-            }
-        }
-        if ($action eq 'new' && $id)
-        {
-            # Prefill ticket fields with initial values based on task
-            my $task = Lenio::Task->view($id);
-            my $sid  = ($task->site_tasks->all)[0]->site_id; # site_id associated with task
+            my $sid  = $task->site_task_local && $task->site_task_local->site_id; # site_id associated with local task
             # See if the user has permission to view associated task
-            if ( var('login')->{is_admin}
-                || (!$task->global && Lenio::Login->hasSite(var('login'), $sid))
+            if ( var('login')->is_admin
+                || (!$task->global && var('login')->has_site($sid))
             ) {
-                my $ticket = {
+                $ticket = rset('Ticket')->new({
                     name        => $task->name,
                     description => $task->description,
                     planned     => $date,
-                    site_task   => {site_id => $site_id, task => { global => $task->global } }, # to match database schema
-                    # global      => $task->global,
-                };
-                push @tickets, $ticket;
+                    local_only  => $task->global ? 0 : 1,
+                    site_task   => { # This would not be chain-inserted, but only passed to page so doesn't matter
+                        task_id => $task->id,
+                        site_id => query_parameters->get('site_id') || session('site_id'),
+                    },
+                });
             }
         }
-    }
-    else {
-        $action = '';
-        my $uncompleted_only;
-        my $task_id;
-        if (param('task'))
-        {
-            $uncompleted_only = 0;
-            $task_id          = param('task');
-        }
         else {
-            $uncompleted_only = 1;
+            $ticket = rset('Ticket')->new({
+                site_task   => { # This would not be chain-inserted, but only passed to page so doesn't matter
+                    site_id => query_parameters->get('site_id') || session('site_id'),
+                },
+            });
         }
-        @tickets = Lenio::Ticket->all(var('login'), {
-            site_id          => session ('site_id'),
-            uncompleted_only => $uncompleted_only,
-            task_id          => $task_id,
-            task_tickets     => param('task') ? undef : session('task_tickets'),
-        });
-        $task = Lenio::Task->view($task_id) if $task_id;
+    }
+    elsif (defined($id))
+    {
+        # New ticket submitted, create base object to be updated
+        $ticket = rset('Ticket')->new({});
     }
 
-    my @contractors = Lenio::Contractor->all;
-    my $output = template 'ticket' => {
-        action       => $action,
-        dateformat   => config->{lenio}->{dateformat},
+    if ( param('attach') ) {
+        error __"You do not have permission to add attachments"
+            unless var('login')->is_admin;
+
+        my $file = request->upload('newattach');
+        my $attach = {
+            name        => $file->basename,
+            ticket_id   => $id,
+            content     => $file->content,
+            mimetype    => $file->type,
+        };
+
+        if (process sub { rset('Attach')->create($attach) })
+        {
+            messageAdd({ success => 'File has been added successfully' });
+        }
+    }
+
+    if ( param('attachrm') ) {
+        error __"You do not have permission to delete attachments"
+            unless var('login')->is_admin;
+
+        if (process sub { rset('Attach')->find(param 'attachrm')->delete })
+        {
+            messageAdd({ success => 'Attachment has been deleted successfully' });
+        }
+    }
+
+    if (param 'delete')
+    {
+        error __"You do not have permission to delete this ticket"
+            unless var('login')->is_admin || $ticket->local_only;
+        if (process sub { $ticket->delete })
+        {
+            forwardHome({ success => "Ticket has been successfully deleted" }, 'tickets');
+        }
+    }
+
+    # Comment can be added on ticket creation or separately.  Create the
+    # object, which will be added at ticket insertion time or otherwise later.
+    my $comment = param('comment')
+        && rset('Comment')->new({
+            text      => param('comment'),
+            login_id  => var('login')->id,
+            datetime  => DateTime->now,
+        });
+
+    if (param 'submit')
+    {
+        # Find out if this is related to locally created task.
+        # If so, allow dates to be input
+        my $global = $task && $task->global;
+
+        my $completed = (var('login')->is_admin || !$global) && _to_dt(param('completed'));
+        my $planned   = (var('login')->is_admin || !$global) && _to_dt(param('planned'));
+
+        $ticket->name(param 'name');
+        $ticket->description(param 'description');
+        $ticket->contractor_id(param 'contractor');
+        $ticket->cost_planned(param 'cost_planned');
+        $ticket->cost_actual(param 'cost_actual');
+        $ticket->local_only(param 'local_only');
+        $ticket->completed($completed);
+        $ticket->planned($planned);
+
+        # A normal user cannot edit a ticket that has already been created,
+        # unless it is related to a locally created task
+        if ($id)
+        {
+            error __"You do not have permission to edit this ticket"
+                unless var('login')->is_admin || $ticket->local_only;
+        }
+        else {
+            # Insert related entry in site_task table for new ticket. Cannot be changed
+            # for existing ticket
+            $ticket->site_task(
+                rset('SiteTask')->new({
+                    site_id => param('site_id'),
+                    task_id => $task && $task->id,
+                }),
+            );
+        }
+
+        my $was_local = $id && $ticket->local_only; # Need old setting to see if to send email
+        if (process sub { $ticket->update_or_insert })
+        {
+            # XXX Ideally the comment would be written as a relationship
+            # at the same time as the ticket, but I couldn't get it to
+            # work ($ticket->comments([ .. ]) appears to do nothing)
+            if ($comment)
+            {
+                $comment->ticket_id($ticket->id);
+                $comment->insert;
+            }
+            my $template; my $subject; my $status;
+            if ($id)
+            {
+                $template = 'ticket/update';
+                $subject  = "Ticket updated - ";
+                $status   = 'updated';
+            }
+            else {
+                $template = 'ticket/new';
+                $subject  = "New ticket - ";
+                $status   = 'created';
+            }
+            my $args = {
+                login       => var('login'),
+                template    => $template,
+                url         => "/ticket/".$ticket->id,
+                name        => $ticket->name,
+                subject     => $subject,
+                description => $ticket->description,
+                planned     => $planned,
+                completed   => $completed,
+            };
+            # Assume send update to admin
+            my $send_email = 1;
+            # Do not send email update if new ticket and local, or was local_only and still is local only
+            $send_email = 0 if ((!$id && $ticket->local_only) || ($id && $ticket->local_only && $was_local));
+            # Do not send email if local site task
+            $send_email = 0 if $task && !$task->global;
+            if ($send_email)
+            {
+                my $email = Lenio::Email->new(
+                    config   => config,
+                    schema   => schema,
+                    uri_base => request->uri_base,
+                    site     => rset('Site')->find(param 'site_id'),
+                );
+                $email->send($args);
+            }
+            forwardHome(
+                { success => "Ticket has been successfully $status" }, 'tickets');
+        }
+    }
+
+    if (param 'addcomment')
+    {
+        $comment->ticket_id($ticket->id);
+        if (process sub { $comment->insert })
+        {
+            my $args = {
+                login       => var('login'),
+                template    => 'ticket/comment',
+                url         => "/ticket/$id",
+                name        => $ticket->name,
+                subject     => "Ticket updated - ",
+                description => $ticket->description,
+                comment     => param('comment'),
+            };
+            my $email = Lenio::Email->new(
+                config   => config,
+                schema   => schema,
+                uri_base => request->uri_base,
+                site     => rset('Site')->find($ticket->site_task->site_id),
+            );
+            $email->send($args);
+        }
+    }
+
+    template 'ticket' => {
         id           => $id,
-        task         => $task,
-        tickets      => \@tickets,
-        attaches     => $attaches,
-        contractors  => \@contractors,
-        task_tickets => session('task_tickets'),
-        messages     => session('messages'),
-        login        => var('login'),
+        ticket       => $ticket,
+        contractors  => [rset('Contractor')->all],
         page         => 'ticket'
     };
-    session 'messages' => [];
-    $output;
+};
+
+get '/tickets/?' => require_login sub {
+
+    # Set filtering of tickets based on drop-down
+    if (defined param('task_tickets'))
+    {
+        my $tt = param('task_tickets');
+        my $task_tickets = $tt eq 'all'
+            ? 'all'
+            : $tt eq 'tasks'
+            ? 'tasks'
+            : 'reactive';
+        session task_tickets => $task_tickets;
+    }
+    elsif (!session('task_tickets'))
+    {
+        session 'task_tickets' => 'reactive'; # Default to only reactionary
+    }
+
+    my $task_tickets = session('task_tickets') eq 'all'
+                     ? undef
+                     : session('task_tickets') eq 'tasks'
+                     ? 1
+                     : 0;
+
+    my $task = param('task_id') && rset('Task')->find(param 'task_id');
+
+    if ($task && $task->id)
+    {
+        # Check whether the user has access to this task
+        my @sites = map { $_->site_id } $task->site_tasks->all;
+        forwardHome(
+            { danger => "You do not have permission for service item ".$task->id } )
+                unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
+    }
+
+    my $uncompleted_only; my $task_id;
+    if (param('task_id'))
+    {
+        $uncompleted_only = 0;
+        $task_id          = param('task_id');
+    }
+    else {
+        $uncompleted_only = 1;
+    }
+    my @tickets = rset('Ticket')->summary(
+        login            => var('login'),
+        site_id          => session('site_id'),
+        uncompleted_only => $uncompleted_only,
+        task_id          => $task_id,
+        task_tickets     => $task_id ? undef : $task_tickets,
+    );
+
+    template 'tickets' => {
+        task         => $task, # Tickets related to task
+        tickets      => \@tickets,
+        dateformat   => config->{lenio}->{dateformat},
+        task_tickets => session('task_tickets'),
+        page         => 'ticket'
+    };
 };
 
 get '/attach/:file' => require_login sub {
-    my $file = Lenio::Ticket->attachGet(param 'file');
-    $file or 
-        forwardHome({ danger => 'File not found' });
+    my $file = rset('Attach')->find(param 'file')
+        or error __x"File ID {id} not found", id => param('file');
     my $data = $file->content;
     my $site_id = $file->ticket->site_task->site_id;
-    if ( Lenio::Login->hasSite(var('login'), $site_id ))
+    if ( var('login')->has_site($site_id))
     {
         send_file( \$data, content_type => $file->mimetype );
     } else {
@@ -700,152 +659,96 @@ get '/attach/:file' => require_login sub {
     }
 };
 
-any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
-    my ( $action, $id ) = splat;
+any '/task/?:id?' => require_login sub {
 
-    if (var('login')->{is_admin})
+    my $action;
+    my $id = route_parameters->get('id');
+
+    if (var('login')->is_admin)
     {
         if (param 'taskadd')
         {
-            eval { Lenio::Site->taskAdd(session('site_id'), param('taskadd')) };
+            rset('SiteTask')->find_or_create({ task_id => param('taskadd'), site_id => session('site_id'), ticket_id => undef });
         }
         if (param 'taskrm')
         {
-            eval { Lenio::Site->taskRm(session('site_id'), param('taskrm')) };
-        }
-        if (param 'taskdel')
-        {
-            eval { Lenio::Task->delete(param('taskdel')) };
+            rset('SiteTask')->search({ task_id => param('taskrm'), site_id => session('site_id'), ticket_id => undef })->delete;
         }
     }
-    # Anyone can delete local tasks
-    if (param 'localtaskdel')
+
+    my $task = defined($id) && ($id && rset('Task')->find($id) || rset('Task')->new({}));
+
+    my @tasks; my @tasks_local; my @adhocs; my @site_checks; my %site_checks_done;
+
+    if ($task && $task->id)
     {
-        eval { Lenio::Task->delete(param('localtaskdel')) }
-            if Lenio::Login->hasSite(var('login'), Lenio::Task->site(param('localtaskdel')));
-    }
-
-    # Catch any errors from above operations
-    messageAdd( { danger => bleep } )
-        if hug;
-
-    my @tasks; my @tasks_local; my @adhocs; my @site_checks;
-    if (  $action eq 'new' ) {
-        if ( param('submit') ) {
-            my $task = {
-                name        => param('name'),
-                description => param('description'),
-                period_qty  => param('period_qty'),
-                period_unit => param('period_unit'),
-            };
-            if (var('login')->{is_admin})
-            {
-                $task->{global} = 1;
-            }
-            else
-            {
-                $task->{site_tasks} = [{ site_id => param('site_id') }];
-                $task->{global}    = 0;
-            }
-            eval { Lenio::Task->new($task) };
-            if (hug)
-            {
-                messageAdd( { danger => bleep } );
-            }
-            else {
-                forwardHome(
-                    { success => 'Service item has been successfully created' }, 'task' );
-            }
-        }
-        @tasks = ({ site_id => session('site_id') });
-    }
-    elsif ( $action eq 'view' ) {
-
-        # Check whether the user has access to this ticket
-        my $task = Lenio::Task->view($id)
-            or forwardHome({ danger => 'Requested service item not found' });
+        # Check whether the user has access to this task
         my @sites = map { $_->site_id } $task->site_tasks->all;
         forwardHome(
             { danger => "You do not have permission for service item $id" } )
-                unless $task->global || Lenio::Login->hasSite(var('login'), @sites);
-
-        if ( var('login')->{is_admin} && param('tasktype_add') )
-        {
-            eval { Lenio::Task->tasktype_add(param 'tasktype_name') };
-            if (hug)
-            {
-                messageAdd( { danger => bleep } );
-            }
-            else {
-                forwardHome(
-                    { success => 'Task type has been added' }, "task/view/$id" );
-            }
-        }
-
-        if ( param('submit') ) {
-            forwardHome(
-                { danger => 'You do not have permission to edit this item' } )
-                    unless var('login')->{is_admin};
-
-            my $ntask = {
-                id          => $id,
-                name        => param('name'),
-                description => param('description'),
-                tasktype_id => param('tasktype_id'),
-                period_qty  => param('period_qty'),
-                period_unit => param('period_unit'),
-            };
-            eval { Lenio::Task->update($ntask) };
-            if (hug)
-            {
-                messageAdd( { danger => bleep } );
-            }
-            else {
-                forwardHome(
-                    { success => 'Service item has been successfully updated' }, 'task' );
-            }
-            # Reload updated task from database (to prove update)
-            my $task = Lenio::Task->view($id)
-              or forwardHome({ danger => 'Requested service item not found' });
-        }
-        @tasks = ($task);
+                unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
     }
-    elsif ($action eq "check")
+
+    if (param 'delete')
     {
-        if (param 'submitcheck')
+        my $site_id = $task->site_task_local && $task->site_task_local->site_id; # Site ID for local tasks
+        if (var('login')->is_admin)
         {
-            my $params = params;
-            eval { Lenio::Task->check_update($id, $params) };
-            if (hug)
+            if (process sub { $task->delete })
             {
-                messageAdd( { danger => bleep } );
-            }
-            elsif(param 'checkitem') {
-                forwardHome(
-                    { success => 'The check item has been added successfully' }, "task/check/$id" );
-            }
-            else {
-                forwardHome(
-                    { success => 'The site check has been successfully updated' }, 'task' );
+                    forwardHome({ success => 'Service item has been successfully deleted' }, 'task' );
             }
         }
-        my $check = Lenio::Task->check(session('site_id'), $id);
-        my $output = template 'check_edit' => {
-            check       => $check,
-            login       => var('login'),
-            site_id     => session('site_id'),
-            messages    => session('messages'),
-            login       => var('login'),
-            page        => 'check'
-        };
-        session 'messages' => [];
-        return $output;
+        elsif (var('login')->has_site($site_id))
+        {
+            if (process sub { $task->delete })
+            {
+                    forwardHome({ success => 'Service item has been successfully deleted' }, 'task' );
+            }
+        }
+        else {
+            error __x"You do not have permission to delete task ID {id}", id => $id;
+        }
     }
+
+    if ( var('login')->is_admin && param('tasktype_add') )
+    {
+        if (process sub { rset('Tasktype')->create({name => param('tasktype_name')}) })
+        {
+            forwardHome(
+                { success => 'Task type has been added' }, "task/$id" );
+        }
+    }
+
+    if ( param('submit') ) {
+
+        if (var('login')->is_admin)
+        {
+            $task->global(1);
+        }
+        else
+        {
+            $task->set_site_id(param 'site_id');
+            $task->global(0);
+        }
+
+        $task->name(param 'name');
+        $task->description(param 'description');
+        $task->tasktype_id(param('tasktype_id') || undef); # Fix empty string from form
+        $task->period_qty(param 'period_qty');
+        $task->period_unit(param 'period_unit');
+
+        if (process sub { $task->update_or_insert })
+        {
+                forwardHome({ success => 'Service item has been successfully created' }, 'task' );
+        }
+    }
+
     else
     {
-        my $csv = (var('login')->{site} && param('csv')) || ""; # prevent warnings. not for all sites
+        my $csv = (session('site_id') && param('csv')) || ""; # prevent warnings. not for all sites
         # Get all the global tasks.
-        @tasks = Lenio::Task->summary(session ('site_id') || undef, {global => 1, fy => session('fy')});
+        @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
         if ($csv eq 'service')
         {
             my $csv = Text::CSV->new;
@@ -855,20 +758,20 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
             foreach my $task (@tasks)
             {
                 my @row = (
-                    $task->{name},
-                    $task->{strike} ? 'No' : 'Yes',
-                    $task->{period_qty},
-                    $task->{period_unit},
-                    $task->{planned} && $task->{planned}->ymd,
-                    $task->{completed} && $task->{completed}->ymd,
-                    $task->{cost_planned},
-                    $task->{cost_actual}
+                    $task->name,
+                    $task->strike ? 'No' : 'Yes',
+                    $task->period_qty,
+                    $task->period_unit,
+                    $task->planned && $task->planned->ymd,
+                    $task->completed && $task->completed->ymd,
+                    $task->cost_planned,
+                    $task->cost_actual,
                 );
                 $csv->combine(@row);
                 $csvout .= $csv->string."\n";
             }
             my $now = DateTime->now->ymd;
-            my $site = var('login')->{site}->org->name;
+            my $site = rset('Site')->find(session 'site_id')->org->name;
             return send_file(
                 \$csvout,
                 content_type => 'text/csv',
@@ -877,7 +780,12 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
         }
 
         # Get any adhoc tasks
-        @adhocs = Lenio::Ticket->all(var('login'), { site_id => session ('site_id'), adhoc_only => 1, fy => session('fy') });
+        @adhocs = rset('Ticket')->summary(
+            login      => var('login'),
+            site_id    => session('site_id'),
+            adhoc_only => 1,
+            fy         => session('site_id') && session('fy'),
+        );
         if ($csv eq 'reactive')
         {
             my $csv = Text::CSV->new;
@@ -895,7 +803,7 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
                 $csvout .= $csv->string."\n";
             }
             my $now = DateTime->now->ymd;
-            my $site = var('login')->{site}->org->name;
+            my $site = rset('Site')->find(session 'site_id')->org->name;
             return send_file(
                 \$csvout,
                 content_type => 'text/csv',
@@ -903,50 +811,48 @@ any qr{^/task/?([\w]*)/?([\d]*)$} => require_login sub {
             );
         }
         # Get all the local tasks
-        @tasks_local = Lenio::Task->summary(session ('site_id') || undef, {global => 0, onlysite => 1, fy => session('fy')});
+        @tasks_local = rset('Task')->summary(site_id => session('site_id'), global => 0, onlysite => 1, fy => session('fy'));
         # Get all the site checks
-        @site_checks = Lenio::Task->site_checks(session ('site_id') || undef);
+        @site_checks = rset('Task')->site_checks;
+        %site_checks_done = map { $_->id => $_ } rset('Task')->site_checks(session 'site_id');
         $action = '';
     }
 
-    my $output = template 'task' => {
-        login       => var('login'),
+    template 'task' => {
         dateformat  => config->{lenio}->{dateformat},
         action      => $action,
-        site_id     => session('site_id'),
+        site        => rset('Site')->find(session 'site_id'),
         site_checks => \@site_checks,
+        site_checks_done => \%site_checks_done,
+        task        => $task,
         tasks       => \@tasks,
         tasks_local => \@tasks_local,
-        tasktypes   => [Lenio::Task->tasktypes],
+        tasktypes   => [rset('Tasktype')->all],
         adhocs      => \@adhocs,
-        messages    => session('messages'),
-        login       => var('login'),
         page        => 'task'
     };
-    session 'messages' => [];
-    $output;
 };
 
 get '/data' => require_login sub {
 
-    # Epochs received from the calendar module are based on the timezone of the local
-    # browser. So in BST, 24th August is requested as 23rd August 23:00. Rather than
-    # trying to convert timezones, we keep things simple and round down any "from"
-    # times and round up any "to" times.
-    my $utc_offset = param('utc_offset') * -1;
+    my $utc_offset = param('utc_offset') * -1; # Passed from calendar plugin as query parameter
     my $from  = DateTime->from_epoch( epoch => ( param('from') / 1000 ) )->add( minutes => $utc_offset );
     my $to    = DateTime->from_epoch( epoch => ( param('to') / 1000 ) )->add(minutes => $utc_offset );
 
     my @tasks;
     my @sites = session('site_id')
-              ? ( Lenio::Site->site( session 'site_id' ) )
-              : @{var('login')->{sites}};
+              ? ( rset('Site')->find( session 'site_id' ) )
+              : var('login')->sites;
     foreach my $site (@sites) {
-        push @tasks, Lenio::Task->calendar_check( $from, $to, $site->id, var('login') );
-        foreach my $task ( Lenio::Task->calendar( $from, $to, $site->id, var('login') ) ) {
-            my $t = Lenio::Task->calPopulate($task, $site);
-            push @tasks, $t if $t;
-        }
+        my $calendar = Lenio::Calendar->new(
+            from   => $from,
+            to     => $to,
+            site   => $site,
+            login  => var('login'),
+            schema => schema,
+        );
+        push @tasks, $calendar->tasks;
+        push @tasks, $calendar->checks;
     }
     _send_json ({
         success => 1,
@@ -955,14 +861,25 @@ get '/data' => require_login sub {
 };
 
 sub forwardHome {
-    if (my $message = shift)
-    {
-        my $text = ( values %$message )[0];
-        my $type = ( keys %$message )[0];
+    my ($message, $page, %options) = @_;
 
-        messageAdd($message);
+    if ($message)
+    {
+        my ($type) = keys %$message;
+        my $lroptions = {};
+        # Check for option to only display to user (e.g. passwords)
+        $lroptions->{to} = 'error_handler' if $options{user_only};
+
+        if ($type eq 'danger')
+        {
+            $lroptions->{is_fatal} = 0;
+            report $lroptions, ERROR => $message->{$type};
+        }
+        else {
+            report $lroptions, NOTICE => $message->{$type}, _class => 'success';
+        }
     }
-    my $page = shift || '';
+    $page ||= '';
     redirect "/$page";
 }
 
@@ -985,6 +902,14 @@ sub password_generator
 {
     my $passgen  = Crypt::YAPassGen->new(algorithm  =>  'linear', length => 8);
     $passgen->generate();
+}
+
+sub _to_dt
+{   my $parser = DateTime::Format::Strptime->new(
+         pattern   => '%Y-%m-%d',
+         time_zone => 'local',
+    );
+    $parser->parse_datetime(shift);
 }
 
 true;

@@ -1,0 +1,22 @@
+<h3>Site checks ([% login.site.org.name %] - [% login.site.name %])</h3>
+<table class="table table-striped">
+    <tr>
+        <th>Name</th>
+        <th>Frequency</th>
+        <th>Last recorded</th>
+    </tr>
+
+    [% FOR check IN site_checks %]
+        <tr>
+            <td>
+                [% check.name %] (<a href="/check/[% check.id %]">Log done</a>)
+            </td>
+            <td>
+                [% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]
+            </td>
+            <td>
+                [% check.last_completed.strftime(dateformat) %]
+            </td>
+        </tr>
+    [% END %]
+</table>

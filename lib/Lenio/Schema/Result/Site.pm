@@ -1,6 +1,8 @@
 use utf8;
 package Lenio::Schema::Result::Site;
 
+use DateTime;
+
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
@@ -111,6 +113,27 @@ __PACKAGE__->has_many(
 
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:k2lbRiS+ORau+TuTEQwvcg
+
+sub fys
+{   my $self = shift;
+
+    # Calculate financial years for this organisation
+    my $fyfrom = $self->org->fyfrom->clone;
+    my $now    = DateTime->now;
+    $now->add({ years => 1 }) # Check for future FY from of organisation
+        if DateTime->compare($fyfrom, $now) == 1;
+    my @fys;
+    while (DateTime->compare($now, $fyfrom) > 0)
+    {
+        my $y = $fyfrom->year;
+        # Just show year in description if start is 1st jan
+        my $name = ($fyfrom->month == 1 && $fyfrom->day == 1) ? $y : "$y-".($y+1);
+        push @fys, { name => $name, year => $y };
+        $fyfrom->add({ years => 1 });
+    }
+
+    \@fys;
+}
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

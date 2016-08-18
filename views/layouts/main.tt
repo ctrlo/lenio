@@ -49,15 +49,15 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li [% IF page == "index" %]class="active"[% END %]><a href="/">Calendar</a></li>
-                    <li [% IF page == "ticket" %]class="active"[% END %]><a href="/ticket">Tickets</a></li>
+                    <li [% IF page == "ticket" %]class="active"[% END %]><a href="/tickets">Tickets</a></li>
                     [% IF login.is_admin %]
                         <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Tasks</a></li>
                         <li [% IF page == "notice" %]class="active"[% END %]><a href="/notice">Notices</a></li>
                         <li [% IF page == "contractor" %]class="active"[% END %]><a href="/contractor">Contractors</a></li>
-                        <li [% IF page == "user" %]class="active"[% END %]><a href="/user">Users</a></li>
+                        <li [% IF page == "user" %]class="active"[% END %]><a href="/users">Users</a></li>
                     [% ELSE %]
                         <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Summary</a></li>
-                        <li [% IF page == "check" %]class="active"[% END %]><a href="/check">Site checks</a></li>
+                        <li [% IF page == "check" %]class="active"[% END %]><a href="/checks">Site checks</a></li>
                     [% END %]
 
                     <li class="dropdown">
@@ -76,7 +76,7 @@
                         <li>
                         <a href="?site=[% site.id %]">
                             [% site.org.name %] ([% site.name %])
-                            [% IF site.id == login.site.id %]
+                            [% IF site.id == session.site_id %]
                             <span class="glyphicon glyphicon-ok"></span>
                             [% END %]
                         </a></li>
@@ -111,7 +111,7 @@
         </nav>
     [% END %]
 
-    [% FOR notice IN login.notices %]
+    [% FOR notice IN login.login_notices %]
         <div class="alert alert-info alert-dismissable" data-someid="[% notice.id %]">
         <button id="my-alert" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         [% notice.notice.text %]
@@ -119,13 +119,8 @@
     [% END %]
 
     [% FOR message IN messages %]
-        [% IF message.type %]
-            [% msgtype = message.type %]
-        [% ELSE %]
-            [% msgtype = "info" %]
-        [% END %]
-        <div class="alert alert-[% msgtype %]">
-        [% message.text %]
+        <div class="alert alert-[% message.bootstrap_color %]">
+            [% message.toString | html_entity %]
         </div>
     [% END %]
 

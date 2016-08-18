@@ -1,10 +1,28 @@
-use Test::More tests => 2;
 use strict;
 use warnings;
 
-# the order is important
 use Lenio;
-use Dancer2::Test apps => ['Lenio'];
+use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
-route_exists [GET => '/'], 'a route handler is defined for /';
-response_status_is ['GET' => '/'], 200, 'response status is 200 for /';
+my $app = Lenio->to_app;
+is( ref $app, 'CODE', 'Got app' );
+
+my $test = Plack::Test->create($app);
+my $res  = $test->request( GET '/' );
+
+ok( $res->is_redirect, '[GET /] successful' );
+
+is(
+    $res->headers->header('Location'),
+    'http://localhost/login?return_url=%2F',
+    '/loggedin redirected to login page when not logged in'
+);
+
+$res = $test->request( POST '/login', [ username => 'foo', password => 'bar' ] );
+
+is( $res->code, 401, 'Login with fake details fails' );
+
+
+done_testing;

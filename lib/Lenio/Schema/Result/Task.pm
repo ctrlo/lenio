@@ -1,6 +1,8 @@
 use utf8;
 package Lenio::Schema::Result::Task;
 
+use Log::Report;
+
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
@@ -25,13 +27,16 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->mk_group_accessors('simple' => qw/set_site_id/);
+__PACKAGE__->mk_group_accessors('column' => qw/cost_planned cost_actual/);
+__PACKAGE__->load_components("InflateColumn::DateTime", "+Lenio::DBIC");
 
 =head1 TABLE: C<task>
 
 =cut
 
 __PACKAGE__->table("task");
+
 
 =head1 ACCESSORS
 
@@ -114,20 +119,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<name_UNIQUE>
-
-=over 4
-
-=item * L</name>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("name_UNIQUE", ["name"]);
-
 =head1 RELATIONS
 
 =head2 check_items
@@ -157,7 +148,7 @@ __PACKAGE__->has_many(
   "site_tasks",
   "Lenio::Schema::Result::SiteTask",
   { "foreign.task_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 =head2 tasktype
@@ -180,9 +171,25 @@ __PACKAGE__->belongs_to(
   },
 );
 
+__PACKAGE__->might_have(
+  "site_task_local",
+  "Lenio::Schema::Result::SiteTask",
+  sub {
+      my $args = shift;
+      return {
+        "$args->{foreign_alias}.task_id" =>
+            { -ident => "$args->{self_alias}.id" },
+        "$args->{self_alias}.global" =>
+            { '=', "0" },
+      };
+  },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mrxO7r3zukvdTmr3R5FuOg
+
 
 __PACKAGE__->load_components(qw(ParameterizedJoinHack));
 __PACKAGE__->parameterized_has_many(
@@ -193,11 +200,78 @@ __PACKAGE__->parameterized_has_many(
         "$args->{foreign_alias}.task_id" =>
           { -ident => "$args->{self_alias}.id" },
         "$args->{foreign_alias}.site_id" =>
-          $_{site_id}
+          $_{site_id},
       }
     }
   ]
 );
+
+__PACKAGE__->parameterized_has_many(
+  site_single_tasks_undef => 'Lenio::Schema::Result::SiteTask',
+  [ [ qw(site_id) ], sub {
+      my $args = shift;
+      +{
+        "$args->{foreign_alias}.task_id" =>
+          { -ident => "$args->{self_alias}.id" },
+        "$args->{foreign_alias}.site_id" =>
+          $_{site_id},
+        "$args->{foreign_alias}.ticket_id" =>
+          undef,
+      }
+    }
+  ]
+);
+
+sub strike {
+    my $self = shift;
+    my $site_task = ($self->site_single_tasks_undef)[0] or return 1;
+    !defined ($site_task->site_id) ? 1 : 0;
+}
+
+sub validate {
+    my $self = shift;
+
+    my $name = $self->name;
+    $name =~ s/^\h+//;
+    $name =~ s/\h+$//;
+    $name
+        or error __"Please provide a name for the task";
+    $self->name($name);
+    $self->description
+        or error __"Please provide a description for the task";
+    $self->period_qty
+        or error __"Please specify the period frequency";
+    $self->period_unit
+        or error __"Please specify the period units";
+}
+
+sub after_create
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    if ($self->set_site_id)
+    {
+        $schema->resultset('SiteTask')->create({
+            task_id => $self->id,
+            site_id => $self->set_site_id,
+        });
+    }
+}
+
+sub last_completed
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $last_completed = $self->get_column('last_completed')
+        or return;
+    $self->parse_dt($last_completed);
+}
+
+sub last_planned
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $last_planned = $self->get_column('last_planned')
+        or return;
+    $self->parse_dt($last_planned);
+}
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

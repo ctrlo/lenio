@@ -83,6 +83,8 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+__PACKAGE__->add_unique_constraint("check_item_done_UNIQUE", ["check_item_id", "check_done_id"]);
+
 =head1 RELATIONS
 
 =head2 check_done
@@ -97,7 +99,7 @@ __PACKAGE__->belongs_to(
   "check_done",
   "Lenio::Schema::Result::CheckDone",
   { id => "check_done_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 check_item

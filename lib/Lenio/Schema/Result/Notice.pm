@@ -25,7 +25,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "+Lenio::DBIC");
 
 =head1 TABLE: C<notice>
 
@@ -88,6 +88,21 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BcynCYMICYNALTsgmZP8jg
 
+sub validate {
+    my $self = shift;
+    error __"Please enter some text for the noticer" unless $self->text;
+}
+
+sub after_create
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my @toshow;
+    foreach my $login ($schema->resultset('Login')->search)
+    {
+        push @toshow, { notice_id => $self->id, login_id => $login->id };
+    }
+    $schema->resultset('LoginNotice')->populate(\@toshow);
+}
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

@@ -1,115 +1,81 @@
-[% IF action %]
-    [% IF action == "new" %]
-    <h3>Add new user</h3>
-    [% ELSE %]
+[% IF edit_login.id %]
     <h3>Update user</h3>
-    [% END %]
-    [% l = logins.last %]
-
-    <div class="row">
-        <form role="form" method="post">
-            <div class="col-sm-6">
-                <input type="hidden" name="username" value="[% l.username %]">
-                <div class="form-group">
-                    <label for="firstname">Firstname</label>
-		    <input type="text" name="firstname" id="firstname" class="form-control" value="[% l.firstname %]">
-                </div>
-                <div class="form-group">
-                    <label for="surname">Surname</label>
-		    <input type="text" name="surname" id="surname" class="form-control" value="[% l.surname %]">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email address</label>
-		    <input type="email" name="email" id="email" class="form-control" value="[% l.email %]">
-                </div>
-                [% IF login.is_admin %]
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="is_admin" id="is_admin"
-                            [% IF l.is_admin %]checked[% END %]
-                            >Administrator
-                        </label>
-                    </div>
-                [% ELSE %]
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="email_ticket" id="email_ticket"
-                            [% IF l.email_ticket %]checked[% END %]
-                            >Receive emails on ticket updates
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="email_comment" id="email_comment"
-                            [% IF l.email_comment %]checked[% END %]
-                            >Receive emails on ticket comments
-                        </label>
-                    </div>
-                [% END %]
-                <div class="form-group">
-		    <button type="submit" name="submit" value="submit" class="btn btn-default">
-			[% IF action == "new" %]
-			    Add
-			[% ELSE %]
-			    Update
-			[% END %]
-		    </button>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                [% IF login.is_admin AND NOT l.is_admin %]
-                    <label for="firstname">Organisation membership</label>
-                        <table class="table table-striped">
-                            [% user_orgs = [] %]
-                            [% FOREACH s IN l.login_orgs %]
-                                [% user_orgs.push(s.org.id) %]
-                            [% END %]
-                            [% FOR org IN orgs %]
-                            <tr>
-                                <td>
-                                            <input type="checkbox" name="org_ids" value="[% org.id %]"
-                                                [% IF user_orgs.grep("^$org.id\$").size %]checked[% END %]
-                                            > [% org.name %]
-                                </td>
-                            </tr>
-                            [% END %]
-                        </table> 
-                [% END %]
-            </div>
-        </form>
-    </div>
-
 [% ELSE %]
-    <h3>Users</h3>
-    <p>
-        <a href="/user/new" class="btn btn-default" role="button">Add new user</a>
-    </p>
-    [% IF logins.size %]
-	<form method="post">
-	<table class="table table-striped">
-	    <tr>
-		<th></th>
-		<th>email</th>
-                <th>Firstname</th>
-                <th>Surname</th>
-	    </tr>
-
-	    [% FOR l IN logins %]
-	    <tr>
-		<td>
-		    <button type="submit" class="btn-xs btn-link" name="delete" value="[% l.id %]" title="Delete user">
-			<span class="glyphicon glyphicon-remove"></span>
-		    </button>
-		</td>
-                <td><a href="/user/view/[% l.id %]">[% l.username %]</a></td>
-		<td>[% l.firstname %]</td>
-		<td>[% l.surname %]</td>
-	    </tr>
-	    [% END %]
-	</table> 
-	</form>
-    [% ELSE %]
-	<p>There are no existing users</p>
-    [% END %]
+    <h3>Add new user</h3>
 [% END %]
 
+<div class="row">
+    <form role="form" method="post">
+        <div class="col-sm-6">
+            <input type="hidden" name="username" value="[% edit_login.username %]">
+            <div class="form-group">
+                <label for="firstname">Firstname</label>
+                <input type="text" name="firstname" id="firstname" class="form-control" value="[% edit_login.firstname %]">
+            </div>
+            <div class="form-group">
+                <label for="surname">Surname</label>
+                <input type="text" name="surname" id="surname" class="form-control" value="[% edit_login.surname %]">
+            </div>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" name="email" id="email" class="form-control" value="[% edit_login.email %]">
+            </div>
+            [% IF login.is_admin %]
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="is_admin" id="is_admin"
+                            [% IF edit_login.is_admin %]checked[% END %]
+                        >Administrator
+                    </label>
+                </div>
+            [% ELSE %]
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="email_ticket" id="email_ticket"
+                            [% IF edit_login.email_ticket %]checked[% END %]
+                        >Receive emails on ticket updates
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="email_comment" id="email_comment"
+                            [% IF edit_login.email_comment %]checked[% END %]
+                        >Receive emails on ticket comments
+                    </label>
+                </div>
+            [% END %]
+            <div class="form-group">
+                <button type="submit" name="submit" value="submit" class="btn btn-default">
+                    [% IF edit_login.id %]
+                        Update
+                    [% ELSE %]
+                        Add
+                    [% END %]
+                </button>
+                [% IF edit_login.id AND login.is_admin %]
+                    <button type="submit" name="delete" value="delete" class="btn btn-default">Delete</button>
+                [% END %]
+            </div>
+        </div>
+        <div class="col-sm-6">
+            [% IF login.is_admin AND NOT edit_login.is_admin %]
+                <label>Organisation membership</label>
+                <table class="table table-striped">
+                    [% user_orgs = [] %]
+                    [% FOREACH s IN edit_login.login_orgs %]
+                        [% user_orgs.push(s.org.id) %]
+                    [% END %]
+                    [% FOR org IN orgs %]
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="org_ids" value="[% org.id %]"
+                                    [% IF user_orgs.grep("^$org.id\$").size %]checked[% END %]
+                                > [% org.name %]
+                            </td>
+                        </tr>
+                    [% END %]
+                </table> 
+            [% END %]
+        </div>
+    </form>
+</div>

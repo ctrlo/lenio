@@ -1,0 +1,41 @@
+<h3>New ticket</h3>
+<p>
+    [% IF task %]
+        <a href="/ticket/0?task_id=[% task.id %]&site_id=[% login.site.id %]" class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
+    [% ELSE %]
+        <a href="/ticket/0" class="btn btn-default" role="button">Create new reactive ticket</a>
+    [% END %]
+</p>
+<div class="row">
+    <div class="col-md-8">
+        <h3>Existing tickets[% IF task %] ([% task.name %])[% END %]</h3>
+    </div>
+    <div class="col-md-4">
+        [% UNLESS task %]
+        <form method="get">
+            <select class="form-control" name="task_tickets" onchange="this.form.submit()">
+                <option value="all" [% IF task_tickets == "all" %]selected[% END %]>Show all tickets</option>
+                <option value="reactive" [% IF task_tickets == "reactive" %]selected[% END %]>Show only reactive tickets</option>
+                <option value="tasks" [% IF task_tickets == "tasks" %]selected[% END %]>Show only tickets related to tasks</option>
+            </select>
+        </form>
+        [% END %]
+    </div>
+</div>
+<table class="table table-striped">
+    <tr>
+        <th>Title</th>
+        <th>Site</th>
+        <th>Planned</th>
+        <th>Completed</th>
+    </tr>
+
+    [% FOR ticket IN tickets %]
+    <tr>
+        <td><a href="/ticket/[% ticket.id %]">[% IF ticket.name %][% ticket.name %][% ELSE %]View ticket[% END %]</a></td>
+        <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
+        <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
+        <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
+    </tr>
+    [% END %]
+</table> 
