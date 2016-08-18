@@ -40,6 +40,26 @@ $schema->resultset('Ticket')->create({
 
 is( _strike($schema, $site), 1, 'Task still struck out with ticket against it');
 
+# Local tasks
+my $local = $schema->resultset('Task')->new({
+    global      => 0,
+    name        => 'Local 1',
+    description => 'Local 1',
+    period_qty  => 1,
+    period_unit => 'month',
+});
+$local->set_site_id($site->id);
+$local->insert;
+
+is( $schema->resultset('Task')->summary(site_id => $site->id, onlysite => 1, global => 0), 1, 'One local task in summary' );
+
+my $site2 = $schema->resultset('Site')->create({
+    name   => 'Site 2',
+    org_id => $seed_data->org->id,
+});
+
+is( $schema->resultset('Task')->summary(site_id => $site2->id, onlysite => 1, global => 0), 0, 'No local tasks for second site' );
+
 done_testing();
 
 sub _strike

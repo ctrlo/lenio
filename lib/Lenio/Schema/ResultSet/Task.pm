@@ -15,7 +15,7 @@ sub summary
 
     my $site_id = $options{site_id};
     my $search  = { site_check => 0 };
-#    $search->{'site_task.site_id'} = $site_id if $options{onlysite};
+    $search->{'site_single_tasks_undef.site_id'} = $site_id if $options{onlysite};
     $search->{global}  = $options{global} if exists $options{global};
 
     my @dates;
