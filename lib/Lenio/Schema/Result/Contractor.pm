@@ -69,20 +69,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<name_UNIQUE>
-
-=over 4
-
-=item * L</name>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("name_UNIQUE", ["name"]);
-
 =head1 RELATIONS
 
 =head2 tickets

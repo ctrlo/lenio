@@ -1,6 +1,6 @@
 -- 
 -- Created by SQL::Translator::Producer::PostgreSQL
--- Created on Fri Aug 19 10:39:44 2016
+-- Created on Fri Aug 19 10:51:46 2016
 -- 
 ;
 --
@@ -80,8 +80,7 @@ CREATE INDEX "comment_idx_ticket_id" on "comment" ("ticket_id");
 CREATE TABLE "contractor" (
   "id" serial NOT NULL,
   "name" text NOT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "name_UNIQUE" UNIQUE ("name")
+  PRIMARY KEY ("id")
 );
 
 ;
@@ -185,8 +184,7 @@ CREATE TABLE "org" (
   "id" serial NOT NULL,
   "name" text,
   "fyfrom" date,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "name_UNIQUE" UNIQUE ("name")
+  PRIMARY KEY ("id")
 );
 
 ;

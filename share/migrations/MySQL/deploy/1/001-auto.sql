@@ -1,6 +1,6 @@
 -- 
 -- Created by SQL::Translator::Producer::MySQL
--- Created on Fri Aug 19 10:39:43 2016
+-- Created on Fri Aug 19 10:51:45 2016
 -- 
 ;
 SET foreign_key_checks=0;
@@ -79,8 +79,7 @@ CREATE TABLE `comment` (
 CREATE TABLE `contractor` (
   `id` integer NOT NULL auto_increment,
   `name` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE `name_UNIQUE` (`name`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 --
 -- Table: `event`
@@ -176,8 +175,7 @@ CREATE TABLE `org` (
   `id` integer NOT NULL auto_increment,
   `name` text NULL,
   `fyfrom` date NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE `name_UNIQUE` (`name`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 --
 -- Table: `permission`

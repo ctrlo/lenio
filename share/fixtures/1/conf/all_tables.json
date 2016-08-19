@@ -1,76 +1,22 @@
 {
-   "has_many" : {
-      "fetch" : 0
-   },
    "belongs_to" : {
       "fetch" : 0
    },
-   "might_have" : {
-      "fetch" : 0
-   },
    "sets" : [
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Notice",
+         "quantity" : "all"
+      },
       {
          "quantity" : "all",
          "class" : "Permission"
       },
       {
-         "quantity" : "all",
-         "class" : "LoginPermission"
-      },
-      {
-         "quantity" : "all",
-         "class" : "Notice"
-      },
-      {
-         "class" : "Attach",
-         "quantity" : "all"
-      },
-      {
-         "quantity" : "all",
-         "class" : "Ticket"
-      },
-      {
-         "quantity" : "all",
-         "class" : "Site"
-      },
-      {
          "class" : "Event",
-         "quantity" : "all"
-      },
-      {
-         "class" : "CheckDone",
-         "quantity" : "all"
-      },
-      {
-         "quantity" : "all",
-         "class" : "EventOrg"
-      },
-      {
-         "class" : "LoginOrg",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Comment",
-         "quantity" : "all"
-      },
-      {
-         "class" : "CheckItem",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Contractor",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Task",
-         "quantity" : "all"
-      },
-      {
-         "class" : "SiteTask",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Tasktype",
          "quantity" : "all"
       },
       {
@@ -78,16 +24,70 @@
          "class" : "CheckItemDone"
       },
       {
-         "quantity" : "all",
-         "class" : "Org"
+         "class" : "Org",
+         "quantity" : "all"
       },
       {
          "quantity" : "all",
-         "class" : "LoginNotice"
+         "class" : "Comment"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "class" : "CheckItem",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Task"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Tasktype"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckDone"
+      },
+      {
+         "class" : "SiteTask",
+         "quantity" : "all"
       },
       {
          "class" : "Login",
          "quantity" : "all"
+      },
+      {
+         "class" : "Contractor",
+         "quantity" : "all"
+      },
+      {
+         "class" : "EventOrg",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginOrg",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Site",
+         "quantity" : "all"
       }
-   ]
+   ],
+   "might_have" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   }
 }

@@ -493,18 +493,6 @@ schema:
           reference_fields: []
           reference_table: ''
           type: PRIMARY KEY
-        - deferrable: 1
-          expression: ''
-          fields:
-            - name
-          match_type: ''
-          name: name_UNIQUE
-          on_delete: ''
-          on_update: ''
-          options: []
-          reference_fields: []
-          reference_table: ''
-          type: UNIQUE
       fields:
         id:
           data_type: integer
@@ -522,7 +510,7 @@ schema:
           default_value: ~
           is_nullable: 0
           is_primary_key: 0
-          is_unique: 1
+          is_unique: 0
           name: name
           order: 2
           size:
@@ -1119,18 +1107,6 @@ schema:
           reference_fields: []
           reference_table: ''
           type: PRIMARY KEY
-        - deferrable: 1
-          expression: ''
-          fields:
-            - name
-          match_type: ''
-          name: name_UNIQUE
-          on_delete: ''
-          on_update: ''
-          options: []
-          reference_fields: []
-          reference_table: ''
-          type: UNIQUE
       fields:
         fyfrom:
           data_type: date
@@ -1158,7 +1134,7 @@ schema:
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
-          is_unique: 1
+          is_unique: 0
           name: name
           order: 2
           size:
