@@ -1,6 +1,6 @@
 <h3>[% check.name %]
     <small>
-        [% IF check.exists %]
+        [% IF check_done.id %]
             Update existing check
         [% ELSE %]
             Log new check
@@ -10,24 +10,25 @@
 <form class="form" role="form" method="post">
     <input type="hidden" name="site_task_id" value="[% check.site_task_id %]">
     [% FOREACH item IN check.check_items %]
+        [% done_item = check_done.find_check_item(item.id) %]
         <div class="form-group">
             <label for="item[% item.id %]" class="control-label">[% item.name %]</label>
             <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
-                <option value="0" [% IF item.done == 0 %]selected[% END %]>Not completed</option>
-                <option value="1" [% IF item.done == 1 %]selected[% END %]>Completed</option>
-                <option value="-1" [% IF item.done == -1 %]selected[% END %]>Not applicable</option>
+                <option value="0" [% IF done_item.status == 0 %]selected[% END %]>Not completed</option>
+                <option value="1" [% IF done_item.status == 1 %]selected[% END %]>Completed</option>
+                <option value="-1" [% IF done_item.status == -1 %]selected[% END %]>Not applicable</option>
             </select>
         </div>
     [% END %]
     <div class="form-group">
         <label for="completed" class="control-label">Date</label>
-        <input type="text" name="completed" value="[% check.date.ymd %]"
+        <input type="text" name="completed" value="[% check_done.datetime.ymd %]"
             class="form-control datepicker"
             id="completed" value="" placeholder="Leave blank for today">
     </div>
     <div class="form-group">
         <label for="comment" class="control-label">Comments:</label>
-        <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check.comment %]</textarea>
+        <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check_done.comment %]</textarea>
     </div>
     <button type="submit" name="submit_check_done" value="submit" class="btn btn-primary">
         [% IF check.exists %]

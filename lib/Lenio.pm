@@ -316,9 +316,10 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
     my $site_id = session 'site_id'
         or error __"Please select a site before viewing site checks";
 
+    my $check_done = $check_done_id ? rset('CheckDone')->find($check_done_id) : rset('CheckDone')->new({});
+
     if (param 'submit_check_done')
     {
-        my $check_done = $check_done_id ? rset('CheckDone')->find($check_done_id) : rset('CheckDone')->new({});
         my $site_task_id = $check_done_id ? $check_done->site_task_id : rset('SiteTask')->search({
             task_id => $task_id,
             site_id => $site_id,
@@ -352,6 +353,7 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 
     template 'check' => {
         check       => rset('Task')->find($task_id),
+        check_done  => $check_done,
         dateformat  => config->{lenio}->{dateformat},
         page        => 'check',
     };
