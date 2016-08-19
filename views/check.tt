@@ -31,7 +31,7 @@
         <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check_done.comment %]</textarea>
     </div>
     <button type="submit" name="submit_check_done" value="submit" class="btn btn-primary">
-        [% IF check.exists %]
+        [% IF check_done.id %]
             Update
         [% ELSE %]
             Save
