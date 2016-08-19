@@ -21,6 +21,7 @@ package Lenio;
 use Crypt::YAPassGen;
 use Dancer2;
 use Dancer2::Core::Cookie;
+use DateTime::Format::Strptime;
 use JSON qw(encode_json);
 use Lenio::Calendar;
 use Lenio::Email;
