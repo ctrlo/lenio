@@ -179,7 +179,6 @@
                     <th></th>
                     [% IF show_dates %]
                         <th></th>
-                        <th></th>
                     [% END %]
                     <th>[% FILTER format('%.2f') %][% cost_planned_total %][% END %]</th>
                     <th>[% FILTER format('%.2f') %][% cost_actual_total %][% END %]</th>
