@@ -55,15 +55,13 @@ __PACKAGE__->table("login");
 
 =head2 firstname
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 1
-  size: 128
 
 =head2 surname
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 1
-  size: 128
 
 =head2 password
 
@@ -111,9 +109,9 @@ __PACKAGE__->add_columns(
   "email",
   { data_type => "varchar", is_nullable => 0, size => 128 },
   "firstname",
-  { data_type => "varchar", is_nullable => 1, size => 128 },
+  { data_type => "text", is_nullable => 1, size => 128 },
   "surname",
-  { data_type => "varchar", is_nullable => 1, size => 128 },
+  { data_type => "text", is_nullable => 1, size => 128 },
   "password",
   { data_type => "varchar", is_nullable => 0, size => 128 },
   "is_admin",

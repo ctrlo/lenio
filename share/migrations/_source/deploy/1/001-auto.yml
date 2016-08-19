@@ -52,7 +52,7 @@ schema:
           size:
             - 0
         mimetype:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 0
           is_primary_key: 0
@@ -60,9 +60,9 @@ schema:
           name: mimetype
           order: 5
           size:
-            - 45
+            - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 0
           is_primary_key: 0
@@ -70,7 +70,7 @@ schema:
           name: name
           order: 2
           size:
-            - 1024
+            - 0
         ticket_id:
           data_type: integer
           default_value: ~
@@ -236,7 +236,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -244,7 +244,7 @@ schema:
           name: name
           order: 2
           size:
-            - 128
+            - 0
         task_id:
           data_type: integer
           default_value: ~
@@ -518,7 +518,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 0
           is_primary_key: 0
@@ -526,7 +526,7 @@ schema:
           name: name
           order: 2
           size:
-            - 128
+            - 0
       indices: []
       name: contractor
       options: []
@@ -578,7 +578,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -586,7 +586,7 @@ schema:
           name: name
           order: 2
           size:
-            - 45
+            - 0
       indices: []
       name: event
       options: []
@@ -632,16 +632,6 @@ schema:
           reference_table: org
           type: FOREIGN KEY
       fields:
-        attending:
-          data_type: varchar
-          default_value: 0
-          is_nullable: 0
-          is_primary_key: 0
-          is_unique: 0
-          name: attending
-          order: 4
-          size:
-            - 45
         event_id:
           data_type: integer
           default_value: ~
@@ -743,7 +733,7 @@ schema:
           size:
             - 0
         firstname:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -794,7 +784,7 @@ schema:
           size:
             - 32
         surname:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1164,7 +1154,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1172,7 +1162,7 @@ schema:
           name: name
           order: 2
           size:
-            - 45
+            - 0
       indices: []
       name: org
       options: []
@@ -1193,7 +1183,7 @@ schema:
           type: PRIMARY KEY
       fields:
         description:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1201,7 +1191,7 @@ schema:
           name: description
           order: 3
           size:
-            - 1024
+            - 0
         id:
           data_type: integer
           default_value: ~
@@ -1214,7 +1204,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 0
           is_primary_key: 0
@@ -1222,7 +1212,7 @@ schema:
           name: name
           order: 2
           size:
-            - 128
+            - 0
       indices: []
       name: permission
       options: []
@@ -1267,7 +1257,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1275,7 +1265,7 @@ schema:
           name: name
           order: 2
           size:
-            - 45
+            - 0
         org_id:
           data_type: integer
           default_value: ~
@@ -1495,7 +1485,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1503,7 +1493,7 @@ schema:
           name: name
           order: 2
           size:
-            - 45
+            - 0
         period_qty:
           data_type: integer
           default_value: ~
@@ -1580,7 +1570,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1588,7 +1578,7 @@ schema:
           name: name
           order: 2
           size:
-            - 128
+            - 0
       indices: []
       name: tasktype
       options: []
@@ -1695,7 +1685,7 @@ schema:
           size:
             - 0
         name:
-          data_type: varchar
+          data_type: text
           default_value: ~
           is_nullable: 1
           is_primary_key: 0
@@ -1703,7 +1693,7 @@ schema:
           name: name
           order: 2
           size:
-            - 128
+            - 0
         planned:
           data_type: date
           default_value: ~
@@ -1747,7 +1737,6 @@ translator:
       - Org
       - Permission
       - Site
-      - SiteSingleTask
       - SiteTask
       - Task
       - Tasktype

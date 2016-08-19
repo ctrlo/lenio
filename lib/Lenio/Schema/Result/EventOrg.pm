@@ -53,13 +53,6 @@ __PACKAGE__->table("event_org");
   is_foreign_key: 1
   is_nullable: 1
 
-=head2 attending
-
-  data_type: 'varchar'
-  default_value: 0
-  is_nullable: 0
-  size: 45
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -69,8 +62,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "org_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-  "attending",
-  { data_type => "varchar", default_value => 0, is_nullable => 0, size => 45 },
 );
 
 =head1 PRIMARY KEY

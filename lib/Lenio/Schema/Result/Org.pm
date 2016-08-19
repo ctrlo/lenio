@@ -43,9 +43,8 @@ __PACKAGE__->table("org");
 
 =head2 name
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 1
-  size: 45
 
 =head2 fyfrom
 
@@ -59,7 +58,7 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  { data_type => "text", is_nullable => 1 },
   "fyfrom",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
 );

@@ -1,6 +1,6 @@
 -- 
 -- Created by SQL::Translator::Producer::PostgreSQL
--- Created on Sun Jul 31 12:38:59 2016
+-- Created on Fri Aug 19 10:39:44 2016
 -- 
 ;
 --
@@ -8,10 +8,10 @@
 --
 CREATE TABLE "attach" (
   "id" serial NOT NULL,
-  "name" character varying(1024) NOT NULL,
+  "name" text NOT NULL,
   "content" bytea NOT NULL,
   "ticket_id" integer NOT NULL,
-  "mimetype" character varying(45) NOT NULL,
+  "mimetype" text NOT NULL,
   PRIMARY KEY ("id")
 );
 CREATE INDEX "attach_idx_ticket_id" on "attach" ("ticket_id");
@@ -37,7 +37,7 @@ CREATE INDEX "check_done_idx_site_task_id" on "check_done" ("site_task_id");
 --
 CREATE TABLE "check_item" (
   "id" serial NOT NULL,
-  "name" character varying(128),
+  "name" text,
   "task_id" integer,
   PRIMARY KEY ("id")
 );
@@ -79,7 +79,7 @@ CREATE INDEX "comment_idx_ticket_id" on "comment" ("ticket_id");
 --
 CREATE TABLE "contractor" (
   "id" serial NOT NULL,
-  "name" character varying(128) NOT NULL,
+  "name" text NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "name_UNIQUE" UNIQUE ("name")
 );
@@ -90,7 +90,7 @@ CREATE TABLE "contractor" (
 --
 CREATE TABLE "event" (
   "id" serial NOT NULL,
-  "name" character varying(45),
+  "name" text,
   "datefrom" timestamp,
   "dateto" timestamp,
   PRIMARY KEY ("id")
@@ -104,7 +104,6 @@ CREATE TABLE "event_org" (
   "id" serial NOT NULL,
   "event_id" integer,
   "org_id" integer,
-  "attending" character varying(45) DEFAULT '0' NOT NULL,
   PRIMARY KEY ("id")
 );
 CREATE INDEX "event_org_idx_event_id" on "event_org" ("event_id");
@@ -118,8 +117,8 @@ CREATE TABLE "login" (
   "id" serial NOT NULL,
   "username" character varying(128) NOT NULL,
   "email" character varying(128) NOT NULL,
-  "firstname" character varying(128),
-  "surname" character varying(128),
+  "firstname" text,
+  "surname" text,
   "password" character varying(128) NOT NULL,
   "is_admin" smallint DEFAULT 0 NOT NULL,
   "pwdreset" character varying(32),
@@ -184,7 +183,7 @@ CREATE TABLE "notice" (
 --
 CREATE TABLE "org" (
   "id" serial NOT NULL,
-  "name" character varying(45),
+  "name" text,
   "fyfrom" date,
   PRIMARY KEY ("id"),
   CONSTRAINT "name_UNIQUE" UNIQUE ("name")
@@ -196,8 +195,8 @@ CREATE TABLE "org" (
 --
 CREATE TABLE "permission" (
   "id" serial NOT NULL,
-  "name" character varying(128) NOT NULL,
-  "description" character varying(1024),
+  "name" text NOT NULL,
+  "description" text,
   PRIMARY KEY ("id")
 );
 
@@ -207,7 +206,7 @@ CREATE TABLE "permission" (
 --
 CREATE TABLE "site" (
   "id" serial NOT NULL,
-  "name" character varying(45),
+  "name" text,
   "org_id" integer NOT NULL,
   PRIMARY KEY ("id")
 );
@@ -236,7 +235,7 @@ CREATE INDEX "site_task_idx_ticket_id" on "site_task" ("ticket_id");
 --
 CREATE TABLE "task" (
   "id" serial NOT NULL,
-  "name" character varying(45),
+  "name" text,
   "description" text,
   "period_unit" character varying(45) NOT NULL,
   "period_qty" integer NOT NULL,
@@ -253,7 +252,7 @@ CREATE INDEX "task_idx_tasktype_id" on "task" ("tasktype_id");
 --
 CREATE TABLE "tasktype" (
   "id" serial NOT NULL,
-  "name" character varying(128),
+  "name" text,
   PRIMARY KEY ("id")
 );
 
@@ -263,7 +262,7 @@ CREATE TABLE "tasktype" (
 --
 CREATE TABLE "ticket" (
   "id" serial NOT NULL,
-  "name" character varying(128),
+  "name" text,
   "description" text,
   "planned" date,
   "completed" date,

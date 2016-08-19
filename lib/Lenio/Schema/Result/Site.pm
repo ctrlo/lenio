@@ -45,9 +45,8 @@ __PACKAGE__->table("site");
 
 =head2 name
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 1
-  size: 45
 
 =head2 org_id
 
@@ -61,7 +60,7 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
-  { data_type => "varchar", is_nullable => 1, size => 45 },
+  { data_type => "text", is_nullable => 1 },
   "org_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );

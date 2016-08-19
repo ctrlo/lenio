@@ -43,7 +43,7 @@ __PACKAGE__->table("attach");
 
 =head2 name
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
   size: 1024
 
@@ -60,9 +60,8 @@ __PACKAGE__->table("attach");
 
 =head2 mimetype
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 45
 
 =cut
 
@@ -70,13 +69,13 @@ __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
-  { data_type => "varchar", is_nullable => 0, size => 1024 },
+  { data_type => "text", is_nullable => 0 },
   "content",
   { data_type => "longblob", is_nullable => 0 },
   "ticket_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "mimetype",
-  { data_type => "varchar", is_nullable => 0, size => 45 },
+  { data_type => "text", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY

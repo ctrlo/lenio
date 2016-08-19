@@ -1,62 +1,52 @@
 {
+   "has_many" : {
+      "fetch" : 0
+   },
+   "belongs_to" : {
+      "fetch" : 0
+   },
    "might_have" : {
       "fetch" : 0
    },
    "sets" : [
       {
          "quantity" : "all",
-         "class" : "SiteSingleTask"
-      },
-      {
-         "class" : "EventOrg",
-         "quantity" : "all"
+         "class" : "Permission"
       },
       {
          "quantity" : "all",
-         "class" : "Attach"
-      },
-      {
-         "class" : "CheckItem",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Site",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Org",
-         "quantity" : "all"
-      },
-      {
-         "class" : "Ticket",
-         "quantity" : "all"
-      },
-      {
-         "class" : "SiteTask",
-         "quantity" : "all"
+         "class" : "LoginPermission"
       },
       {
          "quantity" : "all",
          "class" : "Notice"
       },
       {
-         "class" : "LoginPermission",
+         "class" : "Attach",
          "quantity" : "all"
       },
       {
          "quantity" : "all",
-         "class" : "Tasktype"
+         "class" : "Ticket"
       },
       {
          "quantity" : "all",
-         "class" : "Event"
+         "class" : "Site"
       },
       {
-         "quantity" : "all",
-         "class" : "CheckItemDone"
+         "class" : "Event",
+         "quantity" : "all"
       },
       {
          "class" : "CheckDone",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      },
+      {
+         "class" : "LoginOrg",
          "quantity" : "all"
       },
       {
@@ -64,19 +54,7 @@
          "quantity" : "all"
       },
       {
-         "quantity" : "all",
-         "class" : "Permission"
-      },
-      {
-         "quantity" : "all",
-         "class" : "Task"
-      },
-      {
-         "class" : "Login",
-         "quantity" : "all"
-      },
-      {
-         "class" : "LoginOrg",
+         "class" : "CheckItem",
          "quantity" : "all"
       },
       {
@@ -84,14 +62,32 @@
          "quantity" : "all"
       },
       {
-         "class" : "LoginNotice",
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "class" : "SiteTask",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Org"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginNotice"
+      },
+      {
+         "class" : "Login",
          "quantity" : "all"
       }
-   ],
-   "belongs_to" : {
-      "fetch" : 0
-   },
-   "has_many" : {
-      "fetch" : 0
-   }
+   ]
 }

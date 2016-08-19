@@ -1,6 +1,6 @@
 -- 
 -- Created by SQL::Translator::Producer::MySQL
--- Created on Sun Jul 31 12:38:58 2016
+-- Created on Fri Aug 19 10:39:43 2016
 -- 
 ;
 SET foreign_key_checks=0;
@@ -12,7 +12,7 @@ CREATE TABLE `attach` (
   `name` text NOT NULL,
   `content` longblob NOT NULL,
   `ticket_id` integer NOT NULL,
-  `mimetype` varchar(45) NOT NULL,
+  `mimetype` text NOT NULL,
   INDEX `attach_idx_ticket_id` (`ticket_id`),
   PRIMARY KEY (`id`),
   CONSTRAINT `attach_fk_ticket_id` FOREIGN KEY (`ticket_id`) REFERENCES `ticket` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -37,7 +37,7 @@ CREATE TABLE `check_done` (
 --
 CREATE TABLE `check_item` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(128) NULL,
+  `name` text NULL,
   `task_id` integer NULL,
   INDEX `check_item_idx_task_id` (`task_id`),
   PRIMARY KEY (`id`),
@@ -78,7 +78,7 @@ CREATE TABLE `comment` (
 --
 CREATE TABLE `contractor` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(128) NOT NULL,
+  `name` text NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE `name_UNIQUE` (`name`)
 ) ENGINE=InnoDB;
@@ -87,7 +87,7 @@ CREATE TABLE `contractor` (
 --
 CREATE TABLE `event` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(45) NULL,
+  `name` text NULL,
   `datefrom` datetime NULL,
   `dateto` datetime NULL,
   PRIMARY KEY (`id`)
@@ -99,7 +99,6 @@ CREATE TABLE `event_org` (
   `id` integer NOT NULL auto_increment,
   `event_id` integer NULL,
   `org_id` integer NULL,
-  `attending` varchar(45) NOT NULL DEFAULT '0',
   INDEX `event_org_idx_event_id` (`event_id`),
   INDEX `event_org_idx_org_id` (`org_id`),
   PRIMARY KEY (`id`),
@@ -113,8 +112,8 @@ CREATE TABLE `login` (
   `id` integer NOT NULL auto_increment,
   `username` varchar(128) NOT NULL,
   `email` varchar(128) NOT NULL,
-  `firstname` varchar(128) NULL,
-  `surname` varchar(128) NULL,
+  `firstname` text NULL,
+  `surname` text NULL,
   `password` varchar(128) NOT NULL,
   `is_admin` smallint NOT NULL DEFAULT 0,
   `pwdreset` varchar(32) NULL,
@@ -175,7 +174,7 @@ CREATE TABLE `notice` (
 --
 CREATE TABLE `org` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(45) NULL,
+  `name` text NULL,
   `fyfrom` date NULL,
   PRIMARY KEY (`id`),
   UNIQUE `name_UNIQUE` (`name`)
@@ -185,7 +184,7 @@ CREATE TABLE `org` (
 --
 CREATE TABLE `permission` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(128) NOT NULL,
+  `name` text NOT NULL,
   `description` text NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
@@ -194,7 +193,7 @@ CREATE TABLE `permission` (
 --
 CREATE TABLE `site` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(45) NULL,
+  `name` text NULL,
   `org_id` integer NOT NULL,
   INDEX `site_idx_org_id` (`org_id`),
   PRIMARY KEY (`id`),
@@ -223,7 +222,7 @@ CREATE TABLE `site_task` (
 --
 CREATE TABLE `task` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(45) NULL,
+  `name` text NULL,
   `description` text NULL,
   `period_unit` varchar(45) NOT NULL,
   `period_qty` integer NOT NULL,
@@ -239,7 +238,7 @@ CREATE TABLE `task` (
 --
 CREATE TABLE `tasktype` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(128) NULL,
+  `name` text NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 --
@@ -247,7 +246,7 @@ CREATE TABLE `tasktype` (
 --
 CREATE TABLE `ticket` (
   `id` integer NOT NULL auto_increment,
-  `name` varchar(128) NULL,
+  `name` text NULL,
   `description` text NULL,
   `planned` date NULL,
   `completed` date NULL,
