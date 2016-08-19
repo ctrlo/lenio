@@ -98,9 +98,9 @@ get '/' => require_login sub {
 sub login_page_handler
 {
     my $messages = session('messages') || undef;
-    messageAdd({ success => "A password reset request has been sent if the email address
-           entered was valid" }) if defined param('reset_sent');
-    messageAdd({ danger => "Username or password not valid" })
+    success __"A password reset request has been sent if the email address
+           entered was valid" if defined param('reset_sent');
+    report {is_fatal=>0}, ERROR => "Username or password not valid"
         if defined param('login_failed');
     template login => {
         page                => 'login',
@@ -441,7 +441,7 @@ any '/ticket/:id?' => require_login sub {
                 site     => $ticket->site_task->site, # rset('Site')->find(param 'site_id'),
             );
             $email->send($args);
-            messageAdd({ success => 'File has been added successfully' });
+            success __"File has been added successfully";
         }
     }
 
@@ -451,7 +451,7 @@ any '/ticket/:id?' => require_login sub {
 
         if (process sub { rset('Attach')->find(param 'attachrm')->delete })
         {
-            messageAdd({ success => 'Attachment has been deleted successfully' });
+            success __"Attachment has been deleted successfully";
         }
     }
 
