@@ -417,9 +417,6 @@ any '/ticket/:id?' => require_login sub {
     }
 
     if ( param('attach') ) {
-        error __"You do not have permission to add attachments"
-            unless var('login')->is_admin;
-
         my $file = request->upload('newattach');
         my $attach = {
             name        => $file->basename,
@@ -430,6 +427,20 @@ any '/ticket/:id?' => require_login sub {
 
         if (process sub { rset('Attach')->create($attach) })
         {
+            my $args = {
+                login       => var('login'),
+                template    => 'ticket/attach',
+                ticket      => $ticket,
+                url         => "/ticket/".$ticket->id,
+                subject     => "Ticket ".$ticket->id." attachment added - ",
+            };
+            my $email = Lenio::Email->new(
+                config   => config,
+                schema   => schema,
+                uri_base => request->uri_base,
+                site     => $ticket->site_task->site, # rset('Site')->find(param 'site_id'),
+            );
+            $email->send($args);
             messageAdd({ success => 'File has been added successfully' });
         }
     }

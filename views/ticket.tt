@@ -129,11 +129,9 @@
                         <p>There are no files related to this ticket</p>
                     [% END %]
             </div>
-                [% IF login.is_admin %]
                 <button class="btn btn-default" data-toggle="modal" data-target="#modal_attach">
                     Attach new...
                 </button>
-                [% END %]
             [% END %]
         </div>
     </div>
