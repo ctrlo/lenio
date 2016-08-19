@@ -157,8 +157,9 @@
                             [% IF show_dates %]
                                 <td style="white-space:nowrap">[% task.last_planned.strftime(dateformat) %]</td>
                                 <td style="white-space:nowrap">
-                                    [% IF task.last_completed %]
-                                        [% task.last_completed.strftime(dateformat) %]
+                                    [% task_id = task.id %]
+                                    [% IF task_completed.$task_id %]
+                                        [% task_completed.$task_id.strftime(dateformat) %]
                                     [% ELSE %]
                                         (never)
                                     [% END %]

@@ -8,6 +8,15 @@ use Lenio::FY;
 
 __PACKAGE__->load_components(qw(ResultSet::ParameterizedJoinHack Helper::ResultSet::DateMethods1));
 
+sub last_completed
+{   my ($self, %options) = @_;
+    delete $options{$_} # Shouldn't exist, delete just in case
+        foreach qw/fy from to/;
+    # undef filler needed to prevent context otherwise generating skewed hash
+    my %completed = map { $_->id => ($_->last_completed||undef) } $self->summary(%options);
+    \%completed;
+}
+
 sub summary
 {   my ($self, %options) = @_;
 

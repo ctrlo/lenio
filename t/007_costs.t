@@ -29,6 +29,7 @@ my @tests = (
                     2015 => 19,
                     2016 => 15,
                 },
+                last_completed => '2016-07-06',
                 tickets => [
                     {
                         task_id      => 1,
@@ -57,6 +58,7 @@ my @tests = (
                     2015 => undef,
                     2016 => 25,
                 },
+                last_completed => '2016-07-08',
                 tickets => [
                     {
                         task_id      => 2,
@@ -84,6 +86,7 @@ my @tests = (
                     2015 => undef,
                     2016 => undef,
                 },
+                last_completed => undef,
                 tickets => [
                     {
                         task_id      => 1,
@@ -94,6 +97,32 @@ my @tests = (
                         task_id      => 1,
                         cost_planned => 14,
                         cost_actual  => undef,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        tasks => [
+            {
+                cost_planned => {
+                    2015 => undef,
+                    2016 => 14,
+                },
+                cost_actual  => {
+                    2015 => 15,
+                    2016 => undef,
+                },
+                last_completed => '2015-07-07',
+                tickets => [
+                    {
+                        task_id      => 1,
+                        completed    => '2015-07-07',
+                        cost_planned => undef,
+                        cost_actual  => 15,
+                    }, {
+                        task_id      => 1,
+                        cost_planned => 14,
                     },
                 ],
             },
@@ -131,6 +160,8 @@ foreach my $test (@tests)
         }
     }
 
+    my $task_completed = $schema->resultset('Task')->last_completed(site_id => $site->id, global => 1);
+
     foreach my $fy (qw/2015 2016/)
     {
         my @tasks = $schema->resultset('Task')->summary(site_id => $site->id, global => 1, fy => $fy);
@@ -141,6 +172,8 @@ foreach my $test (@tests)
             my $task_test = @{$test->{tasks}}[$count];
             is( $task->cost_planned, $task_test->{cost_planned}->{$fy}, "Correct planned cost for task ".$task->name." year $fy" );
             is( $task->cost_actual, $task_test->{cost_actual}->{$fy}, "Correct actual cost for task ".$task->name." year $fy" );
+            is( $task_completed->{$task->id} && $task_completed->{$task->id}->ymd, $task_test->{last_completed}, "Last completed date correct for ".$task->name )
+                if $fy == 2016;
             $count++;
         }
     }

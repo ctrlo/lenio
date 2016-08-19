@@ -819,17 +819,18 @@ any '/task/?:id?' => require_login sub {
     }
 
     template 'task' => {
-        dateformat  => config->{lenio}->{dateformat},
-        action      => $action,
-        site        => rset('Site')->find(session 'site_id'),
-        site_checks => \@site_checks,
+        dateformat       => config->{lenio}->{dateformat},
+        action           => $action,
+        site             => rset('Site')->find(session 'site_id'),
+        site_checks      => \@site_checks,
         site_checks_done => \%site_checks_done,
-        task        => $task,
-        tasks       => \@tasks,
-        tasks_local => \@tasks_local,
-        tasktypes   => [rset('Tasktype')->all],
-        adhocs      => \@adhocs,
-        page        => 'task'
+        task             => $task,
+        tasks            => \@tasks,
+        tasks_local      => \@tasks_local,
+        task_completed   => rset('Task')->last_completed(site_id => session('site_id'), global => 1),
+        tasktypes        => [rset('Tasktype')->all],
+        adhocs           => \@adhocs,
+        page             => 'task'
     };
 };
 
