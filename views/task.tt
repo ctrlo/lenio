@@ -115,7 +115,6 @@
                 <th>Frequency</th>
                 [% IF site.id %]
                     [% IF show_dates %]
-                        <th>Planned</th>
                         <th>Last done</th>
                     [% END %]
                     <th>Cost (planned)</th>
@@ -155,7 +154,6 @@
                         <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                         [% IF site.id %]
                             [% IF show_dates %]
-                                <td style="white-space:nowrap">[% task.last_planned.strftime(dateformat) %]</td>
                                 <td style="white-space:nowrap">
                                     [% task_id = task.id %]
                                     [% IF task_completed.$task_id %]
