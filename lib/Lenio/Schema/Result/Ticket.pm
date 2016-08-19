@@ -87,6 +87,18 @@ __PACKAGE__->table("ticket");
   default_value: 0
   is_nullable: 0
 
+=head2 report_received
+
+  data_type: 'smallint'
+  default_value: 0
+  is_nullable: 0
+
+=head2 invoice_sent
+
+  data_type: 'smallint'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -107,6 +119,10 @@ __PACKAGE__->add_columns(
   "cost_actual",
   { data_type => "decimal", is_nullable => 1, size => [10, 2] },
   "local_only",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "report_received",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "invoice_sent",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );
 

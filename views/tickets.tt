@@ -29,6 +29,8 @@
         <th>Site</th>
         <th>Planned</th>
         <th>Completed</th>
+        <th>Report received</th>
+        <th>Invoice sent</th>
     </tr>
 
     [% FOR ticket IN tickets %]
@@ -38,6 +40,8 @@
         <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
         <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
         <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
+        <td>[% IF ticket.report_received %]Yes[% ELSE %]No[% END %]</td>
+        <td>[% IF ticket.invoice_sent %]Yes[% ELSE %]No[% END %]</td>
     </tr>
     [% END %]
 </table> 

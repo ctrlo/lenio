@@ -66,14 +66,24 @@
                 <div class="form-group">
                     <label for="planned">Planned</label>
                     <input type="text" name="planned"
-                        [% UNLESS readonly %]class="datepicker"[% END %]
+                        class="form-control [% UNLESS readonly %]datepicker[% END %]"
                         id="planned" value="[% ticket.planned.ymd %]" [% readonly %]>
                 </div>
                 <div class="form-group">
                     <label for="completed">Completed</label>
                     <input type="text" name="completed"
-                        [% UNLESS readonly %]class="datepicker"[% END %]
+                        class="form-control [% UNLESS readonly %]datepicker[% END %]"
                         id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="report_received" [% IF ticket.report_received %]checked[% END %]> Report received
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="invoice_sent" [% IF ticket.invoice_sent %]checked[% END %]> Invoice sent
+                    </label>
                 </div>
             [% END %]
             [% UNLESS readonly %]

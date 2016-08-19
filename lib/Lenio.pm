@@ -489,6 +489,8 @@ any '/ticket/:id?' => require_login sub {
         $ticket->cost_planned(param 'cost_planned');
         $ticket->cost_actual(param 'cost_actual');
         $ticket->local_only(param 'local_only');
+        $ticket->report_received(param('report_received') ? 1 : 0);
+        $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
         $ticket->planned($planned);
 
