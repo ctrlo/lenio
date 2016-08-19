@@ -59,9 +59,9 @@ hook before => sub {
     }
     session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
 
-    my $fy = session 'fy';
-    $fy = param('fy') if param('fy');
-    session 'fy' => $fy;
+    session 'fy' => param('fy') if param('fy');
+    session 'fy' => Lenio::FY->new(site_id => session('site_id'), schema => schema)->year
+        if !session('fy');
 
     var login => $login;
 };
