@@ -5,8 +5,6 @@ use warnings;
 use base qw(DBIx::Class::ResultSet);
 
 use Lenio::FY;
-use Ouch; # XXX
-my $dtf; # XXX
 
 __PACKAGE__->load_components(qw(ResultSet::ParameterizedJoinHack Helper::ResultSet::DateMethods1));
 
@@ -239,6 +237,7 @@ sub calendar_check
 {   my ($self, $from, $to, $site_id, $login) = @_;
 
     my @calendar;
+    my $dtf  = $self->result_source->schema->storage->datetime_parser;
 
     my @done = rset('CheckDone')->search({
         site_id  => $site_id,
