@@ -264,7 +264,11 @@ any '/check_edit/:id' => require_login sub {
 
     my $id = route_parameters->get('id');
 
-    my $check = ($id && rset('Task')->find($id)) || rset('Task')->new({ site_check => 1 });
+    my $check = ($id && rset('Task')->find($id)) || rset('Task')->new({ site_check => 1, global => 0 });
+
+    my $site_id = ($check && ($check->site_tasks)[0]->site_id) || param('site_id');
+    error "You do not have access to this check"
+        unless var('login')->has_site($site_id);
 
     if (param 'submitcheck')
     {
@@ -281,6 +285,7 @@ any '/check_edit/:id' => require_login sub {
             $check->description(param 'description');
             $check->period_qty(param 'period_qty');
             $check->period_unit(param 'period_unit');
+            $check->set_site_id(param 'site_id');
             if (process sub { $check->update_or_insert })
             {
                 forwardHome(
@@ -312,11 +317,16 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 
     my $task_id       = route_parameters->get('task_id');
     my $check_done_id = route_parameters->get('check_done_id');
+    my $check         = rset('Task')->find($task_id);
 
     my $site_id = session 'site_id'
         or error __"Please select a site before viewing site checks";
 
     my $check_done = $check_done_id ? rset('CheckDone')->find($check_done_id) : rset('CheckDone')->new({});
+
+    my $check_site_id = ($check->site_tasks)[0]->site_id;
+    error "You do not have access to this check"
+        unless var('login')->has_site($check_site_id);
 
     if (param 'submit_check_done')
     {
@@ -691,7 +701,7 @@ any '/task/?:id?' => require_login sub {
 
     my $task = defined($id) && ($id && rset('Task')->find($id) || rset('Task')->new({}));
 
-    my @tasks; my @tasks_local; my @adhocs; my @site_checks; my %site_checks_done;
+    my @tasks; my @tasks_local; my @adhocs;
 
     if ($task && $task->id)
     {
@@ -825,9 +835,6 @@ any '/task/?:id?' => require_login sub {
         }
         # Get all the local tasks
         @tasks_local = rset('Task')->summary(site_id => session('site_id'), global => 0, onlysite => 1, fy => session('fy'));
-        # Get all the site checks
-        @site_checks = rset('Task')->site_checks;
-        %site_checks_done = map { $_->id => $_ } rset('Task')->site_checks(session 'site_id');
         $action = '';
     }
 
@@ -835,8 +842,7 @@ any '/task/?:id?' => require_login sub {
         dateformat       => config->{lenio}->{dateformat},
         action           => $action,
         site             => rset('Site')->find(session 'site_id'),
-        site_checks      => \@site_checks,
-        site_checks_done => \%site_checks_done,
+        site_checks      => [rset('Task')->site_checks(session 'site_id')],
         task             => $task,
         tasks            => \@tasks,
         tasks_local      => \@tasks_local,

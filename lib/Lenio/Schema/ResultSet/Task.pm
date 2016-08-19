@@ -150,35 +150,24 @@ sub summary
 sub site_checks
 {   my ($self, $site_id) = @_;
 
-    my @checks;
-    if ($site_id)
-    {
-        @checks = $self->search({
-            site_check => 1,
-            'site.id'  => $site_id,
-        },{
-            join      => {
-                site_tasks => ['site', 'checks_done']
-            },
-            prefetch  => 'check_items',
-            group_by  => 'me.id',
-            '+select' => [
-                {
-                    max => 'checks_done.datetime', -as => 'last_completed'
-                }, {
-                    max => 'site_tasks.id', -as => 'site_task_id2'
-                }
-            ],
-            '+as' => ['last_completed', 'site_task_id2'],
-        })->all;
-    }
-    else {
-        @checks = $self->search({
-            site_check => 1,
-        },{
-            order_by => 'me.name',
-        })->all;
-    }
+    $self->search({
+        site_check => 1,
+        'site.id'  => $site_id,
+    },{
+        join      => {
+            site_tasks => ['site', 'checks_done']
+        },
+        prefetch  => 'check_items',
+        group_by  => 'me.id',
+        '+select' => [
+            {
+                max => 'checks_done.datetime', -as => 'last_completed'
+            }, {
+                max => 'site_tasks.id', -as => 'site_task_id2'
+            }
+        ],
+        '+as' => ['last_completed', 'site_task_id2'],
+    })->all;
 }
 
 sub overdue

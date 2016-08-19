@@ -184,77 +184,38 @@
                     <th>[% FILTER format('%.2f') %][% cost_actual_total %][% END %]</th>
                 </tr>
             [% END %]
-        </table> 
+        </table>
         [% IF login.is_admin %]
         </form>
         [% END %]
-        <h3>Site Manager Checks
-	[% IF site %]([% site.org.name %] - [% site.name %])[% ELSE %](All sites)[% END %]
-	</h3>
-        [% IF login.is_admin %]
-        <p>
-            <a href="/check_edit/0" class="btn btn-default" role="button">Create new site check</a>
-        </p>
-        [% END %]
-        [% IF login.is_admin %]
-            <form method="post">
-        [% END %]
-        <table class="table table-striped">
-            <tr>
-                [% IF login.is_admin %]<th></th>[% END %]
-                <th>Check</th>
-                <th>Frequency</th>
-                [% IF site.id %]
-                    <th>Last done</th>
-                [% END %]
-            </tr>
 
-            [% FOR check IN site_checks %]
-                [% site_check_id = check.id %]
-                [% site_check_done = site_checks_done.$site_check_id %]
-                [% IF site_check_done %]
-                    [% strike = '' %]
-                [% ELSE %]
-                    [% strike = 'class="strike"' %]
-                [% END %]
-                [% IF site_check_done OR login.is_admin %]
-                    <tr [% strike %]>
-                        [% IF login.is_admin AND site.id %]
-                            <td>
-                            [% IF strike %]
-                                <button type="submit" class="btn-xs btn-link" name="taskadd" value="[% check.id %]">
-                                    <span class="glyphicon glyphicon-unchecked"></span>
-                                </button>
-                            [% ELSE %]
-                                <button type="submit" class="btn-xs btn-link" name="taskrm" value="[% check.id %]">
-                                    <span class="glyphicon glyphicon-check"></span>
-                                </button>
-                            [% END %]
-                            </td>
-                        [% ELSIF login.is_admin %]
-                            <td>
-                                <button type="submit" class="btn-xs btn-link" name="taskdel" value="[% check.id %]" title="Delete item">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </button>
-                            </td>
-                        [% END %]
-                        <td><a href="/check_edit/[% check.id %]">[% check.name %]</a></td>
-                        <td>[% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]</td>
-                        [% IF site.id %]
-                            <td>[% site_check_done.last_completed.strftime(dateformat) %]</td>
-                        [% END %]
+        [% IF site.id %]
+            <h3>Site Manager Checks ([% site.org.name %] - [% site.name %])</h3>
+            <p>
+                <a href="/check_edit/0" class="btn btn-default" role="button">Create new site check</a>
+            </p>
+            [% IF site_checks.size %]
+                <table class="table table-striped">
+                    <tr>
+                        <th>Check</th>
+                        <th>Frequency</th>
+                        <th>Last done</th>
                     </tr>
-                [% END %]
-            [% IF task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
-            [% IF task.cost_actual %][% cost_actual_total = cost_actual_total + task.cost_actual %][% END %]
+
+                    [% FOR check IN site_checks %]
+                        <tr>
+                            <td><a href="/check_edit/[% check.id %]">[% check.name %]</a></td>
+                            <td>[% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]</td>
+                            [% IF site.id %]
+                                <td>[% site_check_done.last_completed.strftime(dateformat) %]</td>
+                            [% END %]
+                        </tr>
+                    [% END %]
+                </table>
             [% END %]
-        </table> 
-        [% IF login.is_admin %]
-        </form>
         [% END %]
-    [% ELSE %]
-        <p>Please select a site from the menu</p>
     [% END %]
+
     [% IF site.id %]
 
         <h3>Reactive maintenance and quotes
@@ -282,7 +243,7 @@
                 <th>[% FILTER format('%.2f') %][% cost_planned_total %][% END %]</th>
                 <th>[% FILTER format('%.2f') %][% cost_actual_total %][% END %]</th>
             </tr>
-        </table> 
+        </table>
 
         <h3>Local items</h3>
 
@@ -317,7 +278,7 @@
                     [% END %]
                 </tr>
                 [% END %]
-        </table> 
+        </table>
         </form>
         [% ELSE %]
             <p>No local items created</p>
