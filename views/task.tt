@@ -109,7 +109,7 @@
         [% END %]
         <table class="table table-striped">
             <tr>
-                [% IF login.is_admin %]<th></th>[% END %]
+                [% IF login.is_admin AND site.id %]<th></th>[% END %]
                 <th>Type</th>
                 <th>Task</th>
                 <th>Frequency</th>
