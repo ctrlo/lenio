@@ -1,4 +1,4 @@
-<h3>Site checks ([% login.site.org.name %] - [% login.site.name %])</h3>
+<h3>Site checks ([% site.org.name %] - [% site.name %])</h3>
 <table class="table table-striped">
     <tr>
         <th>Name</th>

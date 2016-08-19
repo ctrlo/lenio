@@ -307,6 +307,7 @@ any '/checks/?' => require_login sub {
         or error __"Please select a site before viewing site checks";
 
     template 'checks' => {
+        site        => rset('Site')->find(session 'site_id'),
         site_checks => [rset('Task')->site_checks($site_id)],
         dateformat  => config->{lenio}->{dateformat},
         page        => 'check',
