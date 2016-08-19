@@ -122,8 +122,8 @@
                             [% IF login.is_admin %]
                                 | <form method="post"><button class="btn btn-link btn-sm"
                                     name="attachrm" value="[% attach.id %]">Delete</button></form>
-                                </div>
                             [% END %]
+                            </div>
                         [% END %]
                     [% ELSE %]
                         <p>There are no files related to this ticket</p>
