@@ -893,15 +893,6 @@ sub forwardHome {
     redirect "/$page";
 }
 
-sub messageAdd($) {
-    my $message = shift;
-    my $text    = ( values %$message )[0];
-    my $type    = ( keys %$message )[0];
-    my $msgs    = session 'messages';
-    push @$msgs, { text => $text, type => $type };
-    session 'messages' => $msgs;
-}
-
 sub _send_json
 {   header "Cache-Control" => "max-age=0, must-revalidate, private";
     content_type 'application/json';
