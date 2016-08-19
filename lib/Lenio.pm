@@ -514,23 +514,20 @@ any '/ticket/:id?' => require_login sub {
             if ($id)
             {
                 $template = 'ticket/update';
-                $subject  = "Ticket updated - ";
+                $subject  = "Ticket ".$ticket->id." updated - ";
                 $status   = 'updated';
             }
             else {
                 $template = 'ticket/new';
-                $subject  = "New ticket - ";
+                $subject  = "New ticket ID ".$ticket->id." - ";
                 $status   = 'created';
             }
             my $args = {
                 login       => var('login'),
                 template    => $template,
+                ticket      => $ticket,
                 url         => "/ticket/".$ticket->id,
-                name        => $ticket->name,
                 subject     => $subject,
-                description => $ticket->description,
-                planned     => $planned,
-                completed   => $completed,
             };
             # Assume send update to admin
             my $send_email = 1;
@@ -549,7 +546,7 @@ any '/ticket/:id?' => require_login sub {
                 $email->send($args);
             }
             forwardHome(
-                { success => "Ticket has been successfully $status" }, 'tickets');
+                { success => "Ticket ".$ticket->id." has been successfully $status" }, 'tickets');
         }
     }
 

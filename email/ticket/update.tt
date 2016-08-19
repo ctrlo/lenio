@@ -1,8 +1,8 @@
-The ticket titled "[% name %]" has been updated for [% org %].
-The status of the ticket is [% IF completed %]closed[% ELSE %]open, [% IF planned %]planned for completion on [% planned %][% ELSE %]with no planned date for completion[% END %][% END %].
+Ticket ID [% ticket.id %] ("[% ticket.name %]") has been updated for [% org %].
+The status of the ticket is [% IF ticket.completed %]closed[% ELSE %]open, [% IF ticket.planned %]planned for completion on [% ticket.planned %][% ELSE %]with no planned date for completion[% END %][% END %].
 To view the ticket please visit the following link:
 
 [% siteurl %][% url %]
 
-[% description %]
+[% ticket.description %]
 

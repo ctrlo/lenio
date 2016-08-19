@@ -1,5 +1,5 @@
 [% IF ticket.id %]
-    <h3>Update ticket</h3>
+    <h3>Ticket ID [% ticket.id %]</h3>
 [% ELSE %]
     <h3>Create new ticket</h3>
 [% END %]

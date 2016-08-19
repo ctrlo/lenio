@@ -24,6 +24,7 @@
 </div>
 <table class="table table-striped">
     <tr>
+        <th>ID</th>
         <th>Title</th>
         <th>Site</th>
         <th>Planned</th>
@@ -32,6 +33,7 @@
 
     [% FOR ticket IN tickets %]
     <tr>
+        <td>[% ticket.id %]</td>
         <td><a href="/ticket/[% ticket.id %]">[% IF ticket.name %][% ticket.name %][% ELSE %]View ticket[% END %]</a></td>
         <td>[% ticket.site_task.site.org.name %] ([% ticket.site_task.site.name %])</td>
         <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
