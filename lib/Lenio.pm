@@ -776,9 +776,10 @@ any '/task/?:id?' => require_login sub {
         if ($csv eq 'service')
         {
             my $csv = Text::CSV->new;
-            my @headings = qw/task applicable frequency_qty frequency_unit planned last_done cost_planned cost_actual/;
+            my @headings = qw/task applicable frequency_qty frequency_unit last_done cost_planned cost_actual/;
             $csv->combine(@headings);
             my $csvout = $csv->string."\n";
+            my $task_completed = rset('Task')->last_completed(site_id => session('site_id'), global => 1);
             foreach my $task (@tasks)
             {
                 my @row = (
@@ -786,8 +787,7 @@ any '/task/?:id?' => require_login sub {
                     $task->strike ? 'No' : 'Yes',
                     $task->period_qty,
                     $task->period_unit,
-                    $task->planned && $task->planned->ymd,
-                    $task->completed && $task->completed->ymd,
+                    $task_completed->{$task->id} && $task_completed->{$task->id},
                     $task->cost_planned,
                     $task->cost_actual,
                 );
