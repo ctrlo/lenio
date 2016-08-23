@@ -152,7 +152,7 @@ __PACKAGE__->has_many(
   "attaches",
   "Lenio::Schema::Result::Attach",
   { "foreign.ticket_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 =head2 comments
@@ -167,7 +167,7 @@ __PACKAGE__->has_many(
   "comments",
   "Lenio::Schema::Result::Comment",
   { "foreign.ticket_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 =head2 contractor
@@ -202,7 +202,7 @@ __PACKAGE__->might_have(
   "site_task",
   "Lenio::Schema::Result::SiteTask",
   { "foreign.ticket_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 

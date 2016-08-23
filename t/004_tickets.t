@@ -2,6 +2,7 @@ use Test::More; # tests => 1;
 use strict;
 use warnings;
 
+use DateTime;
 use Log::Report;
 
 use t::lib::SeedData;
@@ -91,5 +92,33 @@ foreach my $task_tickets (0, 1, undef)
         }
     }
 }
+
+# General ticket tests
+my $ticket = $schema->resultset('Ticket')->next;
+# Add a comment
+$schema->resultset('Comment')->create({
+    text      => 'Comment',
+    ticket_id => $ticket->id,
+    login_id  => $seed_data->login->id,
+    datetime  => DateTime->now,
+});
+# Add an attachment
+$schema->resultset('Attach')->create({
+    name        => "Filename.txt",
+    ticket_id   => $ticket->id,
+    content     => "File content",
+    mimetype    => 'text/plain',
+});
+
+# Try and delete the ticket
+# Check row numbers in database change as expected
+my $task_count = $schema->resultset('Task')->count;
+my $ticket_count = $schema->resultset('Ticket')->count;
+my $site_task_count = $schema->resultset('SiteTask')->count;
+try { $ticket->delete };
+ok(!$@, "Failed to delete ticket. Exception: $@");
+is($schema->resultset('Task')->count, $task_count, "Number of tasks remains same after ticket deletion");
+is($schema->resultset('Ticket')->count, $ticket_count - 1, "Number of tickets goes down by one after deletion");
+is($schema->resultset('SiteTask')->count, $site_task_count - 1, "Number of tickets goes down by one after deletion");
 
 done_testing();

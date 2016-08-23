@@ -104,7 +104,7 @@ __PACKAGE__->belongs_to(
   "ticket",
   "Lenio::Schema::Result::Ticket",
   { id => "ticket_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 

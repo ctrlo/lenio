@@ -167,7 +167,7 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "NO ACTION",
+    on_delete     => "CASCADE",
     on_update     => "NO ACTION",
   },
 );

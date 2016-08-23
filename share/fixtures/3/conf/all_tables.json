@@ -1,0 +1,93 @@
+{
+   "might_have" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Task"
+      },
+      {
+         "class" : "Contractor",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Org",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Permission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Event",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Site",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItem"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "class" : "Notice",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckDone"
+      },
+      {
+         "class" : "EventOrg",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Login"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginNotice"
+      },
+      {
+         "class" : "LoginOrg",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Comment",
+         "quantity" : "all"
+      }
+   ],
+   "belongs_to" : {
+      "fetch" : 0
+   }
+}
