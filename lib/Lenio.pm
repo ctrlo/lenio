@@ -585,9 +585,8 @@ any '/ticket/:id?' => require_login sub {
                 login       => var('login'),
                 template    => 'ticket/comment',
                 url         => "/ticket/$id",
-                name        => $ticket->name,
-                subject     => "Ticket updated - ",
-                description => $ticket->description,
+                ticket      => $ticket,
+                subject     => "Ticket ".$ticket->id." updated - ",
                 comment     => param('comment'),
             };
             my $email = Lenio::Email->new(
