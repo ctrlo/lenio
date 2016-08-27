@@ -89,10 +89,10 @@
             [% UNLESS readonly %]
             <div class="form-group">
                 <button type="submit" name="submit" value="submit" class="btn btn-primary">
-                    [% IF action == "new" %]Create[% ELSE %]Update[% END %]
+                    [% IF ticket.id %]Update[% ELSE %]Create[% END %]
                 </button>
                 <a href="/tickets" role="button" class="btn btn-default">Cancel</a>
-                [% UNLESS action == "new" %]
+                [% IF ticket.id %]
                     <button class="btn btn-default" data-toggle="modal" data-target="#modal_delete">
                         Delete
                     </button>
@@ -115,13 +115,13 @@
                 <textarea name="comment" id="comments" class="form-control" rows="3"></textarea>
             </div>
             <div class="form-group">
-                [% UNLESS action == "new" %]
+                [% IF ticket.id %]
                 <button type="submit" name="addcomment" value="submit" class="btn btn-default">Add comment</button>
                 [% END %]
             </div>
         </div>
         <div class="col-sm-2">
-            [% UNLESS action == "new" %]
+            [% IF ticket.id %]
             <div class="form-group">
                     <label for="attach">Attachments</label>
                     [% IF ticket.attaches.size %]
