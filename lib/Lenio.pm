@@ -370,6 +370,13 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
     };
 };
 
+get '/ticket/view/:id?' => require_login sub {
+    my $id = param 'id';
+    redirect '/ticket'
+        unless $id =~ /^[0-9]+$/;
+    redirect "/ticket/$id";
+};
+
 any '/ticket/:id?' => require_login sub {
 
     my $date    = query_parameters->get('date');
