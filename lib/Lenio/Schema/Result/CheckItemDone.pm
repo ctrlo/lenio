@@ -114,7 +114,7 @@ __PACKAGE__->belongs_to(
   "check_item",
   "Lenio::Schema::Result::CheckItem",
   { id => "check_item_id" },
-  { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 

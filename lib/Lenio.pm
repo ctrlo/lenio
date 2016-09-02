@@ -294,6 +294,15 @@ any '/check_edit/:id' => require_login sub {
         }
     }
 
+    if (param 'delete')
+    {
+        if (process sub { $check->delete })
+        {
+            forwardHome(
+                { success => 'The check has been successfully deleted' }, 'task' );
+        }
+    }
+
     template 'check_edit' => {
         check       => $check,
         site_id     => session('site_id'),

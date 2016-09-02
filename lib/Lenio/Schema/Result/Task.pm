@@ -132,7 +132,7 @@ __PACKAGE__->has_many(
   "check_items",
   "Lenio::Schema::Result::CheckItem",
   { "foreign.task_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 =head2 site_tasks

@@ -1,0 +1,93 @@
+{
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Org"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginOrg",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Notice"
+      },
+      {
+         "class" : "Attach",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Permission"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginPermission"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckDone"
+      },
+      {
+         "class" : "Login",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Comment",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Site"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Contractor"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItem"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Event"
+      }
+   ],
+   "belongs_to" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   },
+   "might_have" : {
+      "fetch" : 0
+   }
+}

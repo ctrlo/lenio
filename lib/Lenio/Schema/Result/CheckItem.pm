@@ -90,7 +90,7 @@ __PACKAGE__->has_many(
   "check_items_done",
   "Lenio::Schema::Result::CheckItemDone",
   { "foreign.check_item_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 1 },
 );
 
 =head2 task
@@ -108,7 +108,7 @@ __PACKAGE__->belongs_to(
   {
     is_deferrable => 1,
     join_type     => "LEFT",
-    on_delete     => "NO ACTION",
+    on_delete     => "CASCADE",
     on_update     => "NO ACTION",
   },
 );
