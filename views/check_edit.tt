@@ -14,9 +14,10 @@
         </div>
         <div class="form-group">
             <label for="site_id">Site</label>
+            [% site_id = check.site_tasks.first.site.id || session.site_id %]
             <select class="form-control" id="site_id" name="site_id">
                 [% FOR site IN login.sites %]
-                    <option value="[% site.id %]">[% site.org.name %] ([% site.name %])
+                    <option value="[% site.id %]" [% IF site_id == site.id %]selected[% END %]>[% site.org.name %] ([% site.name %])
                 [% END %]
             </select>
         </div>
