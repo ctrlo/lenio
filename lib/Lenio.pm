@@ -266,7 +266,7 @@ any '/check_edit/:id' => require_login sub {
 
     my $check = ($id && rset('Task')->find($id)) || rset('Task')->new({ site_check => 1, global => 0 });
 
-    my $site_id = ($check && ($check->site_tasks)[0]->site_id) || param('site_id');
+    my $site_id = ($check && ($check->site_tasks)[0] && ($check->site_tasks)[0]->site_id) || param('site_id');
     error "You do not have access to this check"
         unless var('login')->has_site($site_id);
 
