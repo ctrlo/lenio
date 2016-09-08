@@ -45,6 +45,7 @@
                     <label for="contractor">Contractor</label>
                     [% IF contractors.size %]
                         <select class="form-control" id="contractor" name="contractor" [% readonly %]>
+                            <option [% IF NOT ticket.contractor_id %]selected[% END %]></option>
                             [% FOR contractor IN contractors %]
                             <option value="[% contractor.id %]"
                                 [% IF contractor.id == ticket.contractor_id %]selected[% END %]>[% contractor.name %]
