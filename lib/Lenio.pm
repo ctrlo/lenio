@@ -222,7 +222,7 @@ any '/contractor/?:id?' => require_login sub {
     template 'contractor' => {
         id          => $id,
         contractor  => $contractor,
-        contractors => [rset('Contractor')->all],
+        contractors => [rset('Contractor')->ordered],
         page        => 'contractor'
     };
 };
@@ -618,7 +618,7 @@ any '/ticket/:id?' => require_login sub {
     template 'ticket' => {
         id           => $id,
         ticket       => $ticket,
-        contractors  => [rset('Contractor')->all],
+        contractors  => [rset('Contractor')->ordered],
         page         => 'ticket'
     };
 };
