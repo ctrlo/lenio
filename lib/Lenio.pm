@@ -649,15 +649,6 @@ get '/tickets/?' => require_login sub {
 
     my $task = param('task_id') && rset('Task')->find(param 'task_id');
 
-    if ($task && $task->id)
-    {
-        # Check whether the user has access to this task
-        my @sites = map { $_->site_id } $task->site_tasks->all;
-        forwardHome(
-            { danger => "You do not have permission for service item ".$task->id } )
-                unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
-    }
-
     my $uncompleted_only; my $task_id;
     if (param('task_id'))
     {
