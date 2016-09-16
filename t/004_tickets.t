@@ -33,6 +33,16 @@ my @tickets = (
     },
     {
         ticket => {
+            name         => 'Reactive Local',
+            description  => 'Rective local description',
+            local_only   => 1,
+            site_task    => {
+                site_id => $site->id,
+            },
+        },
+    },
+    {
+        ticket => {
             name         => $task->name,
             description  => $task->description,
             contractor   => $contractor,
@@ -60,14 +70,14 @@ foreach my $ticket (@tickets)
     }
 }
 
+my $login = $seed_data->login;
+$login->update({ is_admin => 1 });
 foreach my $task_tickets (0, 1, undef)
 {
     foreach my $uncompleted_only (0, 1)
     {
         foreach my $fy (undef, 2015, 2016)
         {
-            my $login = $seed_data->login;
-            $login->update({ is_admin => 1 });
             my @summary = $schema->resultset('Ticket')->summary(
                 login            => $login,
                 site_id          => $site->id,
@@ -89,6 +99,97 @@ foreach my $task_tickets (0, 1, undef)
                 }
             }
             is( @summary, $count, "Correct number of tickets in summary" );
+        }
+    }
+}
+
+$schema->resultset('Ticket')->search({ completed => { '!=' => undef } })->delete;
+# Tests to ensure correct number of tickets appear for admin/non-admin
+# with global/local tickets/tasks
+#
+# First add a local task and associated ticket
+my $task_local = $schema->resultset('Task')->new({
+    global      => 0,
+    name        => 'Local task',
+    description => 'Local desc',
+    period_qty  => 1,
+    period_unit => 'day',
+});
+$task_local->set_site_id($site->id);
+$task_local->insert;
+my $ticket_local = $schema->resultset('Ticket')->create({
+    name        => 'Local',
+    description => 'Local',
+    site_task   => {
+        site_id   => $site->id,
+        task_id   => $task_local->id,
+    },
+});
+# And one for another site
+my $org2 = $schema->resultset('Org')->create({
+    name => 'Org 2',
+});
+my $site2 = $schema->resultset('Site')->create({
+    name   => 'Site 2',
+    org_id => $org2->id,
+});
+my $task2 = $schema->resultset('Task')->new({
+    global      => 1,
+    name        => 'Task 2',
+    description => 'Task 2',
+    period_qty  => 1,
+    period_unit => 'day',
+});
+$task2->set_site_id($site2->id);
+$task2->insert;
+my $ticket2 = $schema->resultset('Ticket')->create({
+    name        => 'Task 2',
+    description => 'Task 2',
+    site_task   => {
+        site_id   => $site2->id,
+        task_id   => $task2->id,
+    },
+});
+
+foreach my $admin (0, 1)
+{
+    my $login = $seed_data->login;
+    $login->update({ is_admin => $admin });
+    foreach my $task_tickets (undef, 0, 1)
+    {
+        foreach my $task_id (undef, $task->id)
+        {
+            my @summary = $schema->resultset('Ticket')->summary(
+                login            => $login,
+                task_id          => $task_id,
+                task_tickets     => $task_tickets,
+            );
+            # Count should always be the same, regardless of admin status:
+            # - admin will see the ticket for site 2
+            # - non-admin will see site 1 local ticket
+            if (defined $task_tickets)
+            {
+                if ($task_tickets)
+                {
+                    if ($task_id)
+                    {
+                        is( @summary, 1, "Correct number of tickets in summary for viewing task ".$task->id." (admin $admin)" );
+                    }
+                    else {
+                        is( @summary, 2, "Correct number of tickets in summary for viewing all task tickets (admin $admin)" );
+                    }
+                }
+                else {
+                    if ($task_id)
+                    {
+                        is( @summary, 1, "Correct number of tickets in summary for viewing task ".$task->id." (admin $admin)" );
+                    }
+                    else {
+                        my $count = $admin ? 1 : 2;
+                        is( @summary, $count, "Correct number of tickets in summary for viewing all tickets that are not task-related (admin $admin)" );
+                    }
+                }
+            }
         }
     }
 }

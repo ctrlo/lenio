@@ -11,7 +11,6 @@ sub summary
     my $search = {};
 
     $search->{'site_task.site_id'}   = $args{site_id} if $args{site_id};
-    $search->{'site_task.task_id'}   = undef if $args{adhoc_only};
     $search->{'login_orgs.login_id'} = $args{login}->id unless $args{login}->is_admin;
     $search->{'site_task.task_id'}   = $args{task_id} if defined $args{task_id};
 
@@ -23,16 +22,23 @@ sub summary
         $search->{completed} = undef;
     }
 
-    if (defined $args{task_tickets})
+    if (!$args{task_id})
     {
-        $search->{task_id} = $args{task_tickets}
-            ? { '!=' => undef }
-            : undef;
+        if (defined $args{task_tickets})
+        {
+            $search->{task_id} = $args{task_tickets}
+                ? { '!=' => undef }
+                : undef;
+        }
     }
-    else {
-        $search->{'task.global'} = [undef, $args{login}->is_admin ? 1 : 0];
+
+    # Don't show local tickets for admin
+    if ($args{login}->is_admin)
+    {
+        $search->{'task.global'} = [undef, 1];
+        $search->{local_only}    = 0;
     }
-    
+
     if ($args{fy} || ($args{from} && $args{to}))
     {
         # Work out date to take costs from (ie the financial year)

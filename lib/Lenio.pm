@@ -811,10 +811,10 @@ any '/task/?:id?' => require_login sub {
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(
-            login      => var('login'),
-            site_id    => session('site_id'),
-            adhoc_only => 1,
-            fy         => session('site_id') && session('fy'),
+            login        => var('login'),
+            site_id      => session('site_id'),
+            task_tickets => 0,
+            fy           => session('site_id') && session('fy'),
         );
         if ($csv eq 'reactive')
         {
