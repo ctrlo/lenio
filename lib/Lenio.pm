@@ -625,6 +625,13 @@ any '/ticket/:id?' => require_login sub {
 
 get '/tickets/?' => require_login sub {
 
+    # Deal with sort options
+    if (param 'sort')
+    {
+        session ticket_desc => session('ticket_sort') && session('ticket_sort') eq param('sort') ? !session('ticket_desc') : 0;
+        session ticket_sort => param('sort');
+    }
+
     # Set filtering of tickets based on drop-down
     if (defined param('task_tickets'))
     {
@@ -662,6 +669,8 @@ get '/tickets/?' => require_login sub {
         login            => var('login'),
         site_id          => session('site_id'),
         uncompleted_only => $uncompleted_only,
+        sort             => session('ticket_sort'),
+        sort_desc        => session('ticket_desc'),
         task_id          => $task_id,
         task_tickets     => $task_id ? undef : $task_tickets,
     );
@@ -669,6 +678,8 @@ get '/tickets/?' => require_login sub {
     template 'tickets' => {
         task         => $task, # Tickets related to task
         tickets      => \@tickets,
+        sort         => session('ticket_sort'),
+        sort_desc    => session('ticket_desc'),
         dateformat   => config->{lenio}->{dateformat},
         task_tickets => session('task_tickets'),
         page         => 'ticket'

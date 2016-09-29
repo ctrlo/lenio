@@ -24,13 +24,13 @@
 </div>
 <table class="table table-striped">
     <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Site</th>
-        <th>Planned</th>
-        <th>Completed</th>
-        <th>Report received</th>
-        <th>Invoice sent</th>
+        <th><a href="?sort=id" style="color:inherit">ID</a></th>
+        <th><a href="?sort=title" style="color:inherit">Title</a></th>
+        <th><a href="?sort=site" style="color:inherit">Site</a></th>
+        <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
+        <th><a href="?sort=completed" style="color:inherit">Completed</a></th>
+        <th><a href="?sort=report" style="color:inherit">Report received</a></th>
+        <th><a href="?sort=invoice" style="color:inherit">Invoice sent</a></th>
     </tr>
 
     [% FOR ticket IN tickets %]

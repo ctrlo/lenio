@@ -70,6 +70,21 @@ sub summary
         $search->{'-or'} = [$completed, $planned];
     }
 
+    $args{sort} ||= '';
+    my $order_by = $args{sort} eq 'title'
+        ? 'me.name'
+        : $args{sort} eq 'site'
+        ? 'site.name'
+        : $args{sort} eq 'planned'
+        ? 'me.planned'
+        : $args{sort} eq 'completed'
+        ? 'me.completed'
+        : $args{sort} eq 'report'
+        ? 'me.report_received'
+        : $args{sort} eq 'invoice'
+        ? 'me.invoice_sent'
+        : 'me.id';
+    $order_by = { -desc => $order_by} if $args{sort_desc};
     $self->search($search, {
         prefetch => {
             'site_task' => [
@@ -81,7 +96,7 @@ sub summary
                 },
             ],
         },
-        order_by => 'me.id',
+        order_by => $order_by,
     })->all;
 }
 
