@@ -146,8 +146,13 @@ any '/user/:id' => require_login sub {
     my $login    = $id && rset('Login')->find($id);
     $id && !$login and error "User ID {id} not found", id => $id;
 
-    $login->delete
-        if $is_admin && param('delete');
+    if ($is_admin && param('delete'))
+    {
+        if (process sub { $login->delete })
+        {
+            forwardHome({ success => "User has been deleted successfully" }, '/users');
+        }
+    }
 
     if (param 'submit') {
         $login->username(param 'email');
