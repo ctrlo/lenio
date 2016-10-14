@@ -136,7 +136,7 @@ any '/user/:id' => require_login sub {
         # check existing
         rset('Login')->search({ email => $email })->count
             and error __x"The email address {email} already exists", email => $email;
-        my $newuser = create_user username => $email, realm => 'dbic', email_welcome => 1;
+        my $newuser = create_user username => $email, email => $email, realm => 'dbic', email_welcome => 1;
         $id = $newuser->{id};
         # Default to on
         $email_comment = 1;
