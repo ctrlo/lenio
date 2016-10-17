@@ -46,9 +46,35 @@ __PACKAGE__->table("org");
   data_type: 'text'
   is_nullable: 1
 
+=head2 address1
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 address2
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 town
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 postcode
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 fyfrom
 
   data_type: 'date'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
+=head2 created
+
+  data_type: 'datetime'
   datetime_undef_if_invalid: 1
   is_nullable: 1
 
@@ -59,8 +85,18 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
   { data_type => "text", is_nullable => 1 },
+  "address1",
+  { data_type => "text", is_nullable => 1 },
+  "address2",
+  { data_type => "text", is_nullable => 1 },
+  "town",
+  { data_type => "text", is_nullable => 1 },
+  "postcode",
+  { data_type => "text", is_nullable => 1 },
   "fyfrom",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
+  "created",
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
