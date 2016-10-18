@@ -224,7 +224,57 @@ sub overdue
             }
         )->all;
     }
-    @tasks;
+
+    # Unfortunately sorting cannot be done in the database, as we're doing
+    # a few sql runs to get all the results.
+    my @all_tasks;
+
+    foreach my $task (@tasks)
+    {
+        foreach my $site_task ($task->site_tasks)
+        {
+            push @all_tasks, {
+                id             => $task->id,
+                name           => $task->name,
+                global         => $task->global,
+                task           => $task,
+                site           => $site_task->site,
+                last_planned   => ($site_task->last_planned || undef),
+                last_completed => ($site_task->last_completed || undef),
+            };
+        }
+    }
+
+    $options{sort} ||= '';
+
+    if ($options{sort} eq 'org')
+    { @all_tasks = sort { $a->{site}->org->name cmp $b->{site}->org->name } @all_tasks
+    }
+    elsif ($options{sort} eq 'planned')
+    { @all_tasks = sort
+        {
+            # Having undef DateTimes seems to not work when sorting
+            ($a->{last_planned} ? $a->{last_planned}->epoch : 0)
+            <=>
+            ($b->{last_planned} ? $b->{last_planned}->epoch : 0)
+        } @all_tasks
+    }
+    elsif ($options{sort} eq 'completed')
+    { @all_tasks = sort
+        {
+            # Having undef DateTimes seems to not work when sorting
+            ($a->{last_completed} ? $a->{last_completed}->epoch : 0)
+            <=>
+            ($b->{last_completed} ? $b->{last_completed}->epoch : 0)
+        } @all_tasks
+    }
+    else
+    { @all_tasks = sort { $a->{task}->name cmp $b->{task}->name } @all_tasks
+    }
+
+    @all_tasks = reverse @all_tasks if $options{sort_desc};
+
+    @all_tasks;
 }
 
 sub _round_to_day

@@ -81,13 +81,25 @@ hook before_template => sub {
     $tokens->{login}    = var('login');
 };
 
-
 get '/' => require_login sub {
+
+    # Deal with sort options
+    if (param 'sort')
+    {
+        session task_desc => session('task_sort') && session('task_sort') eq param('sort') ? !session('task_desc') : 0;
+        session task_sort => param('sort');
+    }
+
     my $local = var('login')->is_admin ? 0 : 1; # Only show local tasks for non-admin
     my $sites = var('login')->is_admin
               ? session('site_id')
               : session('site_id') ? session('site_id') : var('login')->sites;
-    my @overdue = rset('Task')->overdue( site_id => $sites, local => $local );
+    my @overdue = rset('Task')->overdue(
+        site_id   => $sites,
+        local     => $local,
+        sort      => session('task_sort'),
+        sort_desc => session('task_desc'),
+    );
     template 'index' => {
         dateformat => config->{lenio}->{dateformat},
         tasks      => \@overdue,
