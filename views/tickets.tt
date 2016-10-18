@@ -24,13 +24,16 @@
 </div>
 <table class="table table-striped">
     <tr>
-        <th><a href="?sort=id" style="color:inherit">ID</a></th>
-        <th><a href="?sort=title" style="color:inherit">Title</a></th>
-        <th><a href="?sort=site" style="color:inherit">Site</a></th>
-        <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
-        <th><a href="?sort=completed" style="color:inherit">Completed</a></th>
-        <th><a href="?sort=report" style="color:inherit">Report received</a></th>
-        <th><a href="?sort=invoice" style="color:inherit">Invoice sent</a></th>
+        [% IF task %]
+            [% taskq = "&task_id=" _ task.id %]
+        [% END %]
+        <th><a href="?sort=id[% taskq %]" style="color:inherit">ID</a></th>
+        <th><a href="?sort=title[% taskq %]" style="color:inherit">Title</a></th>
+        <th><a href="?sort=site[% taskq %]" style="color:inherit">Site</a></th>
+        <th><a href="?sort=planned[% taskq %]" style="color:inherit">Planned</a></th>
+        <th><a href="?sort=completed[% taskq %]" style="color:inherit">Completed</a></th>
+        <th><a href="?sort=report[% taskq %]" style="color:inherit">Report received</a></th>
+        <th><a href="?sort=invoice[% taskq %]" style="color:inherit">Invoice sent</a></th>
     </tr>
 
     [% FOR ticket IN tickets %]
