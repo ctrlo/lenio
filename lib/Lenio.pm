@@ -45,6 +45,11 @@ hook before => sub {
 
     my $login = rset('Login')->find($user->{id});
 
+    # Do not try and get sites etc if logging out. User may have received "no
+    # sites associated" error and be trying to logout, in which case we don't
+    # want to run the following code as it will generate errors
+    return if request->uri eq '/logout';
+
     # Sites associated with the user 
     forward '/error', { 'error' => 'There are no sites associated with this username' }
         unless $login->sites;
