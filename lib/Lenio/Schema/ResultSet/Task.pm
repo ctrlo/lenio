@@ -205,10 +205,20 @@ sub overdue
                     }, {
                         max => 'ticket.completed',
                         -as => 'ticket_completed',
+                    }, {
+                        # We need to exclude tasks that are no longer selected
+                        # for the site. Given that there may still be existing
+                        # tickets, we need to make sure that any we include
+                        # have a NULL ticket_id entry (showing it is selected).
+                        # As NULL does not count in a MIN function, we coalesce
+                        # the NULLs into minus 1, and check for that in the
+                        # HAVING statement
+                        min => { coalesce =>  ['ticket_id', \"-1"] },
+                        -as => 'min_ticket_id',
                     }
                 ],
                 '+as' => [
-                    'site_tasks.last_planned', 'site_tasks.last_completed',
+                    'site_tasks.last_planned', 'site_tasks.last_completed', 'min_ticket_id'
                 ],
                 group_by => [
                     'site_tasks.task_id', 'site_tasks.site_id',
@@ -219,7 +229,8 @@ sub overdue
                         {
                             '<' => $self->dt_SQL_add($self->utc_now, $interval, { -ident => '.period_qty' }),
                         },
-                    ]
+                    ],
+                    min_ticket_id => -1,
                 }
             }
         )->all;
