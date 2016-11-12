@@ -242,6 +242,11 @@ sub validate {
         or error __"Please specify the period frequency";
     $self->period_unit
         or error __"Please specify the period units";
+    if ($self->period_unit eq 'week')
+    {
+        $self->period_unit('day');
+        $self->period_qty($self->period_qty * 7);
+    }
 }
 
 sub after_create
@@ -270,6 +275,17 @@ sub last_planned
     my $last_planned = $self->get_column('last_planned')
         or return;
     $self->parse_dt($last_planned);
+}
+
+sub inflate_result {
+    my $self = shift;
+    my $data = $_[1];
+    if ($data->{period_unit} eq 'day' && $data->{period_qty} % 7 == 0)
+    {
+        $data->{period_qty} = $data->{period_qty} / 7;
+        $data->{period_unit} = 'week';
+    }
+    $self->next::method(@_);
 }
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

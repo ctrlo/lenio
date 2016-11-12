@@ -174,7 +174,7 @@ sub overdue
 {   my ($self, %options) = @_;
 
     my $site_id = $options{site_id};
-    my @intervals = qw/year month week day/;
+    my @intervals = qw/year month day/;
 
     my @tasks;
     foreach my $interval (@intervals)
