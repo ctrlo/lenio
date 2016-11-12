@@ -5,6 +5,7 @@ use Lenio;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Log::Report mode => 'NORMAL';
 
 my $app = Lenio->to_app;
 is( ref $app, 'CODE', 'Got app' );
