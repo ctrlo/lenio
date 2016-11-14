@@ -1,0 +1,24 @@
+<h3>Invoices</h3>
+[% IF invoices.size %]
+    <table class="table table-striped">
+        <tr>
+            <th><a href="?sort=id" style="color:inherit">ID</a></th>
+            <th><a href="?sort=title" style="color:inherit">Title</a></th>
+            <th><a href="?sort=site" style="color:inherit">Site</a></th>
+            <th><a href="?sort=date" style="color:inherit">Date</a></th>
+            <th></th>
+        </tr>
+
+        [% FOR invoice IN invoices %]
+        <tr>
+            <td>[% IF login.is_admin %]<a href="/invoice/[% invoice.id %]">[% invoice.id %]</a>[% ELSE %][% invoice.id %][% END %]</td>
+            <td>[% invoice.ticket.name %]</td>
+            <td>[% invoice.ticket.site_task.site.org.name %] ([% invoice.ticket.site_task.site.name %])</td>
+            <td>[% invoice.datetime.ymd %]</td>
+            <td><a href="/invoice/[% invoice.id %]?download">Download</a></td>
+        </tr>
+        [% END %]
+    </table>
+[% ELSE %]
+    <p>There are no existing invoices</p>
+[% END %]

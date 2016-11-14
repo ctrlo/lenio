@@ -1,9 +1,6 @@
 use utf8;
 package Lenio::Schema::Result::Ticket;
 
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
-
 =head1 NAME
 
 Lenio::Schema::Result::Ticket
@@ -190,6 +187,21 @@ __PACKAGE__->belongs_to(
   },
 );
 
+=head2 invoice
+
+Type: has_one
+
+Related object: L<Lenio::Schema::Result::Invoice>
+
+=cut
+
+__PACKAGE__->might_have(
+  "invoice",
+  "Lenio::Schema::Result::Invoice",
+  { "foreign.ticket_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 site_task
 
 Type: might_have
@@ -204,11 +216,6 @@ __PACKAGE__->might_have(
   { "foreign.ticket_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 1 },
 );
-
-
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-09 10:25:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4nUUbU5VN4lI9K26qKpK/Q
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

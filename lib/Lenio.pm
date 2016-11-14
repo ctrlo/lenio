@@ -722,6 +722,79 @@ get '/attach/:file' => require_login sub {
     }
 };
 
+any '/invoice/:id' => require_login sub {
+
+    my $id      = route_parameters->get('id');
+    my $invoice = defined $id && (rset('Invoice')->find($id) || rset('Invoice')->new({}));
+    my $ticket  = query_parameters->get('ticket') && rset('Ticket')->find(query_parameters->get('ticket'));
+
+    if (defined query_parameters->get('download'))
+    {
+        my %options = %{config->{lenio}->{invoice}};
+        $options{dateformat} = config->{lenio}->{dateformat};
+        my $pdf = $invoice->pdf(%options);
+	return send_file(
+	    \$pdf,
+	    content_type => 'application/pdf',
+	    filename     => (config->{lenio}->{invoice}->{prefix}).$invoice->id.".pdf",
+	);
+    }
+
+    var('login')->is_admin
+        or forwardHome({ danger => 'You do not have permission to edit invoices' });
+
+    if (param('delete'))
+    {
+        if (process (sub { $invoice->delete } ) )
+        {
+            forwardHome({ success => 'The invoice has been successfully deleted' }, 'invoices');
+        }
+    }
+
+    if (param 'submit')
+    {
+        $invoice->description(body_parameters->get('description'));
+        $invoice->disbursements(body_parameters->get('disbursements'));
+        $invoice->ticket_id($ticket->id)
+            if $ticket;
+        $invoice->datetime(DateTime->now)
+            if !$id;
+        if (process sub { $invoice->update_or_insert })
+        {
+            my $action = $id ? 'updated' : 'created';
+            $id = $invoice->id;
+            forwardHome({ success => "The invoice has been successfully $action" }, "invoice/$id");
+        }
+    }
+
+    template 'invoice' => {
+        id      => $id,
+        invoice => $invoice,
+        ticket  => $ticket,
+        page    => 'invoice'
+    };
+};
+
+any '/invoices' => require_login sub {
+
+    if (param 'sort')
+    {
+        session invoice_desc => session('invoice_sort') && session('invoice_sort') eq param('sort') ? !session('invoice_desc') : 0;
+        session invoice_sort => param('sort');
+    }
+
+    my @invoices = rset('Invoice')->summary(
+        login     => var('login'),
+        sort      => session('invoice_sort'),
+        sort_desc => session('invoice_desc'),
+    );
+
+    template 'invoices' => {
+        invoices => \@invoices,
+        page     => 'invoice'
+    };
+};
+
 any '/task/?:id?' => require_login sub {
 
     my $action;

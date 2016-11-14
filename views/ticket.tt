@@ -76,6 +76,11 @@
                         class="form-control [% UNLESS readonly %]datepicker[% END %]"
                         id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
                 </div>
+                    [% IF ticket.invoice %]
+                        <a href="/invoice/[% ticket.invoice.id %]" id="invoice" class="btn btn-default">View Invoice</a>
+                    [% ELSE %]
+                        <a href="/invoice/0?ticket=[% ticket.id %]" id="invoice" class="btn btn-default">Create Invoice...</a>
+                    [% END %]
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="report_received" [% IF ticket.report_received %]checked[% END %]> Report received

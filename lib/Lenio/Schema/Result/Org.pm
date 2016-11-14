@@ -93,6 +93,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "postcode",
   { data_type => "text", is_nullable => 1 },
+  "case_number",
+  { data_type => "text", is_nullable => 1 },
   "fyfrom",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "created",
