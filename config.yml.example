@@ -23,6 +23,31 @@ lenio:
   dateformat: "%x"
   email_from: '"Email from" <from@example.com>' # "from" header
   email_sender: 'sender@example.com' # "sender", if different
+  invoice:
+    prefix: PM
+    logo: public/images/BC_logo.jpg
+    company: My Company
+    address: |
+      My Street
+      My Town
+      AB12 3BC
+
+      Office: 123456
+      Mobile: 123456
+    payment: |
+      BACS payments to:
+      My Bank
+      Sort Code: 12-34-56
+      Acc No: 12345678
+      Please quote invoice number on all payments
+      
+      Cheques made payable to:
+      My Company Ltd
+    footer: >
+      In accordance with our Standard Terms of Business this account is payable
+      within 14 days of the date of this invoice.
+    footer_left: My Company Ltd - Company Number 123456
+    footer_right: "VAT Registration Number: 123456"
 
 engines:
   session:
@@ -64,5 +89,5 @@ plugins:
         users_pwresetcode_column: pwdreset
         encryption_algorithm: SHA-512
         user_valid_conditions:
-          deleted: null
+          deleted: ~
 
