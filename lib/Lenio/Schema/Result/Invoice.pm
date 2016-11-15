@@ -43,12 +43,10 @@ __PACKAGE__->belongs_to(
 sub pdf
 {   my ($self, %options) = @_;
 
-    my ($fh, $filename) = tempfile(SUFFIX => '.pdf');
     my $company = $options{company};
     my $number  = ($options{prefix} || '').$self->id;
 
     my $pdf = PDF::Create->new(
-        fh           => $fh,
         Author       => $company,
         Title        => "Invoice $number",
         CreationDate => [ localtime $self->datetime->epoch ]
@@ -188,10 +186,8 @@ sub pdf
     $page->stringl($fontbold, 8, 70, 30, $options{footer_left});
     $page->stringr($fontbold, 8, 515, 30, $options{footer_right});
 
-    # Close the file and write the PDF
-    $pdf->close;
-
-    return read_file($filename, binmode => ':raw');
+    # Close the file and returne the PDF content
+    return $pdf->close;
 }
 
 sub _block
