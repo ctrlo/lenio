@@ -53,7 +53,7 @@ sub pdf
     );
 
     my $org  = $self->ticket->site_task->site->org;
-    my $to   = sprintf "%s\n%s\n%s\n%s\n%s", $org->name, $org->address1, $org->address2, $org->town, $org->postcode;
+    my $to   = join "\n", grep { $_ } $org->name, $org->address1, $org->address2, $org->town, $org->postcode;
     my $type = $self->ticket->site_task->task_id ? "Service Works" : "Call Out Works";
 
     my $root = $pdf->new_page('MediaBox' => $pdf->get_page_size('A4'));
