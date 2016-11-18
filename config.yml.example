@@ -24,6 +24,7 @@ lenio:
   email_from: '"Email from" <from@example.com>' # "from" header
   email_sender: 'sender@example.com' # "sender", if different
   invoice:
+    autonumber: 0
     prefix: PM
     logo: public/images/BC_logo.jpg
     company: My Company

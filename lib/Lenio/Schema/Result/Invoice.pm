@@ -17,6 +17,8 @@ __PACKAGE__->table("invoice");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "number",
+  { data_type => "text", is_nullable => 1 },
   "description",
   { data_type => "text", is_nullable => 1 },
   "ticket_id",
@@ -44,7 +46,8 @@ sub pdf
 {   my ($self, %options) = @_;
 
     my $company = $options{company};
-    my $number  = ($options{prefix} || '').$self->id;
+    my $number  = $options{autonumber} ? $self->id : $self->number;
+    $number = ($options{prefix} || '').$number;
 
     my $pdf = PDF::Create->new(
         Author       => $company,
@@ -106,12 +109,13 @@ sub pdf
     $page->stringl($font, 10, 227, 517, "Invoice No: $number");
     $page->stringl($font, 10, 377, 517, "Case Number: ".$org->case_number);
 
-    $page->stringl($fontbold, 10, 70, 470, "Description:");
+    $page->stringl($fontbold, 10, 70, 470, "Professional Fees:");
+    my $description = 'Expense reclaim in relation to '.$self->description;
 
     $page->block_text({
         page       => $page,
         font       => $font,
-        text       => $self->description,
+        text       => $description,
         font_size  => 10,
         line_width => 455,
         start_y    => 0, # unused, but warnings if omitted
@@ -120,12 +124,16 @@ sub pdf
         'y'        => 440,
     });
 
-    $page->stringl($font, 10, 70, 380, "These works are to be classed as ");
+    $page->stringl($font, 10, 70, 380, "Works carried out by ".$self->ticket->contractor->name);
+    $page->stringl($font, 10, 70, 365, "These works are to be classed as ");
     $page->setrgbcolor(200, 0, 0);
-    $page->stringl($font, 10, 230, 380, $type);
+    $page->stringl($font, 10, 225, 365, $type);
     $page->setrgbcolor(0, 0, 0);
+    my $cinv = $self->ticket->contractor_invoice;
+    $page->stringl($font, 10, 70, 350, "Please find detailed invoice herewith (Invoice $cinv)")
+        if $cinv;
 
-    $page->rectangle(300, 230, 225, 110);
+    $page->rectangle(300, 220, 225, 110);
     $page->stroke;
 
     $self->_block(
@@ -135,7 +143,7 @@ sub pdf
         space => 0,
         text  => "Professional Fees:\n\nDisbursements:\n\nSub Total:\n\nVAT \@ 20%:",
         x     => 310,
-        y     => 330,
+        y     => 320,
     );
 
     my $fees          = $self->ticket->cost_actual || 0;
@@ -150,11 +158,11 @@ sub pdf
         space => 0,
         text  => sprintf("\xA3%.2f\n\n\xA3%.2f\n\n\xA3%.2f\n\n\xA3%.2f\n", $fees, $disbursements, $subtotal, $vat),
         x     => 450,
-        y     => 330,
+        y     => 320,
     );
 
-    $page->stringl($fontbold, 10, 310, 240, "TOTAL:");
-    $page->stringl($fontbold, 10, 450, 240, sprintf("\xA3%.2f", $total));
+    $page->stringl($fontbold, 10, 310, 230, "TOTAL:");
+    $page->stringl($fontbold, 10, 450, 230, sprintf("\xA3%.2f", $total));
 
     $page->rectangle(345, 108, 180, 82);
     $page->stroke;

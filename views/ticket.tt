@@ -57,6 +57,10 @@
                     [% END %]
                 </div>
                 <div class="form-group">
+                    <label for="contractor_invoice">Contractor invoice number</label>
+                    <input type="text" name="contractor_invoice" class="form-control" id="contractor_invoice" value="[% ticket.contractor_invoice %]" [% readonly %]>
+                </div>
+                <div class="form-group">
                     <label for="cost_planned">Planned cost</label>
                     <input type="text" name="cost_planned" class="form-control" id="cost_planned" value="[% ticket.cost_planned %]" [% readonly %]>
                 </div>

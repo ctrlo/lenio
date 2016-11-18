@@ -90,6 +90,11 @@ __PACKAGE__->table("ticket");
   default_value: 0
   is_nullable: 0
 
+=head2 contractor_invoice
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 invoice_sent
 
   data_type: 'smallint'
@@ -119,6 +124,8 @@ __PACKAGE__->add_columns(
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "report_received",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "contractor_invoice",
+  { data_type => "text", is_nullable => 1 },
   "invoice_sent",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );

@@ -12,6 +12,10 @@
                 <textarea name="description" id="description" class="form-control" rows="6">[% IF invoice.id %][% invoice.description | html %][% ELSE %][% ticket.description | html %][% END %]</textarea>
             </div>
             <div class="form-group">
+                <label for="number">Invoice number</label>
+                <input type="text" name="number" class="form-control" id="number" value="[% invoice.number %]">
+            </div>
+            <div class="form-group">
                 <label for="disbursements">Disbursements</label>
                 <input type="text" name="disbursements" class="form-control" id="disbursements" value="[% invoice.disbursements %]">
             </div>

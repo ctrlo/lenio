@@ -536,6 +536,7 @@ any '/ticket/:id?' => require_login sub {
 
         $ticket->name(param 'name');
         $ticket->description(param 'description');
+        $ticket->contractor_invoice(param 'contractor_invoice');
         $ticket->contractor_id(param 'contractor');
         $ticket->cost_planned(param 'cost_planned');
         $ticket->cost_actual(param 'cost_actual');
@@ -754,6 +755,7 @@ any '/invoice/:id' => require_login sub {
     if (param 'submit')
     {
         $invoice->description(body_parameters->get('description'));
+        $invoice->number(body_parameters->get('number'));
         $invoice->disbursements(body_parameters->get('disbursements'));
         $invoice->ticket_id($ticket->id)
             if $ticket;
