@@ -4,6 +4,7 @@ package Lenio::Schema::Result::Invoice;
 use strict;
 use warnings;
 
+use Encode qw/encode/;
 use File::Slurp qw/read_file/;
 use File::Temp qw/tempfile/;
 use PDF::Create;
@@ -41,6 +42,8 @@ __PACKAGE__->belongs_to(
   { id => "ticket_id" },
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
+
+sub _enc($);
 
 sub pdf
 {   my ($self, %options) = @_;
@@ -83,7 +86,7 @@ sub pdf
         font  => $font,
         size  => 10,
         space => 2,
-        text  => "$company\n$options{address}",
+        text  => _enc "$company\n$options{address}",
         x     => 400,
         y     => 792,
     );
@@ -95,7 +98,7 @@ sub pdf
         font  => $font,
         size  => 10,
         space => 2,
-        text  => $to,
+        text  => _enc $to,
         x     => 70,
         y     => 630,
     );
@@ -115,7 +118,7 @@ sub pdf
     $page->block_text({
         page       => $page,
         font       => $font,
-        text       => $description,
+        text       => _enc $description,
         font_size  => 10,
         line_width => 455,
         start_y    => 0, # unused, but warnings if omitted
@@ -124,13 +127,13 @@ sub pdf
         'y'        => 440,
     });
 
-    $page->stringl($font, 10, 70, 380, "Works carried out by ".$self->ticket->contractor->name);
+    $page->stringl($font, 10, 70, 380, _enc "Works carried out by ".$self->ticket->contractor->name);
     $page->stringl($font, 10, 70, 365, "These works are to be classed as ");
     $page->setrgbcolor(200, 0, 0);
-    $page->stringl($font, 10, 225, 365, $type);
+    $page->stringl($font, 10, 225, 365, _enc $type);
     $page->setrgbcolor(0, 0, 0);
     my $cinv = $self->ticket->contractor_invoice;
-    $page->stringl($font, 10, 70, 350, "Please find detailed invoice herewith (Invoice $cinv)")
+    $page->stringl($font, 10, 70, 350, _enc "Please find detailed invoice herewith (Invoice $cinv)")
         if $cinv;
 
     $page->rectangle(300, 220, 225, 110);
@@ -156,7 +159,7 @@ sub pdf
         font  => $font,
         size  => 10,
         space => 0,
-        text  => sprintf("\xA3%.2f\n\n\xA3%.2f\n\n\xA3%.2f\n\n\xA3%.2f\n", $fees, $disbursements, $subtotal, $vat),
+        text  => _enc sprintf("£%.2f\n\n£%.2f\n\n£%.2f\n\n£%.2f\n", $fees, $disbursements, $subtotal, $vat),
         x     => 450,
         y     => 320,
     );
@@ -173,7 +176,7 @@ sub pdf
         font  => $font,
         size  => 8,
         space => 1,
-        text  => $options{payment},
+        text  => _enc $options{payment},
         x     => 350,
         y     => 185,
     );
@@ -182,7 +185,7 @@ sub pdf
     $page->block_text({
         page       => $page,
         font       => $font,
-        text       => $options{footer},
+        text       => _enc $options{footer},
         font_size  => 8,
         line_width => 455,
         start_y    => 0, # unused, but warnings if omitted
@@ -191,8 +194,8 @@ sub pdf
         'y'        => 80,
     });
 
-    $page->stringl($fontbold, 8, 70, 30, $options{footer_left});
-    $page->stringr($fontbold, 8, 515, 30, $options{footer_right});
+    $page->stringl($fontbold, 8, 70, 30, _enc $options{footer_left});
+    $page->stringr($fontbold, 8, 515, 30, _enc $options{footer_right});
 
     # Close the file and returne the PDF content
     return $pdf->close;
@@ -212,5 +215,8 @@ sub _block
         $y = $y - $size - $space;
     }
 }
+
+# Shortcut for required encoding
+sub _enc($) { encode("windows-1252", shift) }
 
 1;
