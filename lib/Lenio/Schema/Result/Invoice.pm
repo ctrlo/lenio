@@ -110,7 +110,7 @@ sub pdf
 
     $page->stringl($font, 10, 77, 517, "Invoice Date: ".$self->datetime->strftime($options{dateformat}) );
     $page->stringl($font, 10, 227, 517, "Invoice No: $number");
-    $page->stringl($font, 10, 377, 517, "Case Number: ".$org->case_number);
+    $page->stringl($font, 10, 377, 517, "Case Number: " . ($org->case_number||'') );
 
     $page->stringl($fontbold, 10, 70, 470, "Professional Fees:");
     my $description = 'Expense reclaim in relation to '.$self->description;
