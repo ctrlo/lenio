@@ -787,6 +787,7 @@ any '/invoices' => require_login sub {
 
     my @invoices = rset('Invoice')->summary(
         login     => var('login'),
+        site_id   => session('site_id'),
         sort      => session('invoice_sort'),
         sort_desc => session('invoice_desc'),
     );
