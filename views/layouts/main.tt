@@ -171,5 +171,18 @@
             });
         </script>
     [% END %]
+
+    [% IF page == "ticket" %]
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#modal_comment_delete').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var comment_id = button.data('comment_id');
+                    $('#modal_comment_delete-comment_id').val(comment_id);
+                });
+            });
+        </script>
+    [% END %]
+
 </body>
 </html>

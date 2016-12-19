@@ -412,6 +412,25 @@ any '/ticket/:id?' => require_login sub {
 
     my $date    = query_parameters->get('date');
     my $id      = route_parameters->get('id');
+
+    # Check for comment deletion
+    if (my $comment_id = body_parameters->get('delete_comment'))
+    {
+        error "You do not have access to delete comments"
+            unless var('login')->is_admin;
+        if (my $comment = rset('Comment')->find($comment_id))
+        {
+            my $ticket_id = $comment->ticket_id;
+            if (process sub { $comment->delete })
+            {
+                forwardHome({ success => "Comment has been successfully deleted" }, "ticket/$ticket_id");
+            }
+        }
+        else {
+            error "Comment id {id} not found", id => $comment_id;
+        }
+    }
+
     # task_id can be specified in posted form or prefilled in ticket url
     my $task;
     if (my $task_id = body_parameters->get('task_id') || query_parameters->get('task_id'))
