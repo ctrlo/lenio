@@ -55,7 +55,7 @@ sub _build_year
     # First get financial year start of organisation
     my $costfrom = $self->fyfrom;
     my $now      = DateTime->now;
-    $now->set_year($self->year - 1) # Take year off if it's in future
+    $now->subtract(years => 1) # Take year off if it's in future
         if $now->month < $costfrom->month || ($now->month == $costfrom->month && $now->day < $costfrom->day);
     $now->year;
 }
