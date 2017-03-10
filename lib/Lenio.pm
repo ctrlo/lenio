@@ -147,6 +147,7 @@ any '/user/:id' => require_login sub {
 
     my $email_comment = param('email_comment') ? 1 : 0;
     my $email_ticket  = param('email_ticket') ? 1 : 0;
+    my $only_mine  = param('only_mine') ? 1 : 0;
     if (!$id && $is_admin && param('submit'))
     {
         my $email = param('email');
@@ -178,6 +179,7 @@ any '/user/:id' => require_login sub {
         $login->surname(param 'surname');
         $login->email_comment($email_comment);
         $login->email_ticket($email_ticket);
+        $login->only_mine($only_mine);
 
         if ($is_admin && !$login->is_admin)
         {
@@ -483,7 +485,9 @@ any '/ticket/:id?' => require_login sub {
     elsif (defined($id))
     {
         # New ticket submitted, create base object to be updated
-        $ticket = rset('Ticket')->new({});
+        $ticket = rset('Ticket')->new({
+            created_by => logged_in_user->{id},
+        });
     }
 
     if ( param('attach') ) {

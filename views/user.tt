@@ -43,6 +43,13 @@
                         >Receive emails on ticket comments
                     </label>
                 </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="only_mine" id="only_mine"
+                            [% IF edit_login.only_mine %]checked[% END %]
+                        >Only receive emails about tickets that I created
+                    </label>
+                </div>
             [% END %]
             <div class="form-group">
                 <button type="submit" name="submit" value="submit" class="btn btn-default">

@@ -93,6 +93,12 @@ __PACKAGE__->table("login");
   default_value: 0
   is_nullable: 0
 
+=head2 only_mine
+
+  data_type: 'smallint'
+  default_value: 0
+  is_nullable: 0
+
 =head2 deleted
 
   data_type: 'datetime'
@@ -121,6 +127,8 @@ __PACKAGE__->add_columns(
   "email_comment",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "email_ticket",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "only_mine",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "deleted",
   {
@@ -290,6 +298,11 @@ sub sites
         }
     }
     @sites;
+}
+
+sub full_name
+{   my $self = shift;
+    ($self->surname||'') . ", " . ($self->firstname||'');
 }
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

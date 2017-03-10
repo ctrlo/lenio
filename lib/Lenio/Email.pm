@@ -63,6 +63,7 @@ sub send($)
 
     # Will get undefined when args passed to template
     my $template_name = $args->{template};
+    my $ticket        = $args->{ticket};
 
     my $message;
     $template->process("$template_name.tt", $args, \$message)
@@ -88,7 +89,7 @@ sub send($)
                     to      => $user->email,
                     subject => $args->{subject}.$org,
                     message => $message,
-                );
+                ) unless $user->only_mine && $ticket->get_column('created_by') != $user->id;
             }
         }
     }

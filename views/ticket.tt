@@ -1,5 +1,9 @@
 [% IF ticket.id %]
-    <h3>Ticket ID [% ticket.id %]</h3>
+    <h3>Ticket ID [% ticket.id %]
+        [% IF ticket.created_by %]
+            <small>Created by [% ticket.created_by.full_name | html %]</small>
+        [% END %]
+    </h3>
 [% ELSE %]
     <h3>Create new ticket</h3>
 [% END %]
@@ -120,7 +124,7 @@
                         [%# Timezone floating from DB. Set to UTC then local %]
                         [% dt = dt.set_time_zone('UTC') %]
                         [% dt = dt.set_time_zone('Europe/London') %]
-                        By [% comment.login.surname %], [% comment.login.firstname %] ([% dt %])
+                        By [% comment.login.full_name | html %] ([% dt %])
                     </strong>
                     [% IF login.is_admin %]
                         <span class="pull-right">(<a href="#" data-toggle="modal"

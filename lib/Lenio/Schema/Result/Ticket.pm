@@ -48,6 +48,12 @@ __PACKAGE__->table("ticket");
   data_type: 'text'
   is_nullable: 1
 
+=head2 created_by
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =head2 planned
 
   data_type: 'date'
@@ -110,6 +116,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "description",
   { data_type => "text", is_nullable => 1 },
+  "created_by",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "planned",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "completed",
@@ -186,6 +194,26 @@ __PACKAGE__->belongs_to(
   "contractor",
   "Lenio::Schema::Result::Contractor",
   { id => "contractor_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+=head2 created_by
+
+Type: belongs_to
+
+Related object: L<Lenio::Schema::Result:Login>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "created_by",
+  "Lenio::Schema::Result::Login",
+  { id => "created_by" },
   {
     is_deferrable => 1,
     join_type     => "LEFT",
