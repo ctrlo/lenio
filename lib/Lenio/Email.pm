@@ -70,30 +70,32 @@ sub send($)
 	or error "Template process failed: " . $template->error();
     $message = autoformat $message, {all => 1, break => break_wrap};
 
-    if ($login->is_admin)
+    my @users = $self->schema->resultset('Login')->search(
+         {
+             'sites.id' => $self->site->id,
+             deleted    => undef,
+         },
+         { join    => {'login_orgs' => {'org' => 'sites' }}}
+    );
+    foreach my $user (@users)
     {
-        my @users = $self->schema->resultset('Login')->search(
-             {
-                 'sites.id' => $self->site->id,
-                 deleted    => undef,
-             },
-             { join    => {'login_orgs' => {'org' => 'sites' }}}
-        );
-        foreach my $user (@users)
-        {
-            if ($user->email_comment && $template_name eq 'ticket/comment'
-                || ($user->email_ticket && $template_name eq 'ticket/new')
-                || ($user->email_ticket && $template_name eq 'ticket/update')
-            ) {
-                $self->_email(
-                    to      => $user->email,
-                    subject => $args->{subject}.$org,
-                    message => $message,
-                ) unless $user->only_mine && $ticket->get_column('created_by') != $user->id;
-            }
+        if ($user->email_comment && $template_name eq 'ticket/comment'
+            || ($user->email_ticket && $template_name eq 'ticket/new')
+            || ($user->email_ticket && $template_name eq 'ticket/update')
+        ) {
+            $self->_email(
+                to      => $user->email,
+                subject => $args->{subject}.$org,
+                message => $message,
+            ) unless
+                $user->only_mine && $ticket->get_column('created_by') != $user->id # Only own tickets
+                || $login->id == $user->id; # Don't alert person submitting comment
         }
     }
-    else {
+
+    # Send updates to system administrators if not an admin making the comment
+    if (!$login->is_admin)
+    {
         foreach my $admin ($self->schema->resultset('Login')->search({ is_admin => 1, deleted => undef }))
         {
             $self->_email(
