@@ -121,9 +121,9 @@ sub login_page_handler
         if defined param('login_failed');
     template login => {
         page                => 'login',
-        new_password        => param('new_password'),
-        password_code_valid => param('password_code_valid'),
-        reset_code          => param('new_password') || param('password_code_valid'),
+        new_password        => request->parameters->get('new_password'),
+        password_code_valid => request->parameters->get('password_code_valid'),
+        reset_code          => request->parameters->get('new_password') || request->parameters->get('password_code_valid'),
     };
 }
 
