@@ -934,9 +934,14 @@ any '/task/?:id?' => require_login sub {
             }
             my $now = DateTime->now->ymd;
             my $site = rset('Site')->find(session 'site_id')->org->name;
+            # XXX Is this correct? We can't send native utf-8 without getting the error
+            # "Strings with code points over 0xFF may not be mapped into in-memory file handles".
+            # So, encode the string (e.g. "\x{100}"  becomes "\xc4\x80) and then send it,
+            # telling the browser it's utf-8
+            utf8::encode($csvout);
             return send_file(
                 \$csvout,
-                content_type => 'text/csv',
+                content_type => 'text/csv; chrset="utf-8"',
                 filename     => "$site service items $now.csv"
             );
         }
@@ -966,9 +971,10 @@ any '/task/?:id?' => require_login sub {
             }
             my $now = DateTime->now->ymd;
             my $site = rset('Site')->find(session 'site_id')->org->name;
+            utf8::encode($csvout); # See comment above
             return send_file(
                 \$csvout,
-                content_type => 'text/csv',
+                content_type => 'text/csv; chrset="utf-8"',
                 filename     => "$site reactive $now.csv"
             );
         }
