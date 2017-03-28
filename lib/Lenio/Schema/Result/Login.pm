@@ -15,6 +15,8 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+use DateTime;
+
 =head1 COMPONENTS LOADED
 
 =over 4
@@ -303,6 +305,11 @@ sub sites
 sub full_name
 {   my $self = shift;
     ($self->surname||'') . ", " . ($self->firstname||'');
+}
+
+sub disable
+{   my $self = shift;
+    $self->update({ deleted => DateTime->now });
 }
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

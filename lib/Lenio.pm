@@ -150,9 +150,10 @@ any '/user/:id' => require_login sub {
     my $only_mine  = param('only_mine') ? 1 : 0;
     if (!$id && $is_admin && param('submit'))
     {
-        my $email = param('email');
+        my $email = param('email')
+            or error "Please enter an email address for the new user";
         # check existing
-        rset('Login')->search({ email => $email })->count
+        rset('Login')->active_rs->search({ email => $email })->count
             and error __x"The email address {email} already exists", email => $email;
         my $newuser = create_user username => $email, email => $email, realm => 'dbic', email_welcome => 1;
         $id = $newuser->{id};
@@ -166,7 +167,7 @@ any '/user/:id' => require_login sub {
 
     if ($is_admin && param('delete'))
     {
-        if (process sub { $login->delete })
+        if (process sub { $login->disable })
         {
             forwardHome({ success => "User has been deleted successfully" }, '/users');
         }
@@ -209,7 +210,7 @@ get '/users/?' => require_login sub {
         or error "You do not have access to this page";
 
     template 'users' => {
-        logins    => [rset('Login')->all],
+        logins    => [rset('Login')->active],
         page      => 'user'
     };
 };
