@@ -133,6 +133,7 @@ sub tasks
     {
         my $last_completed = $task->last_completed || $lastcomp->{$task->id}
             or next;
+        next unless $task->site_single_tasks_undef->count;
         # Take the last completed date, and keep on adding its due dates
         # until we pass the end of the period.
         my $period_unit = $task->period_unit or next;
