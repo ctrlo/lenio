@@ -37,6 +37,13 @@ sub insert
     $return;
 }
 
+sub delete
+{   my $self = shift;
+    $self->before_delete
+        if $self->can('before_delete');
+    $self->next::method(@_);
+}
+
 sub update 
 {   my $self = shift;
     $self->_validate(@_);

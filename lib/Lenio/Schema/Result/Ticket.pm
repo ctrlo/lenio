@@ -1,6 +1,8 @@
 use utf8;
 package Lenio::Schema::Result::Ticket;
 
+use Log::Report;
+
 =head1 NAME
 
 Lenio::Schema::Result::Ticket
@@ -22,7 +24,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "+Lenio::DBIC");
 
 =head1 TABLE: C<ticket>
 
@@ -252,5 +254,11 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 1 },
 );
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub before_delete
+{   my $self = shift;
+    $self->invoice
+        and error __x"Unable to delete ticket as it has an attached invoice (number {id})",
+            id => $self->invoice->id;
+}
+
 1;

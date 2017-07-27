@@ -211,7 +211,23 @@ $schema->resultset('Attach')->create({
     mimetype    => 'text/plain',
 });
 
-# Try and delete the ticket
+# Add an invoice before ticket deletion
+my $invoice = $schema->resultset('Invoice')->create({
+    description => 'Invoice description',
+    number      => '1234',
+    ticket_id   => $ticket->id,
+    datetime    => DateTime->now,
+});
+
+# Try and delete the ticket with invoice attached first
+try { $ticket->delete };
+like($@, qr/Unable to delete ticket/, "Failed to delete ticket with invoice attached");
+
+# Remove invoice and try again
+$invoice->delete;
+# Reload ticket to reflect invoice deletion
+$ticket = $schema->resultset('Ticket')->find($ticket->id);
+
 # Check row numbers in database change as expected
 my $task_count = $schema->resultset('Task')->count;
 my $ticket_count = $schema->resultset('Ticket')->count;
