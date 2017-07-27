@@ -35,6 +35,12 @@ set behind_proxy => config->{behind_proxy};
 
 our $VERSION = '0.1';
 
+# There should never be exceptions from DBIC, so we want to panic them to
+# ensure they get notified at the correct level.
+schema->exception_action(sub {
+    panic @_; # Not expected
+});
+
 hook before => sub {
 
     # Used to display error messages
