@@ -1,6 +1,8 @@
 use utf8;
 package Lenio::Schema::Result::Attach;
 
+use Log::Report;
+
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
@@ -25,7 +27,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "+Lenio::DBIC");
 
 =head1 TABLE: C<attach>
 
@@ -111,6 +113,9 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+eHAr6ME56EmKKlzz+/UGg
 
+sub validate {
+    my $self = shift;
+    error __"Invalid upload: content of file was blank" unless $self->content;
+}
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
