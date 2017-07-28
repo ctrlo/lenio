@@ -38,6 +38,9 @@ our $VERSION = '0.1';
 # There should never be exceptions from DBIC, so we want to panic them to
 # ensure they get notified at the correct level.
 schema->exception_action(sub {
+    # Older versions of DBIC use this handler during expected exceptions.
+    # Temporary hack: do not panic these as DBIC does not catch them
+    die $_[0] if $_[0] =~ /^Unable to satisfy requested constraint/; # Expected
     panic @_; # Not expected
 });
 
