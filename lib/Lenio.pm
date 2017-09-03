@@ -647,7 +647,7 @@ any '/ticket/:id?' => require_login sub {
                 $email->send($args);
             }
             forwardHome(
-                { success => "Ticket ".$ticket->id." has been successfully $status" }, 'tickets');
+                { success => "Ticket ".$ticket->id." has been successfully $status" }, '/ticket/'.$ticket->id );
         }
     }
 
