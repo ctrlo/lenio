@@ -2,20 +2,16 @@ use Test::More; # tests => 1;
 use strict;
 use warnings;
 
+use Test::MockTime qw(set_fixed_time restore_time); # Load before DateTime
 use DateTime;
 use DateTime::Format::Strptime;
 use Log::Report;
 
+set_fixed_time('10/10/2016 01:00:00', '%m/%d/%Y %H:%M:%S');
 
 use t::lib::SeedData;
 
 sub _calendar; sub _to_dt;
-
-my $today = DateTime->new(
-    year  => 2016,
-    month => 8,
-    day   => 14,
-);
 
 my @tests = (
     {
@@ -184,6 +180,11 @@ done_testing();
 sub _calendar
 {   my $seed_data = shift;
     # Take the calendar for this month
+    my $today = DateTime->new(
+        year  => 2016,
+        month => 8,
+        day   => 14,
+    );
     my $firstday = $today->clone->truncate(to => 'month');
     my $lastday  = $firstday->clone->add(months => 1)->subtract(days => 1);
     Lenio::Calendar->new(
