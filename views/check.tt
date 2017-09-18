@@ -17,6 +17,7 @@
                 <option value="0" [% IF done_item.status == 0 %]selected[% END %]>Not completed</option>
                 <option value="1" [% IF done_item.status == 1 %]selected[% END %]>Completed</option>
                 <option value="-1" [% IF done_item.status == -1 %]selected[% END %]>Not applicable</option>
+                <option value="-2" [% IF done_item.status == -2 %]selected[% END %]>Out of order</option>
             </select>
         </div>
     [% END %]
