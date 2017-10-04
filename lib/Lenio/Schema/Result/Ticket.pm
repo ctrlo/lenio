@@ -126,6 +126,10 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "contractor_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "task_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "site_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "cost_planned",
   { data_type => "decimal", is_nullable => 1, size => [10, 2] },
   "cost_actual",
@@ -196,6 +200,30 @@ __PACKAGE__->belongs_to(
   "contractor",
   "Lenio::Schema::Result::Contractor",
   { id => "contractor_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+__PACKAGE__->belongs_to(
+  "site",
+  "Lenio::Schema::Result::Site",
+  { id => "site_id" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+__PACKAGE__->belongs_to(
+  "task",
+  "Lenio::Schema::Result::Task",
+  { id => "task_id" },
   {
     is_deferrable => 1,
     join_type     => "LEFT",

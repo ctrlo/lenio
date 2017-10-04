@@ -26,9 +26,7 @@ my @tickets = (
             cost_actual  => 20,
             local_only   => 0,
             planned      => '2011-10-10',
-            site_task    => {
-                site_id => $site->id,
-            },
+            site_id      => $site->id,
         },
     },
     {
@@ -36,9 +34,7 @@ my @tickets = (
             name         => 'Reactive Local',
             description  => 'Rective local description',
             local_only   => 1,
-            site_task    => {
-                site_id => $site->id,
-            },
+            site_id      => $site->id,
         },
     },
     {
@@ -50,10 +46,8 @@ my @tickets = (
             cost_actual  => 20,
             local_only   => 0,
             planned      => '2011-10-10',
-            site_task    => {
-                site_id => $site->id,
-                task_id => $task->id,
-            },
+            site_id      => $site->id,
+            task_id      => $task->id,
         },
     }
 );
@@ -120,10 +114,8 @@ $task_local->insert;
 my $ticket_local = $schema->resultset('Ticket')->create({
     name        => 'Local',
     description => 'Local',
-    site_task   => {
-        site_id   => $site->id,
-        task_id   => $task_local->id,
-    },
+    site_id     => $site->id,
+    task_id     => $task_local->id,
 });
 # And one for another site
 my $org2 = $schema->resultset('Org')->create({
@@ -145,10 +137,8 @@ $task2->insert;
 my $ticket2 = $schema->resultset('Ticket')->create({
     name        => 'Task 2',
     description => 'Task 2',
-    site_task   => {
-        site_id   => $site2->id,
-        task_id   => $task2->id,
-    },
+    site_id     => $site2->id,
+    task_id     => $task2->id,
 });
 
 foreach my $admin (0, 1)
@@ -231,11 +221,9 @@ $ticket = $schema->resultset('Ticket')->find($ticket->id);
 # Check row numbers in database change as expected
 my $task_count = $schema->resultset('Task')->count;
 my $ticket_count = $schema->resultset('Ticket')->count;
-my $site_task_count = $schema->resultset('SiteTask')->count;
 try { $ticket->delete };
 ok(!$@, "Failed to delete ticket. Exception: $@");
 is($schema->resultset('Task')->count, $task_count, "Number of tasks remains same after ticket deletion");
 is($schema->resultset('Ticket')->count, $ticket_count - 1, "Number of tickets goes down by one after deletion");
-is($schema->resultset('SiteTask')->count, $site_task_count - 1, "Number of tickets goes down by one after deletion");
 
 done_testing();

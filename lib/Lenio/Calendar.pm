@@ -112,7 +112,7 @@ sub tasks
     # First add all the tickets in this time period. 
     foreach my $ticket (@{$self->ticket_summary})
     {
-        my $task_id = $ticket->site_task->task_id;
+        my $task_id = $ticket->task_id;
         push @calendar1, $self->_cal_item(
             name        => $ticket->name,
             description => $ticket->description,
@@ -133,7 +133,6 @@ sub tasks
     {
         my $last_completed = $task->last_completed || $lastcomp->{$task->id}
             or next;
-        next unless $task->site_single_tasks_undef->count;
         # Take the last completed date, and keep on adding its due dates
         # until we pass the end of the period.
         my $period_unit = $task->period_unit or next;

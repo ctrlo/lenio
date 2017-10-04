@@ -10,23 +10,23 @@ sub summary
 {   my ($self, %args) = @_;
     my $search = {};
 
-    $search->{'site_task.site_id'}   = $args{site_id} if $args{site_id};
+    $search->{'me.site_id'}          = $args{site_id} if $args{site_id};
     $search->{'login_orgs.login_id'} = $args{login}->id unless $args{login}->is_admin;
-    $search->{'site_task.task_id'}   = $args{task_id} if defined $args{task_id};
+    $search->{'me.task_id'}          = $args{task_id} if defined $args{task_id};
 
     panic "Need site_id when using fy argument"
         if $args{fy} && !$args{site_id};
 
     if ($args{uncompleted_only})
     {
-        $search->{completed} = undef;
+        $search->{'me.completed'} = undef;
     }
 
     if (!$args{task_id})
     {
         if (defined $args{task_tickets})
         {
-            $search->{task_id} = $args{task_tickets}
+            $search->{'me.task_id'} = $args{task_tickets}
                 ? { '!=' => undef }
                 : undef;
         }
@@ -36,7 +36,7 @@ sub summary
     if ($args{login}->is_admin)
     {
         $search->{'task.global'} = [undef, 1];
-        $search->{local_only}    = 0;
+        $search->{'me.local_only'}    = 0;
     }
 
     if ($args{fy} || ($args{from} && $args{to}))
@@ -86,16 +86,14 @@ sub summary
         : 'me.id';
     $order_by = { -desc => $order_by} if $args{sort_desc};
     $self->search($search, {
-        prefetch => {
-            'site_task' => [
-                'task',
-                {
-                    'site' => {
-                        'org' => 'login_orgs'
-                    },
+        prefetch => [
+            'task',
+            {
+                'site' => {
+                    'org' => 'login_orgs'
                 },
-            ],
-        },
+            }
+        ],
         order_by => $order_by,
     })->all;
 }

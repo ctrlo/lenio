@@ -6,7 +6,7 @@ use base qw(DBIx::Class::ResultSet);
 
 use Lenio::FY;
 
-__PACKAGE__->load_components(qw(ResultSet::ParameterizedJoinHack Helper::ResultSet::DateMethods1));
+__PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1 Helper::ResultSet::CorrelateRelationship));
 
 sub last_completed
 {   my ($self, %options) = @_;
@@ -22,8 +22,8 @@ sub summary
 
     my $site_id = $options{site_id};
     my $search  = { site_check => 0 };
-    $search->{'site_single_tasks_undef.site_id'} = $site_id if $options{onlysite};
-    $search->{global}  = $options{global} if exists $options{global};
+    $search->{'site_tasks.site_id'} = $site_id if $options{onlysite};
+    $search->{'me.global'} = $options{global} if exists $options{global};
 
     my @dates;
 
@@ -93,57 +93,51 @@ sub summary
             ],
         ) if $fy && (DateTime->compare(DateTime->now, $from) > 0)
            && (DateTime->compare(DateTime->now, $to) < 0);
-        # Finally add on any tasks without any tickets, which would otherwise
-        # not appear in the summary.
-        push @dates, (
-            -and => [
-                'ticket.completed'    => undef,
-                'ticket.planned'      => undef,
-                'ticket.cost_actual'  => undef,
-                'ticket.cost_planned' => undef,
-            ],
-        );
     }
-    $search->{'-or'} = [ @dates ] if @dates;
 
-
-    $self->with_parameterized_join(
-        site_single_tasks => {
-            site_id   => $site_id,
-        }
-    )->with_parameterized_join(
-        site_single_tasks_undef => {
-            site_id   => $site_id,
-        }
-    )->search($search, {
+    my $schema = $self->result_source->schema;
+    $self->search($search, {
         order_by => [
             'tasktype.name', 'me.name'
         ],
         group_by => 'me.id',
         prefetch => [
+            'tickets',
             'tasktype',
             {
-                site_single_tasks => [qw/site ticket/]
+                site_tasks => 'site'
             },
-            'site_single_tasks_undef',
         ],
         select => [
             'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global', 'me.site_check',
-            'site_single_tasks.site_id', 'site_single_tasks.id',
-            {
-                max => 'ticket.completed',
-                -as => 'last_completed'
-            }, {
-                max => 'ticket.planned',
-                -as => 'last_planned'
-            }, {
-                sum => 'ticket.cost_planned',
-                -as => 'cost_planned'
-            }, {
-                sum => 'ticket.cost_actual',
-                -as => 'cost_actual'
-            },
+            'site_tasks.site_id',
         ],
+        '+columns' => {
+            last_completed => $schema->resultset('Task')
+                ->correlate('tickets')
+                ->search([@dates])
+                ->get_column('completed')
+                ->max_rs->as_query,
+            last_planned => $schema->resultset('Task')
+                ->correlate('tickets')
+                ->search([@dates])
+                ->get_column('planned')
+                ->max_rs->as_query,
+            cost_planned => $schema->resultset('Task')
+                ->correlate('tickets')
+                ->search([@dates])
+                ->get_column('cost_planned')
+                ->sum_rs->as_query,
+            cost_actual => $schema->resultset('Task')
+                ->correlate('tickets')
+                ->search([@dates])
+                ->get_column('cost_actual')
+                ->sum_rs->as_query,
+            site_has_task => $schema->resultset('Task')
+                ->correlate('site_tasks')
+                ->search({ site_id => $site_id })
+                ->count_rs->as_query,
+       }
     })->all;
 }
 
@@ -173,8 +167,9 @@ sub site_checks
 sub overdue
 {   my ($self, %options) = @_;
 
-    my $site_id = $options{site_id};
+    my $site_id   = $options{site_id};
     my @intervals = qw/year month day/;
+    my $schema    = $self->result_source->schema;
 
     my @tasks;
     foreach my $interval (@intervals)
@@ -187,6 +182,7 @@ sub overdue
         my $s = ref $site_id eq 'ARRAY' ? [ map { $_->id } @$site_id ] : $site_id;
         $search->{'site.id'} = $s if $s;
 
+        $self->result_source->schema->storage->debug(1);
         my $now = $self->result_source->storage->datetime_parser->format_date(DateTime->now);
         push @tasks, $self->search(
             $search,
@@ -199,26 +195,14 @@ sub overdue
                     ]
                 },
                 '+select' => [
-                    {
-                        max => 'ticket.planned',
-                        -as => 'ticket_planned',
-                    }, {
-                        max => 'ticket.completed',
-                        -as => 'ticket_completed',
-                    }, {
-                        # We need to exclude tasks that are no longer selected
-                        # for the site. Given that there may still be existing
-                        # tickets, we need to make sure that any we include
-                        # have a NULL ticket_id entry (showing it is selected).
-                        # As NULL does not count in a MIN function, we coalesce
-                        # the NULLs into minus 1, and check for that in the
-                        # HAVING statement
-                        min => { coalesce =>  ['ticket_id', \"-1"] },
-                        -as => 'min_ticket_id',
-                    }
-                ],
-                '+as' => [
-                    'site_tasks.last_planned', 'site_tasks.last_completed', 'min_ticket_id'
+                    { max => $schema->resultset('Task')
+                        ->correlate('tickets')
+                        ->get_column('completed')
+                        ->max_rs->as_query, -as => 'ticket_completed' },
+                    { max => $schema->resultset('Task')
+                        ->correlate('tickets')
+                        ->get_column('planned')
+                        ->max_rs->as_query, -as => 'ticket_planned' },
                 ],
                 group_by => [
                     'site_tasks.task_id', 'site_tasks.site_id',
@@ -230,7 +214,6 @@ sub overdue
                             '<' => $self->dt_SQL_add($self->utc_now, $interval, { -ident => '.period_qty' }),
                         },
                     ],
-                    min_ticket_id => -1,
                 }
             }
         )->all;
@@ -244,14 +227,19 @@ sub overdue
     {
         foreach my $site_task ($task->site_tasks)
         {
+            my $parser = $self->result_source->storage->datetime_parser;
+            my $ticket_planned_raw = $task->get_column('ticket_planned');
+            my $ticket_planned     = $ticket_planned_raw && $parser->parse_date($ticket_planned_raw);
+            my $ticket_completed_raw = $task->get_column('ticket_completed');
+            my $ticket_completed     = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
             push @all_tasks, {
                 id             => $task->id,
                 name           => $task->name,
                 global         => $task->global,
                 task           => $task,
                 site           => $site_task->site,
-                last_planned   => ($site_task->last_planned || undef),
-                last_completed => ($site_task->last_completed || undef),
+                last_planned   => $ticket_planned,
+                last_completed => $ticket_completed,
             };
         }
     }

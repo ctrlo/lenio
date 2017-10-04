@@ -33,10 +33,8 @@ foreach my $task (@$tasks)
         description => $task->description,
         completed   => _to_dt('2016-07-01'),
         local_only  => $task->global ? 0 : 1,
-        site_task   => {
-            task_id => $task->id,
-            site_id => $site->id,
-        },
+        task_id     => $task->id,
+        site_id     => $site->id,
     });
 }
 
@@ -47,10 +45,25 @@ is( @overdue, @$tasks, "Overdue item for all tasks when all tickets out of date"
 $schema->resultset('SiteTask')->search({
     task_id   => $tasks->[0]->id,
     site_id   => $site->id,
-    ticket_id => undef,
 })->delete;
 
 is( $schema->resultset('Task')->overdue, @$tasks - 1, "Overdue items reduce by one when task removed as item" );
+
+# Add tickets to set task in date
+foreach my $task (@$tasks)
+{
+    my $ticket = $schema->resultset('Ticket')->create({
+        name        => $task->name,
+        description => $task->description,
+        completed   => DateTime->now, # Database query uses live date, not mock
+        local_only  => $task->global ? 0 : 1,
+        task_id     => $task->id,
+        site_id     => $site->id,
+    });
+}
+
+@overdue = $schema->resultset('Task')->overdue;
+is( @overdue, 0, "No overdue items when tasks in date" );
 
 done_testing();
 

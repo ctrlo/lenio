@@ -148,10 +148,8 @@ foreach my $test (@tests)
                 cost_planned => $ticket->{cost_planned},
                 cost_actual  => $ticket->{cost_actual},
                 local_only   => $task->global ? 0 : 1,
-                site_task    => {
-                    task_id => $task->id,
-                    site_id => $site->id,
-                },
+                task_id      => $task->id,
+                site_id      => $site->id,
             });
         }
     }

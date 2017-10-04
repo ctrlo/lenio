@@ -150,6 +150,13 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 1 },
 );
 
+__PACKAGE__->has_many(
+  "tickets",
+  "Lenio::Schema::Result::Ticket",
+  { "foreign.task_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
 =head2 tasktype
 
 Type: belongs_to
@@ -190,41 +197,9 @@ __PACKAGE__->might_have(
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mrxO7r3zukvdTmr3R5FuOg
 
 
-__PACKAGE__->load_components(qw(ParameterizedJoinHack));
-__PACKAGE__->parameterized_has_many(
-  site_single_tasks => 'Lenio::Schema::Result::SiteTask',
-  [ [ qw(site_id) ], sub {
-      my $args = shift;
-      +{
-        "$args->{foreign_alias}.task_id" =>
-          { -ident => "$args->{self_alias}.id" },
-        "$args->{foreign_alias}.site_id" =>
-          $_{site_id},
-      }
-    }
-  ]
-);
-
-__PACKAGE__->parameterized_has_many(
-  site_single_tasks_undef => 'Lenio::Schema::Result::SiteTask',
-  [ [ qw(site_id) ], sub {
-      my $args = shift;
-      +{
-        "$args->{foreign_alias}.task_id" =>
-          { -ident => "$args->{self_alias}.id" },
-        "$args->{foreign_alias}.site_id" =>
-          $_{site_id},
-        "$args->{foreign_alias}.ticket_id" =>
-          undef,
-      }
-    }
-  ]
-);
-
 sub strike {
     my $self = shift;
-    my $site_task = ($self->site_single_tasks_undef)[0] or return 1;
-    !defined ($site_task->site_id) ? 1 : 0;
+    return $self->get_column('site_has_task') ? 0 : 1;
 }
 
 sub validate {

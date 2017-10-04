@@ -20,7 +20,7 @@ my $today = DateTime->new(
 
 my @tests = (
     {
-        # Items completed month before, none this month
+        name    => 'Items completed month before, none this month',
         items   => 6,
         classes => 'event-important event-important event-important event-warning event-warning event-warning',
         tickets => [
@@ -42,7 +42,7 @@ my @tests = (
         ],
     },
     {
-        # Item completed first time this month, but one missed at beginning
+        name    => 'Item completed first time this month, but one missed at beginning',
         items   => 5,
         classes => 'event-important event-success event-info event-warning event-warning',
         tickets => [
@@ -68,7 +68,7 @@ my @tests = (
         ],
     },
     {
-        # Only one item completed, other not done at all
+        name    => 'Only one item completed, other not done at all',
         items   => 4,
         classes => 'event-success event-success event-info event-warning',
         tickets => [
@@ -93,7 +93,7 @@ my @tests = (
         ],
     },
     {
-        # Items done out of normal cycle
+        name    => 'Items done out of normal cycle',
         items   => 5,
         classes => 'event-important event-success event-success event-info event-warning',
         tickets => [
@@ -123,7 +123,7 @@ my @tests = (
         ],
     },
     {
-        # One task completed previous month
+        name    => 'One task completed previous month',
         items   => 1,
         classes => 'event-warning',
         tickets => [
@@ -137,7 +137,7 @@ my @tests = (
         ],
     },
     {
-        # Check tasks only show within month selected, not days either side
+        name    => 'Check tasks only show within month selected, not days either side',
         items   => 31,
         tickets => [
             {
@@ -155,7 +155,7 @@ foreach my $test (@tests)
     my $site      = $seed_data->site;
     my $tasks     = $seed_data->tasks;
 
-    is( _calendar($seed_data)->tasks, 0, "Nothing to show on calendar for no tickets" );
+    is( _calendar($seed_data)->tasks, 0, "Nothing to show on calendar for no tickets (test: $test->{name})" );
 
     # Add some tickets in the past. The tasks will show as overdue this month.
     foreach my $ticket (@{$test->{tickets}})
@@ -167,20 +167,18 @@ foreach my $test (@tests)
             planned     => $ticket->{planned},
             completed   => $ticket->{completed},
             local_only  => $task->global ? 0 : 1,
-            site_task   => {
-                task_id => $task->id,
-                site_id => $site->id,
-            },
+            task_id     => $task->id,
+            site_id     => $site->id,
         });
     }
 
     my @items = sort { $a->{start} <=> $b->{start} } _calendar($seed_data)->tasks;
 
-    is( @items, $test->{items}, "Correct number of items on calendar for all overdue" );
+    is( @items, $test->{items}, "Correct number of items on calendar for all overdue (test: $test->{name})" );
 
     my @class = map { $_->{class} } @items;
 
-    is( "@class", $test->{classes}, "Correct classes on calendar for all overdue" )
+    is( "@class", $test->{classes}, "Correct classes on calendar for all overdue (test: $test->{name})" )
         if exists $test->{classes};
 
     exists $test->{dates}

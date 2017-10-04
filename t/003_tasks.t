@@ -32,10 +32,8 @@ $schema->resultset('Ticket')->create({
     name        => $task->name,
     description => $task->description,
     local_only  => 0,
-    site_task   => {
-        task_id => $task->id,
-        site_id => $site->id
-    },
+    task_id     => $task->id,
+    site_id     => $site->id
 });
 
 is( _strike($schema, $site), 1, 'Task still struck out with ticket against it');

@@ -480,18 +480,14 @@ any '/ticket/:id?' => require_login sub {
                     description => $task->description,
                     planned     => $date,
                     local_only  => $task->global ? 0 : 1,
-                    site_task   => { # This would not be chain-inserted, but only passed to page so doesn't matter
-                        task_id => $task->id,
-                        site_id => query_parameters->get('site_id') || session('site_id'),
-                    },
+                    task_id     => $task->id,
+                    site_id     => query_parameters->get('site_id') || session('site_id'),
                 });
             }
         }
         else {
             $ticket = rset('Ticket')->new({
-                site_task   => { # This would not be chain-inserted, but only passed to page so doesn't matter
-                    site_id => query_parameters->get('site_id') || session('site_id'),
-                },
+                site_id => query_parameters->get('site_id') || session('site_id'),
             });
         }
     }
