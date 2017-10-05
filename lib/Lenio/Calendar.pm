@@ -64,7 +64,7 @@ sub _build_task_summary
         site_id => $self->site->id,
     );
     $options{global} = 1 if $self->login->is_admin;
-    [$self->schema->resultset('Task')->summary(%options)];
+    [$self->schema->resultset('Task')->summary(%options, onlysite => 1)];
 }
 
 # The task summary before the start date. This is used to find out
@@ -81,7 +81,7 @@ sub _build_task_summary_previous
         site_id => $self->site->id,
     );
     $options{global} = 1 if $self->login->is_admin;
-    [$self->schema->resultset('Task')->summary(%options)];
+    [$self->schema->resultset('Task')->summary(%options, onlysite => 1)];
 }
 
 has ticket_summary => (
