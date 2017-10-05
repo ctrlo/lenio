@@ -297,6 +297,7 @@ sub csv
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";
     my $task_completed = $self->last_completed(site_id => $options{site_id}, global => 1);
+    my ($cost_planned_total, $cost_actual_total);
     foreach my $task ($self->summary(%options, onlysite => 1))
     {
         my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
@@ -313,7 +314,11 @@ sub csv
         );
         $csv->combine(@row);
         $csvout .= $csv->string."\n";
+        $cost_planned_total += $task->cost_planned;
+        $cost_actual_total += $task->cost_actual;
     }
+    $csv->combine('','','','','','Totals:',sprintf("%.2f", $cost_planned_total),sprintf("%.2f", $cost_actual_total));
+    $csvout .= $csv->string."\n";
     return $csvout;
 }
 
