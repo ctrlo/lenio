@@ -39,7 +39,6 @@ my $task = $seed_data->tasks->[0];
 my $site_task = $schema->resultset('SiteTask')->create({
     task_id   => $task->id,
     site_id   => $site->id,
-    ticket_id => undef
 });
 ok( $login->has_site_task($site_task->id), "Initial login has access to site_task" );
 ok( !$login2->has_site_task($site_task->id), "Second login does not have access to site_task" );

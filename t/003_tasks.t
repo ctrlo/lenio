@@ -22,7 +22,6 @@ is( _strike($schema, $site), 0, 'All tasks initially not struck-out' );
 $schema->resultset('SiteTask')->search({
     task_id   => $task->id,
     site_id   => $site->id,
-    ticket_id => undef,
 })->delete;
 
 is( _strike($schema, $site), 1, 'One task struck out after removal');

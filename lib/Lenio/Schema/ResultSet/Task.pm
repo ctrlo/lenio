@@ -186,7 +186,7 @@ sub overdue
             {
                 prefetch => {
                     'site_tasks' => [
-                        'ticket', {
+                        {
                             'site' => 'org'
                         }
                     ]
