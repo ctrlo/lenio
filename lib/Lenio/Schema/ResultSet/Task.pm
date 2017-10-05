@@ -113,22 +113,22 @@ sub summary
         '+columns' => {
             last_completed => $schema->resultset('Task')
                 ->correlate('tickets')
-                ->search([@dates])
+                ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('completed')
                 ->max_rs->as_query,
             last_planned => $schema->resultset('Task')
                 ->correlate('tickets')
-                ->search([@dates])
+                ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('planned')
                 ->max_rs->as_query,
             cost_planned => $schema->resultset('Task')
                 ->correlate('tickets')
-                ->search([@dates])
+                ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('cost_planned')
                 ->sum_rs->as_query,
             cost_actual => $schema->resultset('Task')
                 ->correlate('tickets')
-                ->search([@dates])
+                ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('cost_actual')
                 ->sum_rs->as_query,
             site_has_task => $schema->resultset('Task')
