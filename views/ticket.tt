@@ -14,7 +14,7 @@
 <form role="form" method="post">
     <div class="row">
         <div class="col-sm-5">
-            <input type="hidden" value="[% ticket.site_task.task_id %]" name="task_id">
+            <input type="hidden" value="[% ticket.task_id %]" name="task_id">
             <div class="form-group">
                 <label for="name">Title</label>
                 <input type="text" name="name" class="form-control" id="name" value="[% ticket.name | html %]" [% readonly %]>
@@ -27,7 +27,7 @@
                 <label for="site_id">Site</label>
                 <select class="form-control" id="site_id" name="site_id" [% readonly %]>
                     [% FOR site IN login.sites %]
-                        [% IF site.id == ticket.site_task.site_id %]
+                        [% IF site.id == ticket.site_id %]
                             [% sel = "selected" %]
                         [% ELSE %]
                             [% sel = "" %]

@@ -459,11 +459,9 @@ any '/ticket/:id?' => require_login sub {
         $ticket = rset('Ticket')->find($id);
         # Check whether the user has access to this ticket
         error __x"You do not have permission for ticket ID {id}", id => $id
-            unless var('login')->has_site($ticket->site_task->site_id);
+            unless var('login')->has_site($ticket->site_id);
         # Existing ticket, get task from DB
-        $task = (rset('SiteTask')->search({
-            ticket_id => $ticket->id,
-        }))[0]->task;
+        $task = $ticket->task;
     }
     elsif (defined($id) && !param('submit'))
     {
@@ -577,6 +575,8 @@ any '/ticket/:id?' => require_login sub {
         $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
         $ticket->planned($planned);
+        $ticket->task_id($task->id);
+        $ticket->site_id(param('site_id'));
 
         # A normal user cannot edit a ticket that has already been created,
         # unless it is related to a locally created task
@@ -584,16 +584,6 @@ any '/ticket/:id?' => require_login sub {
         {
             error __"You do not have permission to edit this ticket"
                 unless var('login')->is_admin || $ticket->local_only;
-        }
-        else {
-            # Insert related entry in site_task table for new ticket. Cannot be changed
-            # for existing ticket
-            $ticket->site_task(
-                rset('SiteTask')->new({
-                    site_id => param('site_id'),
-                    task_id => $task && $task->id,
-                }),
-            );
         }
 
         my $was_local = $id && $ticket->local_only; # Need old setting to see if to send email
