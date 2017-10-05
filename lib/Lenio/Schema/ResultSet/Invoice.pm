@@ -10,9 +10,9 @@ sub summary
 {   my ($self, %args) = @_;
     my $search = {};
 
-    $search->{'site_task.site_id'}   = $args{site_id} if $args{site_id};
+    $search->{'site.id'}   = $args{site_id} if $args{site_id};
     $search->{'login_orgs.login_id'} = $args{login}->id unless $args{login}->is_admin;
-    $search->{'site_task.task_id'}   = $args{task_id} if defined $args{task_id};
+    $search->{'ticket.task_id'}   = $args{task_id} if defined $args{task_id};
 
     $args{sort} ||= '';
     my $order_by = $args{sort} eq 'title'
@@ -26,10 +26,8 @@ sub summary
     $self->search($search, {
         prefetch => {
             ticket => {
-                'site_task' => {
-                    'site' => {
-                        'org' => 'login_orgs'
-                    },
+                'site' => {
+                    'org' => 'login_orgs'
                 },
             },
         },
