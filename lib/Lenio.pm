@@ -519,7 +519,7 @@ any '/ticket/:id?' => require_login sub {
                 config   => config,
                 schema   => schema,
                 uri_base => request->uri_base,
-                site     => $ticket->site_task->site, # rset('Site')->find(param 'site_id'),
+                site     => $ticket->site, # rset('Site')->find(param 'site_id'),
             );
             $email->send($args);
             success __"File has been added successfully";
@@ -654,7 +654,7 @@ any '/ticket/:id?' => require_login sub {
                 config   => config,
                 schema   => schema,
                 uri_base => request->uri_base,
-                site     => rset('Site')->find($ticket->site_task->site_id),
+                site     => rset('Site')->find($ticket->site_id),
             );
             $email->send($args);
         }
@@ -735,7 +735,7 @@ get '/attach/:file' => require_login sub {
     my $file = rset('Attach')->find(param 'file')
         or error __x"File ID {id} not found", id => param('file');
     my $data = $file->content;
-    my $site_id = $file->ticket->site_task->site_id;
+    my $site_id = $file->ticket->site_id;
     if ( var('login')->has_site($site_id))
     {
         send_file( \$data, content_type => $file->mimetype );
