@@ -947,7 +947,7 @@ any '/task/?:id?' => require_login sub {
         if ($csv eq 'reactive')
         {
             my $csv = Text::CSV->new;
-            my @headings = qw/title cost_planned cost_actual completed/;
+            my @headings = qw/title cost_planned cost_actual completed contractor/;
             $csv->combine(@headings);
             my $csvout = $csv->string."\n";
             foreach my $adhoc (@adhocs)
@@ -957,6 +957,7 @@ any '/task/?:id?' => require_login sub {
                     $adhoc->cost_planned,
                     $adhoc->cost_actual,
                     $adhoc->completed && $adhoc->completed->strftime($dateformat),
+                    $adhoc->contractor && $adhoc->contractor->name,
                 );
                 $csv->combine(@row);
                 $csvout .= $csv->string."\n";
