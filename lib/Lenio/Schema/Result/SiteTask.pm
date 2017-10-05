@@ -1,9 +1,6 @@
 use utf8;
 package Lenio::Schema::Result::SiteTask;
 
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
-
 =head1 NAME
 
 Lenio::Schema::Result::SiteTask
@@ -53,12 +50,6 @@ __PACKAGE__->table("site_task");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 ticket_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -68,8 +59,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "site_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "ticket_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -83,22 +72,6 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("id");
-
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<ticket_id_UNIQUE>
-
-=over 4
-
-=item * L</ticket_id>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("ticket_id_UNIQUE", ["ticket_id"]);
-
-__PACKAGE__->add_unique_constraint("site_task_ticket_UNIQUE", ["site_id", "task_id", "ticket_id"]);
 
 =head1 RELATIONS
 
@@ -151,30 +124,6 @@ __PACKAGE__->belongs_to(
     on_update     => "NO ACTION",
   },
 );
-
-=head2 ticket
-
-Type: belongs_to
-
-Related object: L<Lenio::Schema::Result::Ticket>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "ticket",
-  "Lenio::Schema::Result::Ticket",
-  { id => "ticket_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "NO ACTION",
-  },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-06-08 13:50:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NpjKDBZ5omfMRzdJNZeVag
 
 sub last_completed
 {   my $self = shift;

@@ -267,21 +267,6 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 site_task
-
-Type: might_have
-
-Related object: L<Lenio::Schema::Result::SiteTask>
-
-=cut
-
-__PACKAGE__->might_have(
-  "site_task",
-  "Lenio::Schema::Result::SiteTask",
-  { "foreign.ticket_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
-);
-
 sub before_delete
 {   my $self = shift;
     $self->invoice
