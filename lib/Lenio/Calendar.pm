@@ -199,7 +199,9 @@ sub checks
         $previous  = undef if !$last_id || $last_id != $check->site_task_id;
         my $qty    = $check->site_task->task->period_qty;
         my $unit   = $check->site_task->task->period_unit."s";
-        my $status = (grep { $_->status == 0 } $check->check_items_done)
+        my $status = $check->comment =~ /\S/
+                   ? 'check-partdone'
+                   : (grep { $_->status == 0 } $check->check_items_done)
                    ? 'check-notdone'
                    : $check->check_items_done->count != $check->site_task->task->check_items->count
                    ? 'check-partdone'
