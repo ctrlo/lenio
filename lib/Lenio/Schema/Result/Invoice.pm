@@ -58,9 +58,9 @@ sub pdf
         CreationDate => [ localtime $self->datetime->epoch ]
     );
 
-    my $org  = $self->ticket->site_task->site->org;
+    my $org  = $self->ticket->site->org;
     my $to   = join "\n", grep { $_ } $org->name, $org->address1, $org->address2, $org->town, $org->postcode;
-    my $type = $self->ticket->site_task->task_id ? "Service Works" : "Call Out Works";
+    my $type = $self->ticket->task_id ? "Service Works" : "Call Out Works";
 
     my $root = $pdf->new_page('MediaBox' => $pdf->get_page_size('A4'));
     my $page = $root->new_page;
