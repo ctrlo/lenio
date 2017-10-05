@@ -15,7 +15,7 @@
             <td>[% IF login.is_admin %]<a href="/invoice/[% invoice.id %]">[% invoice.id %]</a>[% ELSE %][% invoice.id %][% END %]</td>
             <td><a href="/ticket/[% invoice.ticket.id %]">[% invoice.ticket.id %]</a></td>
             <td>[% invoice.ticket.name %]</td>
-            <td>[% invoice.ticket.site_task.site.org.name %] ([% invoice.ticket.site_task.site.name %])</td>
+            <td>[% invoice.ticket.site.org.name %] ([% invoice.ticket.site.name %])</td>
             <td>[% invoice.datetime.ymd %]</td>
             <td><a href="/invoice/[% invoice.id %]?download">Download</a></td>
         </tr>
