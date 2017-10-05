@@ -511,11 +511,15 @@ any '/ticket/:id?' => require_login sub {
         if (process sub { rset('Attach')->create($attach) })
         {
             my $args = {
-                login       => var('login'),
-                template    => 'ticket/attach',
-                ticket      => $ticket,
-                url         => "/ticket/".$ticket->id,
-                subject     => "Ticket ".$ticket->id." attachment added - ",
+                login    => var('login'),
+                template => 'ticket/attach',
+                ticket   => $ticket,
+                url      => "/ticket/".$ticket->id,
+                subject  => "Ticket ".$ticket->id." attachment added - ",
+                attach   => {
+                    data      => $file->content,
+                    mime_type => $file->type,
+                },
             };
             my $email = Lenio::Email->new(
                 config   => config,

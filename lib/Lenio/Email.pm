@@ -87,6 +87,7 @@ sub send($)
                 to      => $user->email,
                 subject => $args->{subject}.$org,
                 message => $message,
+                attach  => $args->{attach},
             ) unless
                 $user->only_mine && $ticket->get_column('created_by') != $user->id # Only own tickets
                 || $login->id == $user->id; # Don't alert person submitting comment
@@ -101,7 +102,8 @@ sub send($)
             $self->_email(
                 to      => $admin->email,
                 subject => $args->{subject}.$org,
-                message => $message
+                message => $message,
+                attach  => $args->{attach},
             );
         }
     }
@@ -121,7 +123,18 @@ sub _email
     )->encode(
        transfer_encoding => 'Quoted-printable',
        charset           => 'utf8',
-   );
+    );
+
+    if (my $attach = $options{attach})
+    {
+        my $attach = Mail::Message::Body::Lines->new(
+            data      => $attach->{data},
+            mime_type => $attach->{mime_type},
+        )->encode(
+            transfer_encoding => 'base64',
+        );
+        $body = $body->attach($attach);
+    }
 
     Mail::Message->buildFromBody(
         $body,
