@@ -44,6 +44,8 @@ schema->exception_action(sub {
     panic @_; # Not expected
 });
 
+my $dateformat = config->{lenio}->{dateformat};
+
 hook before => sub {
 
     # Used to display error messages
@@ -915,7 +917,7 @@ any '/task/?:id?' => require_login sub {
                 site_id    => session('site_id'),
                 global     => 1,
                 fy         => session('fy'),
-                dateformat => config->{lenio}->{dateformat},
+                dateformat => $dateformat,
             );
 
             my $now = DateTime->now->ymd;
@@ -945,7 +947,7 @@ any '/task/?:id?' => require_login sub {
         if ($csv eq 'reactive')
         {
             my $csv = Text::CSV->new;
-            my @headings = qw/title cost_planned cost_actual/;
+            my @headings = qw/title cost_planned cost_actual completed/;
             $csv->combine(@headings);
             my $csvout = $csv->string."\n";
             foreach my $adhoc (@adhocs)
@@ -954,6 +956,7 @@ any '/task/?:id?' => require_login sub {
                     $adhoc->name,
                     $adhoc->cost_planned,
                     $adhoc->cost_actual,
+                    $adhoc->completed && $adhoc->completed->strftime($dateformat),
                 );
                 $csv->combine(@row);
                 $csvout .= $csv->string."\n";
@@ -973,7 +976,7 @@ any '/task/?:id?' => require_login sub {
     }
 
     template 'task' => {
-        dateformat       => config->{lenio}->{dateformat},
+        dateformat       => $dateformat,
         action           => $action,
         site             => rset('Site')->find(session 'site_id'),
         site_checks      => [rset('Task')->site_checks(session 'site_id')],
