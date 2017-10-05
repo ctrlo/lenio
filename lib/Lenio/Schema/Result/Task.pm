@@ -252,6 +252,11 @@ sub last_planned
     $self->parse_dt($last_planned);
 }
 
+sub contractor_name
+{   my $self = shift;
+    $self->get_column('contractor_name');
+}
+
 sub inflate_result {
     my $self = shift;
     my $data = $_[1];

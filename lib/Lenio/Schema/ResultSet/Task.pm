@@ -110,7 +110,22 @@ sub summary
         select => [
             'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global', 'me.site_check',
             'site_tasks.site_id',
+            # This next block selects the contractor of the most recent ticket
+            # in the relevant selection
+            $schema->resultset('Ticket')->search({
+                'ticket.id' => {'=' => $schema->resultset('Task')
+                    ->correlate('tickets')
+                    ->search({ site_id => $site_id, -or => [@dates]})
+                    ->get_column('id')
+                    ->max_rs->as_query}
+            },{
+                alias    => 'ticket', # Prevent conflict with other "me" table
+                prefetch => 'contractor',
+            })->get_column('contractor.name')->max_rs->as_query,
         ],
+        as => [qw/
+            id name description period_unit period_qty global site_check site_tasks.site_id contractor_name
+        /],
         '+columns' => {
             last_completed => $schema->resultset('Task')
                 ->correlate('tickets')
@@ -277,7 +292,7 @@ sub overdue
 sub csv
 {   my ($self, %options) = @_;
     my $csv = Text::CSV->new;
-    my @headings = qw/task frequency_qty frequency_unit last_done cost_planned cost_actual/;
+    my @headings = qw/task frequency_qty frequency_unit contractor last_done cost_planned cost_actual/;
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";
     my $task_completed = $self->last_completed(site_id => $options{site_id}, global => 1);
@@ -287,6 +302,7 @@ sub csv
             $task->name,
             $task->period_qty,
             $task->period_unit,
+            $task->contractor_name,
             $task_completed->{$task->id} && $task_completed->{$task->id},
             $task->cost_planned,
             $task->cost_actual,
