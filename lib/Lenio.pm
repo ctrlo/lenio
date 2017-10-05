@@ -575,7 +575,7 @@ any '/ticket/:id?' => require_login sub {
         $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
         $ticket->planned($planned);
-        $ticket->task_id($task->id);
+        $ticket->task_id($task && $task->id);
         $ticket->site_id(param('site_id'));
 
         # A normal user cannot edit a ticket that has already been created,
