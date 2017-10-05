@@ -829,11 +829,11 @@ any '/task/?:id?' => require_login sub {
     {
         if (param 'taskadd')
         {
-            rset('SiteTask')->find_or_create({ task_id => param('taskadd'), site_id => session('site_id'), ticket_id => undef });
+            rset('SiteTask')->find_or_create({ task_id => param('taskadd'), site_id => session('site_id') });
         }
         if (param 'taskrm')
         {
-            rset('SiteTask')->search({ task_id => param('taskrm'), site_id => session('site_id'), ticket_id => undef })->delete;
+            rset('SiteTask')->search({ task_id => param('taskrm'), site_id => session('site_id') })->delete;
         }
     }
 
