@@ -24,7 +24,6 @@ use Ouch;
 use String::Random;
 use Text::Autoformat qw(autoformat break_wrap);
 use Crypt::SaltedHash;
-schema->storage->debug(1);
 
 use Lenio::Schema;
 

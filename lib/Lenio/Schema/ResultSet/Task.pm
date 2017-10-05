@@ -182,7 +182,6 @@ sub overdue
         my $s = ref $site_id eq 'ARRAY' ? [ map { $_->id } @$site_id ] : $site_id;
         $search->{'site.id'} = $s if $s;
 
-        $self->result_source->schema->storage->debug(1);
         my $now = $self->result_source->storage->datetime_parser->format_date(DateTime->now);
         push @tasks, $self->search(
             $search,
