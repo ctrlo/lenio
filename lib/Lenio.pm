@@ -908,29 +908,15 @@ any '/task/?:id?' => require_login sub {
     else
     {
         my $csv = (session('site_id') && param('csv')) || ""; # prevent warnings. not for all sites
-        # Get all the global tasks.
-        @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
         if ($csv eq 'service')
         {
-            my $csv = Text::CSV->new;
-            my @headings = qw/task applicable frequency_qty frequency_unit last_done cost_planned cost_actual/;
-            $csv->combine(@headings);
-            my $csvout = $csv->string."\n";
-            my $task_completed = rset('Task')->last_completed(site_id => session('site_id'), global => 1);
-            foreach my $task (@tasks)
-            {
-                my @row = (
-                    $task->name,
-                    $task->strike ? 'No' : 'Yes',
-                    $task->period_qty,
-                    $task->period_unit,
-                    $task_completed->{$task->id} && $task_completed->{$task->id},
-                    $task->cost_planned,
-                    $task->cost_actual,
-                );
-                $csv->combine(@row);
-                $csvout .= $csv->string."\n";
-            }
+
+            my $csvout = rset('Task')->csv(
+                site_id => session('site_id'),
+                global  => 1,
+                fy      => session('fy'),
+            );
+
             my $now = DateTime->now->ymd;
             my $site = rset('Site')->find(session 'site_id')->org->name;
             # XXX Is this correct? We can't send native utf-8 without getting the error
@@ -944,6 +930,9 @@ any '/task/?:id?' => require_login sub {
                 filename     => "$site service items $now.csv"
             );
         }
+
+        # Get all the global tasks.
+        @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(

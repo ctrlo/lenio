@@ -5,6 +5,7 @@ use warnings;
 use base qw(DBIx::Class::ResultSet);
 
 use Lenio::FY;
+use Text::CSV;
 
 __PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1 Helper::ResultSet::CorrelateRelationship));
 
@@ -271,6 +272,29 @@ sub overdue
     @all_tasks = reverse @all_tasks if $options{sort_desc};
 
     @all_tasks;
+}
+
+sub csv
+{   my ($self, %options) = @_;
+    my $csv = Text::CSV->new;
+    my @headings = qw/task frequency_qty frequency_unit last_done cost_planned cost_actual/;
+    $csv->combine(@headings);
+    my $csvout = $csv->string."\n";
+    my $task_completed = $self->last_completed(site_id => $options{site_id}, global => 1);
+    foreach my $task ($self->summary(%options, onlysite => 1))
+    {
+        my @row = (
+            $task->name,
+            $task->period_qty,
+            $task->period_unit,
+            $task_completed->{$task->id} && $task_completed->{$task->id},
+            $task->cost_planned,
+            $task->cost_actual,
+        );
+        $csv->combine(@row);
+        $csvout .= $csv->string."\n";
+    }
+    return $csvout;
 }
 
 sub _round_to_day
