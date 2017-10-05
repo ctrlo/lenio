@@ -292,18 +292,21 @@ sub overdue
 sub csv
 {   my ($self, %options) = @_;
     my $csv = Text::CSV->new;
-    my @headings = qw/task frequency_qty frequency_unit contractor last_done cost_planned cost_actual/;
+    my @headings = qw/task frequency_qty frequency_unit contractor last_done next_due cost_planned cost_actual/;
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";
     my $task_completed = $self->last_completed(site_id => $options{site_id}, global => 1);
     foreach my $task ($self->summary(%options, onlysite => 1))
     {
+        my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
+        my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
         my @row = (
             $task->name,
             $task->period_qty,
             $task->period_unit,
             $task->contractor_name,
-            $task_completed->{$task->id} && $task_completed->{$task->id},
+            $last_done,
+            $next_due,
             $task->cost_planned,
             $task->cost_actual,
         );
