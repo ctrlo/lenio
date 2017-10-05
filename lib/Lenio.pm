@@ -791,10 +791,34 @@ any '/invoice/:id' => require_login sub {
             if !$id;
         if (process sub { $invoice->update_or_insert })
         {
+            # Email new invoice to users
+            my %options = %{config->{lenio}->{invoice}};
+            $options{dateformat} = config->{lenio}->{dateformat};
+            my $pdf = $invoice->pdf(%options);
+            my $args = {
+                login    => var('login'),
+                template => 'ticket/invoice',
+                ticket   => $ticket,
+                url      => "/ticket/".$ticket->id,
+                subject  => "Ticket ".$ticket->id." invoice added - ",
+                attach   => {
+                    data      => $pdf,
+                    mime_type => 'application/pdf',
+                },
+            };
+            my $email = Lenio::Email->new(
+                config   => config,
+                schema   => schema,
+                uri_base => request->uri_base,
+                site     => $ticket->site, # rset('Site')->find(param 'site_id'),
+            );
+            $email->send($args);
+
             my $action = $id ? 'updated' : 'created';
             $id = $invoice->id;
             forwardHome({ success => "The invoice has been successfully $action" }, "invoice/$id");
         }
+
     }
 
     template 'invoice' => {

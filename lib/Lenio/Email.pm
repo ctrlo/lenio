@@ -82,6 +82,7 @@ sub send($)
         if ($user->email_comment && $template_name eq 'ticket/comment'
             || ($user->email_ticket && $template_name eq 'ticket/new')
             || ($user->email_ticket && $template_name eq 'ticket/update')
+            || ($user->email_ticket && $template_name eq 'ticket/invoice')
         ) {
             $self->_email(
                 to      => $user->email,

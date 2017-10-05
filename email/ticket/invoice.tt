@@ -1,0 +1,3 @@
+An invoice has been added to ticket ID [% ticket.id %] ("[% ticket.name %]").
+
+[% siteurl %][% url %]
