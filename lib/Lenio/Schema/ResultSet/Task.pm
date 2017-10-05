@@ -100,9 +100,7 @@ sub summary
         order_by => [
             'tasktype.name', 'me.name'
         ],
-        group_by => 'me.id',
         prefetch => [
-            'tickets',
             'tasktype',
             {
                 site_tasks => 'site'
