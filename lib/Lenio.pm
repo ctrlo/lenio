@@ -950,6 +950,7 @@ any '/task/?:id?' => require_login sub {
             my @headings = qw/title cost_planned cost_actual completed contractor/;
             $csv->combine(@headings);
             my $csvout = $csv->string."\n";
+            my ($cost_planned_total, $cost_actual_total);
             foreach my $adhoc (@adhocs)
             {
                 my @row = (
@@ -961,7 +962,11 @@ any '/task/?:id?' => require_login sub {
                 );
                 $csv->combine(@row);
                 $csvout .= $csv->string."\n";
+                $cost_planned_total += ($adhoc->cost_planned || 0);
+                $cost_actual_total  += ($adhoc->cost_actual || 0);
             }
+            $csv->combine('Totals:', sprintf("%.2f", $cost_planned_total), sprintf("%.2f", $cost_actual_total),'','');
+            $csvout .= $csv->string."\n";
             my $now = DateTime->now->ymd;
             my $site = rset('Site')->find(session 'site_id')->org->name;
             utf8::encode($csvout); # See comment above
