@@ -912,9 +912,10 @@ any '/task/?:id?' => require_login sub {
         {
 
             my $csvout = rset('Task')->csv(
-                site_id => session('site_id'),
-                global  => 1,
-                fy      => session('fy'),
+                site_id    => session('site_id'),
+                global     => 1,
+                fy         => session('fy'),
+                dateformat => config->{lenio}->{dateformat},
             );
 
             my $now = DateTime->now->ymd;

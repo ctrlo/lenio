@@ -291,6 +291,7 @@ sub overdue
 
 sub csv
 {   my ($self, %options) = @_;
+    my $dateformat = $options{dateformat};
     my $csv = Text::CSV->new;
     my @headings = qw/task frequency_qty frequency_unit contractor last_done next_due cost_planned cost_actual/;
     $csv->combine(@headings);
@@ -305,8 +306,8 @@ sub csv
             $task->period_qty,
             $task->period_unit,
             $task->contractor_name,
-            $last_done,
-            $next_due,
+            $last_done && $last_done->strftime($dateformat),
+            $next_due && $next_due->strftime($dateformat),
             $task->cost_planned,
             $task->cost_actual,
         );
