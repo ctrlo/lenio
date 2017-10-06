@@ -144,6 +144,18 @@
         <div class="col-sm-2">
             [% IF ticket.id %]
             <div class="form-group">
+                <label for="attach">Invoices</label>
+                [% IF ticket.invoice %]
+                    <div class="well well-sm">
+                        <strong>
+                            Number [% ticket.invoice.number | html %]
+                        </strong><br /><a class="btn btn-link btn-sm" href="/invoice/[% ticket.invoice.id %]?download">View</a>
+                    </div>
+                [% ELSE %]
+                    <p>There are no invoices related to this ticket</p>
+                [% END %]
+            </div>
+            <div class="form-group">
                     <label for="attach">Attachments</label>
                     [% IF ticket.attaches.size %]
                         [% FOR attach IN ticket.attaches %]

@@ -32,7 +32,6 @@
         <th><a href="?sort=site[% taskq %]" style="color:inherit">Site</a></th>
         <th><a href="?sort=planned[% taskq %]" style="color:inherit">Planned</a></th>
         <th><a href="?sort=completed[% taskq %]" style="color:inherit">Completed</a></th>
-        <th>Invoice</th>
         <th><a href="?sort=report[% taskq %]" style="color:inherit">Report received</a></th>
         <th><a href="?sort=invoice[% taskq %]" style="color:inherit">Invoice sent</a></th>
     </tr>
@@ -44,7 +43,6 @@
         <td>[% ticket.site.org.name %] ([% ticket.site.name %])</td>
         <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
         <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
-        <td>[% IF ticket.invoice %]<a href="/invoice/[% ticket.invoice.id %]">[% ticket.invoice.id %]</a>[% END %]</td>
         <td>[% IF ticket.report_received %]Yes[% ELSE %]No[% END %]</td>
         <td>[% IF ticket.invoice_sent %]Yes[% ELSE %]No[% END %]</td>
     </tr>
