@@ -691,6 +691,8 @@ get '/tickets/?' => require_login sub {
             ? 'all'
             : $tt eq 'tasks'
             ? 'tasks'
+            : $tt eq 'tasks_invoice_report'
+            ? 'tasks_invoice_report'
             : 'reactive';
         session task_tickets => $task_tickets;
     }
@@ -701,7 +703,7 @@ get '/tickets/?' => require_login sub {
 
     my $task_tickets = session('task_tickets') eq 'all'
                      ? undef
-                     : session('task_tickets') eq 'tasks'
+                     : session('task_tickets') eq 'tasks' || session('task_tickets') eq 'tasks_invoice_report'
                      ? 1
                      : 0;
 
@@ -713,17 +715,19 @@ get '/tickets/?' => require_login sub {
         $uncompleted_only = 0;
         $task_id          = param('task_id');
     }
-    else {
+    elsif (session('task_tickets') ne 'tasks_invoice_report')
+    {
         $uncompleted_only = 1;
     }
     my @tickets = rset('Ticket')->summary(
-        login            => var('login'),
-        site_id          => session('site_id'),
-        uncompleted_only => $uncompleted_only,
-        sort             => session('ticket_sort'),
-        sort_desc        => session('ticket_desc'),
-        task_id          => $task_id,
-        task_tickets     => $task_id ? undef : $task_tickets,
+        login               => var('login'),
+        site_id             => session('site_id'),
+        uncompleted_only    => $uncompleted_only,
+        sort                => session('ticket_sort'),
+        sort_desc           => session('ticket_desc'),
+        task_id             => $task_id,
+        task_tickets        => $task_id ? undef : $task_tickets,
+        need_invoice_report => session('task_tickets') eq 'tasks_invoice_report',
     );
 
     template 'tickets' => {

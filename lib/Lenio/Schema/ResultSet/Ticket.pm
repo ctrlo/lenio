@@ -32,6 +32,14 @@ sub summary
         }
     }
 
+    if ($args{need_invoice_report})
+    {
+        $search->{'-or'} = [
+            report_received => 0,
+            invoice_sent    => 0,
+        ]
+    }
+
     # Don't show local tickets for admin
     if ($args{login}->is_admin)
     {
