@@ -573,9 +573,9 @@ any '/ticket/:id?' => require_login sub {
         $ticket->name(param 'name');
         $ticket->description(param 'description');
         $ticket->contractor_invoice(param 'contractor_invoice');
-        $ticket->contractor_id(param 'contractor');
-        $ticket->cost_planned(param 'cost_planned');
-        $ticket->cost_actual(param 'cost_actual');
+        $ticket->contractor_id(param('contractor') || undef);
+        $ticket->cost_planned(param('cost_planned') || undef);
+        $ticket->cost_actual(param('cost_actual') || undef);
         $ticket->local_only(param 'local_only');
         $ticket->report_received(param('report_received') ? 1 : 0);
         $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
