@@ -41,6 +41,7 @@ schema->exception_action(sub {
     # Older versions of DBIC use this handler during expected exceptions.
     # Temporary hack: do not panic these as DBIC does not catch them
     die $_[0] if $_[0] =~ /^Unable to satisfy requested constraint/; # Expected
+    die $_[0] if $_[0] =~ /MySQL server has gone away/; # Expected
     panic @_; # Not expected
 });
 
