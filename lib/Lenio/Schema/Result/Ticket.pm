@@ -270,7 +270,7 @@ __PACKAGE__->might_have(
 sub before_delete
 {   my $self = shift;
     $self->invoice
-        and error __x"Unable to delete ticket as it has an attached invoice (number {id})",
+        and error __x"Unable to delete ticket as it has an attached invoice (number {id}). Please delete the invoice first before deleting this ticket.",
             id => $self->invoice->id;
 }
 
