@@ -56,7 +56,7 @@
         <td><div class="check-margin check-due-daily"></div>Check due</td>
         <td><div class="check-margin check-partdone"></div>Check partly done</td>
         <td><div class="check-margin check-done"></div>Check done</td>
-        <td><div class="check-margin check-comment"></div>Check done</td>
+        <td><div class="check-margin check-comment"></div>Check done with comments</td>
     </tr>
 </table>
 <div class="page-header">
