@@ -200,7 +200,7 @@ sub checks
         my $qty    = $check->site_task->task->period_qty;
         my $unit   = $check->site_task->task->period_unit."s";
         my $status = $check->comment =~ /\S/
-                   ? 'check-partdone'
+                   ? 'check-comment'
                    : (grep { $_->status == 0 } $check->check_items_done)
                    ? 'check-notdone'
                    : $check->check_items_done->count != $check->site_task->task->check_items->count

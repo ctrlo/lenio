@@ -61,6 +61,18 @@
     display: inline-block;
 }
 
+.check-comment {
+    background-color: #e600e6;
+    border-radius: 0%;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.event-special {
+    background-color: #e600e6;
+}
+
 .cal-cell-grey {
     background-color: LightGrey;
 }
