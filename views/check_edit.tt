@@ -42,9 +42,11 @@
         [% IF check.id %]
             <div class="form-group">
                 <label>Checks</label>
-                <p>
-                    <button class="btn btn-default" data-toggle="modal" data-target="#modalnew">Create new check</button>
-                </p>
+                [% UNLESS check.deleted %]
+                    <p>
+                        <button class="btn btn-default" data-toggle="modal" data-target="#modalnew">Create new check</button>
+                    </p>
+                [% END %]
                 <table class="table table-striped">
                     [% FOREACH check_item IN check.check_items %]
                         <tr>
@@ -55,11 +57,15 @@
             </div>
         [% END %]
         <div class="form-group">
-            <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">
-                [% IF check.id %]Update[% ELSE %]Create[% END %]
-            </button>
+            [% UNLESS check.deleted %]
+                <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">
+                    [% IF check.id %]Update[% ELSE %]Create[% END %]
+                </button>
+            [% END %]
             <a href="/task" role="button" class="btn btn-default">Cancel</a>
-            <button class="btn btn-default" data-toggle="modal" data-target="#modaldelete">Delete</button>
+            [% UNLESS check.deleted %]
+                <button class="btn btn-default" data-toggle="modal" data-target="#modaldelete">Delete</button>
+            [% END %]
         </div>
 
         <!-- Modal -->

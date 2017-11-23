@@ -161,6 +161,7 @@ sub site_checks
     $self->search({
         site_check => 1,
         'site.id'  => $site_id,
+        deleted    => undef,
     },{
         join      => {
             site_tasks => ['site', 'checks_done']

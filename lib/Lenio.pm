@@ -310,7 +310,7 @@ any '/check_edit/:id' => require_login sub {
     error "You do not have access to this check"
         unless var('login')->has_site($site_id);
 
-    if (param 'submitcheck')
+    if (param('submitcheck') && !$check->deleted)
     {
         if (my $ci = param('checkitem'))
         {
@@ -336,7 +336,7 @@ any '/check_edit/:id' => require_login sub {
 
     if (param 'delete')
     {
-        if (process sub { $check->delete })
+        if (process sub { $check->update({ deleted => DateTime->now }) })
         {
             forwardHome(
                 { success => 'The check has been successfully deleted' }, 'task' );
