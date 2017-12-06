@@ -77,3 +77,9 @@
     background-color: LightGrey;
 }
 
+.scrollable-menu {
+    height: auto;
+    max-height: 400px;
+    overflow: auto;
+}
+

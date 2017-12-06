@@ -71,7 +71,7 @@
                             Site
                         [% END %] <b class="caret"></b>
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu scrollable-menu">
                         <li><a href="?site=all">All sites</a></li>
                         <li class="divider"></li>
                         [% FOR site IN login.sites %]
