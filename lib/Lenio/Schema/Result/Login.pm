@@ -290,7 +290,10 @@ sub sites
     my @sites;
     if ($self->is_admin)
     {
-        my $site_rs = $self->result_source->schema->resultset('Site')->search({}, { prefetch => 'org' });
+        my $site_rs = $self->result_source->schema->resultset('Site')->search({}, {
+            order_by => 'org.name',
+            prefetch => 'org',
+        });
         @sites = $site_rs->all;
     }
     else {
