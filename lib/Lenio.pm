@@ -55,6 +55,8 @@ hook before => sub {
     my $user = logged_in_user
         or return;
 
+    header "X-Frame-Options" => "DENY"; # Prevent clickjacking
+
     my $login = rset('Login')->find($user->{id});
 
     # Do not try and get sites etc if logging out. User may have received "no
