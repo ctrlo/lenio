@@ -38,6 +38,12 @@ has to => (
     isa => DateAndTime,
 );
 
+has dateformat => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+);
+
 # Allow override of today for tests
 has today => (
     is      => 'ro',
@@ -146,10 +152,11 @@ sub tasks
         while (DateTime->compare($date, $self->to) < 0)
         {
             my %item = (
-                name        => $task->name,
-                description => $task->description,
-                task_id     => $task->id,
-                due         => $date->clone,
+                name         => $task->name,
+                description  => $task->description,
+                task_id      => $task->id,
+                due          => $date->clone,
+                next_planned => $task->next_planned,
             );
             push @calendar2, $self->_cal_item(%item)
                 if !$done->{$task->id}->{$date} && DateTime->compare($date, $self->from) >= 0; # Could be before current range
@@ -349,9 +356,10 @@ sub _cal_item
             ? "/ticket/$item{ticket_id}"
             : "/ticket/0?task_id=$item{task_id}&site_id=".$self->site->id."&date=".$item{due}->ymd('-');
 
+    my $title = $item{name};
     my $t = {
         id        => $id,
-        title     => "$item{name} (".$self->site->name.")",
+        title     => $title,
         url       => $url,
     };
 
@@ -359,6 +367,9 @@ sub _cal_item
         if ( DateTime->compare( $item{due}, $self->today ) < 0)
         {
             $t->{class} = 'event-important';
+            # Is it planned in for a future date?
+            $t->{title} .= " (planned for ".$item{next_planned}->strftime($self->dateformat).")"
+                if $item{next_planned} && $item{next_planned} > $self->today && $item{next_planned} > $item{due};
         }
         else {
             $t->{class} = 'event-warning';

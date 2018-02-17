@@ -137,6 +137,46 @@ my @tests = (
         ],
     },
     {
+        name    => 'Overdue with next due',
+        items   => 2,
+        classes => 'event-important event-info',
+        titles  => [qr/\Qplanned for 2016-08-20/, undef],
+        tickets => [
+            {
+                task_id   => 2,
+                completed => '2016-07-10',
+            },
+            {
+                task_id   => 2,
+                planned   => '2016-08-20',
+            },
+        ],
+        dates => [
+            task2   => _to_dt('2016-08-10'),
+            ticket2 => _to_dt('2016-08-20'),
+        ],
+    },
+    {
+        name    => 'Overdue with next due in past',
+        items   => 2,
+        classes => 'event-important event-info',
+        titles  => [qr/^((?!planned).)*$/, undef],
+        tickets => [
+            {
+                task_id   => 2,
+                completed => '2016-07-10',
+            },
+            {
+                task_id   => 2,
+                planned   => '2016-08-12',
+            },
+        ],
+        dates => [
+            task2   => _to_dt('2016-08-10'),
+            ticket2 => _to_dt('2016-08-20'),
+        ],
+    },
+    {
         name    => 'Check tasks only show within month selected, not days either side',
         items   => 31,
         tickets => [
@@ -180,6 +220,16 @@ foreach my $test (@tests)
 
     is( "@class", $test->{classes}, "Correct classes on calendar for all overdue (test: $test->{name})" )
         if exists $test->{classes};
+
+    if ($test->{titles})
+    {
+        foreach my $title (@{$test->{titles}})
+        {
+            my $got = shift @items;
+            next unless $title;
+            like ( $got->{title}, $title, "Correct title" )
+        }
+    }
 
     exists $test->{dates}
         or next;
@@ -354,12 +404,13 @@ sub _calendar
     my $login    = $seed_data->login;
     $login->update({ is_admin => 1 });
     Lenio::Calendar->new(
-        from   => $firstday,
-        to     => $lastday,
-        today  => $today,
-        site   => $seed_data->site,
-        login  => $login,
-        schema => $seed_data->schema,
+        from       => $firstday,
+        to         => $lastday,
+        today      => $today,
+        site       => $seed_data->site,
+        login      => $login,
+        schema     => $seed_data->schema,
+        dateformat => '%F',
     );
 }
 

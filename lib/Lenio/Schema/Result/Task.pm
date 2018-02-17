@@ -252,7 +252,7 @@ sub last_completed
 {   my $self = shift;
     my $schema = $self->result_source->schema;
     my $last_completed = $self->get_column('last_completed')
-        or return;
+        or return undef;
     $self->parse_dt($last_completed);
 }
 
@@ -260,8 +260,16 @@ sub last_planned
 {   my $self = shift;
     my $schema = $self->result_source->schema;
     my $last_planned = $self->get_column('last_planned')
-        or return;
+        or return undef;
     $self->parse_dt($last_planned);
+}
+
+sub next_planned
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $next_planned = $self->get_column('next_planned')
+        or return undef;
+    $self->parse_dt($next_planned);
 }
 
 sub contractor_name

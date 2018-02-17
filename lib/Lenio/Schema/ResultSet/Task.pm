@@ -137,6 +137,11 @@ sub summary
                 ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('planned')
                 ->max_rs->as_query,
+            next_planned => $schema->resultset('Task')
+                ->correlate('tickets')
+                ->search({ site_id => $site_id }) # Next regardless of date options
+                ->get_column('planned')
+                ->max_rs->as_query,
             cost_planned => $schema->resultset('Task')
                 ->correlate('tickets')
                 ->search({ site_id => $site_id, -or => [@dates]})

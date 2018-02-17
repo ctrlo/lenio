@@ -1043,11 +1043,12 @@ get '/data' => require_login sub {
               : var('login')->sites;
     foreach my $site (@sites) {
         my $calendar = Lenio::Calendar->new(
-            from   => $from,
-            to     => $to,
-            site   => $site,
-            login  => var('login'),
-            schema => schema,
+            from       => $from,
+            to         => $to,
+            site       => $site,
+            login      => var('login'),
+            schema     => schema,
+            dateformat => $dateformat,
         );
         push @tasks, $calendar->tasks;
         push @tasks, $calendar->checks;
