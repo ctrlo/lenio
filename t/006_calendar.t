@@ -186,6 +186,49 @@ my @tests = (
             },
         ],
     },
+    {
+        name    => 'Item planned earlier than due date', # Should knock-off sequence
+        items   => 4,
+        classes => 'event-success event-info event-warning event-warning',
+        tickets => [
+            {
+                task_id   => 1,
+                completed => '2016-08-11',
+            },
+            {
+                task_id => 1,
+                planned => '2016-08-17',
+            },
+        ],
+        dates => [
+            ticket1 => _to_dt('2016-08-11'),
+            ticket2 => _to_dt('2016-08-17'),
+            task1   => _to_dt('2016-08-24'),
+            task1   => _to_dt('2016-08-31'),
+        ],
+    },
+    {
+        name    => 'Item planned earlier than due date but now past', # Should not knock-off sequence
+        items   => 5,
+        classes => 'event-success event-info event-important event-warning event-warning',
+        tickets => [
+            {
+                task_id   => 1,
+                completed => '2016-08-05',
+            },
+            {
+                task_id => 1,
+                planned => '2016-08-11',
+            },
+        ],
+        dates => [
+            ticket1 => _to_dt('2016-08-05'),
+            ticket2 => _to_dt('2016-08-11'),
+            task1   => _to_dt('2016-08-12'),
+            task1   => _to_dt('2016-08-19'),
+            task1   => _to_dt('2016-08-26'),
+        ],
+    },
 );
 
 foreach my $test (@tests)

@@ -129,7 +129,16 @@ sub tasks
         );
         if ($task_id)
         {
-            $done->{$task_id}->{$ticket->completed || $ticket->planned} = $ticket->completed || $ticket->planned;
+            # Take the completed date if it exists, otherwise take the planned
+            # date. Future items and warnings will be mapped out from this. If
+            # the planned is in the past, however, ignore it and plonk any
+            # overdue dates wherever they would have been (otherwise they won't
+            # be shown)
+            my $completed_planned = $ticket->completed;
+            $completed_planned ||= $ticket->planned
+                if $ticket->planned && $ticket->planned > $self->today;
+            $completed_planned or next;
+            $done->{$task_id}->{$completed_planned} = $completed_planned;
             $lastcomp->{$task_id} = $ticket->completed
                 if $ticket->completed && (!$lastcomp->{$task_id} || DateTime->compare($lastcomp->{$task_id}, $ticket->completed) < 0);
         }
