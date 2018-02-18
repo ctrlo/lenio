@@ -17,6 +17,7 @@
                 <option value="all" [% IF task_tickets == "all" %]selected[% END %]>Show all tickets</option>
                 <option value="reactive" [% IF task_tickets == "reactive" %]selected[% END %]>Show only reactive tickets</option>
                 <option value="tasks" [% IF task_tickets == "tasks" %]selected[% END %]>Show only tickets related to tasks</option>
+                <option value="with_site" [% IF task_tickets == "with_site" %]selected[% END %]>Show tickets with action waiting on local site</option>
                 <option value="tasks_invoice_report" [% IF task_tickets == "tasks_invoice_report" %]selected[% END %]>Show only tickets related to tasks without invoice or report</option>
             </select>
         </form>

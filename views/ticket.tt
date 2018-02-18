@@ -8,7 +8,7 @@
     <h3>Create new ticket</h3>
 [% END %]
 
-[% UNLESS !ticket.id OR login.is_admin OR ticket.local_only %]
+[% UNLESS !ticket.id OR login.is_admin OR ticket.actionee == "local" %]
     [% readonly = "readonly" %]
 [% END %]
 <form role="form" method="post">
@@ -37,11 +37,11 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="local_only">Actionee</label>
-                <select class="form-control" id="local_only" name="local_only" [% readonly %]>
-                    [% IF ticket.local_only %][% sel_local = "selected" %][% ELSE %][% sel_external = "selected" %][% END %]
-                    <option value="0" [% sel_external %]>To be rectified by external contractor</option>
-                    <option value="1" [% sel_local %]>Site to rectify locally</option>
+                <label for="actionee">Actionee</label>
+                <select class="form-control" id="actionee" name="actionee" [% readonly %]>
+                    <option value="external" [% IF ticket.actionee == "external" %]selected[% END %]>To be rectified by external contractor</option>
+                    <option value="local" [% IF ticket.actionee == "local" %]selected[% END %]>Site to rectify locally</option>
+                    <option value="with_site" [% IF ticket.actionee == "with_site" %]selected[% END %]>Waiting for action from local site</option>
                 </select>
             </div>
             [% IF ticket.id OR ticket.is_local OR login.is_admin %]

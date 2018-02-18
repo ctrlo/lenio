@@ -109,6 +109,12 @@ __PACKAGE__->table("ticket");
   default_value: 0
   is_nullable: 0
 
+=head2 actionee
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -142,6 +148,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "invoice_sent",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
+  "actionee",
+  { data_type => "varchar", is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -272,6 +280,13 @@ sub before_delete
     $self->invoice
         and error __x"Unable to delete ticket as it has an attached invoice (number {id}). Please delete the invoice first before deleting this ticket.",
             id => $self->invoice->id;
+}
+
+sub validate {
+    my $self = shift;
+
+    $self->actionee =~ /^(external|local|with_site)$/
+        or error __x"Invalid actionee {actionee}", actionee => $self->actionee;
 }
 
 1;

@@ -30,6 +30,12 @@ sub summary
                 ? { '!=' => undef }
                 : undef;
         }
+        if (defined $args{with_site_tickets})
+        {
+            $search->{'me.actionee'} = $args{with_site_tickets}
+                ? 'with_site'
+                : { '!=' => 'with_site' };
+        }
     }
 
     if ($args{need_invoice_report})

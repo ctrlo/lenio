@@ -484,7 +484,7 @@ any '/ticket/:id?' => require_login sub {
                     name        => $task->name,
                     description => $task->description,
                     planned     => $date,
-                    local_only  => $task->global ? 0 : 1,
+                    actionee    => $task->global ? 'external' : 'local',
                     task_id     => $task->id,
                     site_id     => query_parameters->get('site_id') || session('site_id'),
                 });
@@ -550,7 +550,7 @@ any '/ticket/:id?' => require_login sub {
     if (param 'delete')
     {
         error __"You do not have permission to delete this ticket"
-            unless var('login')->is_admin || $ticket->local_only;
+            unless var('login')->is_admin || $ticket->actionee eq 'local';
         if (process sub { $ticket->delete })
         {
             forwardHome({ success => "Ticket has been successfully deleted" }, 'tickets');
@@ -581,7 +581,7 @@ any '/ticket/:id?' => require_login sub {
         $ticket->contractor_id(param('contractor') || undef);
         $ticket->cost_planned(param('cost_planned') || undef);
         $ticket->cost_actual(param('cost_actual') || undef);
-        $ticket->local_only(param 'local_only');
+        $ticket->actionee(param 'actionee');
         $ticket->report_received(param('report_received') ? 1 : 0);
         $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
@@ -594,10 +594,10 @@ any '/ticket/:id?' => require_login sub {
         if ($id)
         {
             error __"You do not have permission to edit this ticket"
-                unless var('login')->is_admin || $ticket->local_only;
+                unless var('login')->is_admin || $ticket->actionee eq 'local';
         }
 
-        my $was_local = $id && $ticket->local_only; # Need old setting to see if to send email
+        my $was_local = $id && $ticket->actionee eq 'local'; # Need old setting to see if to send email
         if (process sub { $ticket->update_or_insert })
         {
             # XXX Ideally the comment would be written as a relationship
@@ -629,8 +629,8 @@ any '/ticket/:id?' => require_login sub {
             };
             # Assume send update to admin
             my $send_email = 1;
-            # Do not send email update if new ticket and local, or was local_only and still is local only
-            $send_email = 0 if ((!$id && $ticket->local_only) || ($id && $ticket->local_only && $was_local));
+            # Do not send email update if new ticket and local, or was local and still is local only
+            $send_email = 0 if ((!$id && $ticket->actionee eq 'local') || ($id && $ticket->actionee eq 'local' && $was_local));
             # Do not send email if local site task
             $send_email = 0 if $task && !$task->global;
             if ($send_email)
@@ -696,6 +696,8 @@ get '/tickets/?' => require_login sub {
             ? 'all'
             : $tt eq 'tasks'
             ? 'tasks'
+            : $tt eq 'with_site'
+            ? 'with_site'
             : $tt eq 'tasks_invoice_report'
             ? 'tasks_invoice_report'
             : 'reactive';
@@ -709,6 +711,12 @@ get '/tickets/?' => require_login sub {
     my $task_tickets = session('task_tickets') eq 'all'
                      ? undef
                      : session('task_tickets') eq 'tasks' || session('task_tickets') eq 'tasks_invoice_report'
+                     ? 1
+                     : 0;
+
+    my $with_site_tickets = session('task_tickets') eq 'all'
+                     ? undef
+                     : session('task_tickets') eq 'with_site'
                      ? 1
                      : 0;
 
@@ -732,6 +740,7 @@ get '/tickets/?' => require_login sub {
         sort_desc           => session('ticket_desc'),
         task_id             => $task_id,
         task_tickets        => $task_id ? undef : $task_tickets,
+        with_site_tickets   => $with_site_tickets,
         need_invoice_report => session('task_tickets') eq 'tasks_invoice_report',
     );
 
@@ -976,10 +985,11 @@ any '/task/?:id?' => require_login sub {
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(
-            login        => var('login'),
-            site_id      => session('site_id'),
-            task_tickets => 0,
-            fy           => session('site_id') && session('fy'),
+            login             => var('login'),
+            site_id           => session('site_id'),
+            task_tickets      => 0,
+            with_site_tickets => var('login')->is_admin ? 0 : undef,
+            fy                => session('site_id') && session('fy'),
         );
         if ($csv eq 'reactive')
         {
