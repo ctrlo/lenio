@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package Lenio;
 
-use Crypt::YAPassGen;
+use CtrlO::Crypt::XkcdPassword;
 use Dancer2;
 use Dancer2::Core::Cookie;
 use DateTime::Format::Strptime;
@@ -46,6 +46,8 @@ schema->exception_action(sub {
 });
 
 my $dateformat = config->{lenio}->{dateformat};
+
+my $password_generator = CtrlO::Crypt::XkcdPassword->new;
 
 hook before => sub {
 
@@ -1089,9 +1091,7 @@ sub _send_json
 }
 
 sub password_generator
-{
-    my $passgen  = Crypt::YAPassGen->new(algorithm  =>  'linear', length => 8);
-    $passgen->generate();
+{   $password_generator->xkcd( words => 3 );
 }
 
 sub _to_dt
