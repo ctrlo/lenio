@@ -284,7 +284,7 @@ sub before_delete
 
 sub validate {
     my $self = shift;
-
+    return if !$self->actionee;
     $self->actionee =~ /^(external|local|with_site)$/
         or error __x"Invalid actionee {actionee}", actionee => $self->actionee;
 }
