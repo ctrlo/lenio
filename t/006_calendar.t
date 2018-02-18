@@ -238,8 +238,8 @@ foreach my $test (@tests)
     {
         my $id = shift @dates;
         my $dt = shift @dates;
-        is($id, $item->{id}, "Correct ID for task item");
-        is($dt && $dt->epoch * 1000, $item->{start}, "Correct start for task item")
+        is($item->{id}, $id, "Correct ID for task item");
+        is($item->{start}, $dt && $dt->epoch * 1000, "Correct start for task item")
     }
 }
 
