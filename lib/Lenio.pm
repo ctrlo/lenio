@@ -188,7 +188,7 @@ any '/user/:id' => require_login sub {
     {
         if (process sub { $login->disable })
         {
-            forwardHome({ success => "User has been deleted successfully" }, '/users');
+            forwardHome({ success => "User has been deleted successfully" }, 'users');
         }
     }
 
