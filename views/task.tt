@@ -207,7 +207,7 @@
                             <td><a href="/check_edit/[% check.id %]">[% check.name %]</a></td>
                             <td>[% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]</td>
                             [% IF site.id %]
-                                <td>[% site_check_done.last_completed.strftime(dateformat) %]</td>
+                                <td>[% check.last_completed.strftime(dateformat) %]</td>
                             [% END %]
                         </tr>
                     [% END %]
