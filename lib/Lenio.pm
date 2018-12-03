@@ -463,7 +463,8 @@ any '/ticket/:id?' => require_login sub {
     my $ticket;
     if (defined($id) && $id)
     {
-        $ticket = rset('Ticket')->find($id);
+        $ticket = rset('Ticket')->find($id)
+            or error __x"Ticket ID {id} not found", id => $id;
         # Check whether the user has access to this ticket
         error __x"You do not have permission for ticket ID {id}", id => $id
             unless var('login')->has_site($ticket->site_id);
@@ -505,7 +506,8 @@ any '/ticket/:id?' => require_login sub {
     }
 
     if ( param('attach') ) {
-        my $file = request->upload('newattach');
+        my $file = request->upload('newattach')
+            or error __"Please select a file to upload";
         my $attach = {
             name        => $file->basename,
             ticket_id   => $id,
@@ -800,11 +802,11 @@ any '/invoice/:id' => require_login sub {
 
     if (param 'submit')
     {
+        $ticket or error __"No ticket specified to create the invoice for";
         $invoice->description(body_parameters->get('description'));
         $invoice->number(body_parameters->get('number'));
         $invoice->disbursements(body_parameters->get('disbursements'));
-        $invoice->ticket_id($ticket->id)
-            if $ticket;
+        $invoice->ticket_id($ticket->id);
         $invoice->datetime(DateTime->now)
             if !$id;
         if (process sub { $invoice->update_or_insert })
