@@ -135,7 +135,7 @@ sub _email
         Subject        => $options{subject},
     )->send(
         via              => 'sendmail',
-        sendmail_options => [-f => $sender->address],
+        sendmail_options => [-f => $sender->address, '-XV'],
     );
 }
 
