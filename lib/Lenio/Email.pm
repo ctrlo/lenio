@@ -70,7 +70,7 @@ sub send($)
 	or error "Template process failed: " . $template->error();
     $message = autoformat $message, {all => 1, break => break_wrap};
 
-    my @users = $self->schema->resultset('Login')->active_rs(
+    my @users = $self->schema->resultset('Login')->active_rs->search(
         [
             {
                 'sites.id' => $self->site->id,
