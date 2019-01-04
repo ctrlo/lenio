@@ -112,6 +112,7 @@
                 [% IF login.is_admin AND site.id %]<th></th>[% END %]
                 <th>Type</th>
                 <th>Task</th>
+                <th>Contractor</th>
                 <th>Frequency</th>
                 [% IF site.id %]
                     [% IF show_dates %]
@@ -151,6 +152,7 @@
                                 <a href="/task/[% task.id %]">[% task.name %]</a>
                             [% END %]
                         </td>
+                        <td>[% task.contractor_name | html %]</td>
                         <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                         [% IF site.id %]
                             [% IF show_dates %]
