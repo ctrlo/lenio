@@ -70,15 +70,19 @@ sub send($)
 	or error "Template process failed: " . $template->error();
     $message = autoformat $message, {all => 1, break => break_wrap};
 
-    my @users = $self->schema->resultset('Login')->search(
-         {
-             'sites.id' => $self->site->id,
-             deleted    => undef,
-         },
-         { join    => {'login_orgs' => {'org' => 'sites' }}}
+    my @users = $self->schema->resultset('Login')->active_rs(
+        [
+            {
+                'sites.id' => $self->site->id,
+            },
+            'me.is_admin' => 1,
+        ],
+        { join    => {'login_orgs' => {'org' => 'sites' }}}
     );
     foreach my $user (@users)
     {
+        # Don't send admin notifications to other admins
+        next if $login->is_admin && $user->is_admin;
         if ($user->email_comment && $template_name eq 'ticket/comment'
             || ($user->email_ticket && $template_name eq 'ticket/new')
             || ($user->email_ticket && $template_name eq 'ticket/update')
@@ -92,20 +96,6 @@ sub send($)
             ) unless
                 $user->only_mine && $ticket->get_column('created_by') != $user->id # Only own tickets
                 || $login->id == $user->id; # Don't alert person submitting comment
-        }
-    }
-
-    # Send updates to system administrators if not an admin making the comment
-    if (!$login->is_admin)
-    {
-        foreach my $admin ($self->schema->resultset('Login')->search({ is_admin => 1, deleted => undef }))
-        {
-            $self->_email(
-                to      => $admin->email,
-                subject => $args->{subject}.$org,
-                message => $message,
-                attach  => $args->{attach},
-            );
         }
     }
 }

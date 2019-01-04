@@ -28,29 +28,28 @@
                         >Administrator
                     </label>
                 </div>
-            [% ELSE %]
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="email_ticket" id="email_ticket"
-                            [% IF edit_login.email_ticket %]checked[% END %]
-                        >Receive emails on ticket updates
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="email_comment" id="email_comment"
-                            [% IF edit_login.email_comment %]checked[% END %]
-                        >Receive emails on ticket comments
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="only_mine" id="only_mine"
-                            [% IF edit_login.only_mine %]checked[% END %]
-                        >Only receive emails about tickets that I created
-                    </label>
-                </div>
             [% END %]
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="email_ticket" id="email_ticket"
+                        [% IF edit_login.email_ticket %]checked[% END %]
+                    >Receive emails on ticket updates
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="email_comment" id="email_comment"
+                        [% IF edit_login.email_comment %]checked[% END %]
+                    >Receive emails on ticket comments
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="only_mine" id="only_mine"
+                        [% IF edit_login.only_mine %]checked[% END %]
+                    >Only receive emails about tickets that I created
+                </label>
+            </div>
             <div class="form-group">
                 <button type="submit" name="submit" value="submit" class="btn btn-default">
                     [% IF edit_login.id %]
