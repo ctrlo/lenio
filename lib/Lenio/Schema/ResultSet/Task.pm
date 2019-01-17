@@ -160,6 +160,27 @@ sub summary
     })->all;
 }
 
+sub site_checks_csv
+{   my ($self, $site_id, %options) = @_;
+    my $dateformat = $options{dateformat};
+    my $csv = Text::CSV->new;
+    my @headings = qw/check frequency last_done comments/;
+    $csv->combine(@headings);
+    my $csvout = $csv->string."\n";
+    foreach my $check ($self->site_checks($site_id))
+    {
+        my @row = (
+            $check->name,
+            $check->period_qty." ".$check->period_unit.($check->period_qty > 1 ? 's' : ''),
+            $check->last_completed->strftime($dateformat),
+            ''
+        );
+        $csv->combine(@row);
+        $csvout .= $csv->string."\n";
+    }
+    return $csvout;
+}
+
 sub site_checks
 {   my ($self, $site_id) = @_;
 

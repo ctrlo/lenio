@@ -931,6 +931,30 @@ any '/task/?:id?' => require_login sub {
         }
     }
 
+    my $download = {
+        default_from => DateTime->now->subtract(months => 1),
+        default_to   => DateTime->now,
+    };
+    if (body_parameters->get('download_site_checks'))
+    {
+        my $from = _to_dt(body_parameters->get('download_from') || $download->{default_from});
+        my $to = _to_dt(body_parameters->get('download_to') || $download->{default_to});
+        my $csv = rset('CheckDone')->summary_csv(
+            from       => $from,
+            to         => $to,
+            site_id    => session('site_id'),
+            dateformat => $dateformat,
+        );
+
+        my $site = rset('Site')->find(session 'site_id')->org->name;
+        utf8::encode($csv);
+        return send_file(
+            \$csv,
+            content_type => 'text/csv; chrset="utf-8"',
+            filename     => "$site site checks ".$from->strftime($dateformat)." to ".$to->strftime($dateformat).".csv"
+        );
+    }
+
     if ( param('submit') ) {
 
         if (var('login')->is_admin)
@@ -958,6 +982,7 @@ any '/task/?:id?' => require_login sub {
     else
     {
         my $csv = (session('site_id') && param('csv')) || ""; # prevent warnings. not for all sites
+
         if ($csv eq 'service')
         {
 
@@ -1032,6 +1057,7 @@ any '/task/?:id?' => require_login sub {
 
     template 'task' => {
         dateformat       => $dateformat,
+        download         => $download,
         action           => $action,
         site             => rset('Site')->find(session 'site_id'),
         site_checks      => [rset('Task')->site_checks(session 'site_id')],

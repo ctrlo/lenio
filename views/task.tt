@@ -192,7 +192,11 @@
         [% END %]
 
         [% IF site.id %]
-            <h3>Site Manager Checks ([% site.org.name %] - [% site.name %])</h3>
+            <h3>Site Manager Checks ([% site.org.name %] - [% site.name %])
+                <small>
+                    <a data-toggle="modal" data-target="#modal_download" href="">Download</a>
+                </small>
+            </h3>
             <p>
                 <a href="/check_edit/0" class="btn btn-default" role="button">Create new site check</a>
             </p>
@@ -308,6 +312,36 @@
             </div>
         </div><!-- /.modal-content -->
         </form>
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="modal_download" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Download site checks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="download_from" class="control-label">From</label>
+                    <input type="text" name="download_from" id="download_from" value="[% download.default_from.ymd %]"
+                        class="form-control datepicker">
+                </div>
+                <div class="form-group">
+                    <label for="download_to" class="control-label">To</label>
+                    <input type="text" name="download_to" id="download_to" value="[% download.default_to.ymd %]"
+                        class="form-control datepicker">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" name="download_site_checks" value="download" class="btn btn-primary">Download</button>
+            </div>
+            </form>
+        </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 

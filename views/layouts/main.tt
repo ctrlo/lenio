@@ -163,7 +163,7 @@
         <script type="text/javascript" src="/js/bootstrap-show-password.js"></script>
     [% END %]
 
-    [% IF page == "ticket" || page == "check" %]
+    [% IF page == "ticket" || page == "check" || page == "task" %]
         <script type="text/javascript" src="/js/bootstrap-datepicker.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {

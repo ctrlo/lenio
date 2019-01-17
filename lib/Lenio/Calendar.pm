@@ -217,11 +217,7 @@ sub checks
         my $unit   = $check->site_task->task->period_unit."s";
         my $status = $check->comment =~ /\S/
                    ? 'check-comment'
-                   : (grep { $_->status == 0 } $check->check_items_done)
-                   ? 'check-notdone'
-                   : $check->check_items_done->count != $check->site_task->task->check_items->count
-                   ? 'check-partdone'
-                   : 'check-done';
+                   : 'check-'.$check->status;
 
         if ($previous)
         {

@@ -151,5 +151,17 @@ sub find_check_item
     grep { $_->check_item_id == $check_item_id } $self->check_items_done;
 }
 
+sub status
+{   my $self = shift;
+    my $not_done = grep { $_->status == 0 } $self->check_items_done;
+    my $done = grep { $_->status != 0 } $self->check_items_done;
+    my $status = $not_done && $done
+       ? 'partdone'
+       : $done
+       ? 'done'
+       : 'notdone';
+    return $status;
+}
+
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
