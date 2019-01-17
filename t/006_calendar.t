@@ -302,6 +302,10 @@ foreach my $test (@tests)
                         id     => 1,
                         status => 1,
                     },
+                    {
+                        id     => 2,
+                        status => 0,
+                    },
                 ],
             },
         ],
