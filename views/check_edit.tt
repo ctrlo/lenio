@@ -6,18 +6,18 @@
     <form role="form" method="post">
         <div class="form-group">
             <label for="name">Title</label>
-            <input type="text" name="name" class="form-control" id="name" value="[% check.name %]">
+            <input type="text" name="name" class="form-control" id="name" value="[% check.name | html %]">
         </div>
         <div class="form-group">
             <label for="description">Description</label>
-            <input type="text" name="description" class="form-control" id="description" value="[% check.description %]">
+            <input type="text" name="description" class="form-control" id="description" value="[% check.description | html %]">
         </div>
         <div class="form-group">
             <label for="site_id">Site</label>
             [% site_id = check.site_tasks.first.site.id || session.site_id %]
             <select class="form-control" id="site_id" name="site_id">
                 [% FOR site IN login.sites %]
-                    <option value="[% site.id %]" [% IF site_id == site.id %]selected[% END %]>[% site.org.name %] ([% site.name %])
+                    <option value="[% site.id %]" [% IF site_id == site.id %]selected[% END %]>[% site.org.name | html %] ([% site.name | html %])
                 [% END %]
             </select>
         </div>
@@ -50,7 +50,7 @@
                 <table class="table table-striped">
                     [% FOREACH check_item IN check.check_items %]
                         <tr>
-                            <td>[% check_item.name %]</td>
+                            <td>[% check_item.name | html %]</td>
                         </tr>
                     [% END %]
                 </table>
