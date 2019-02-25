@@ -192,7 +192,37 @@
                     var checkname = button.data('checkname');
                     $('#checkitem').val(checkname);
                     var checkitemid = button.data('checkitemid');
-                    $('#checkitemid').val(checkitemid);
+                    $('#checkitemid-name').val(checkitemid);
+                });
+                $('#modaloptions').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var has_custom_options = button.data('has-custom-options');
+                    if (has_custom_options) {
+                        $("#has-custom-options-true").prop("checked", true);
+                        $("#has-custom-options-false").prop("checked", false);
+                    } else {
+                        $("#has-custom-options-false").prop("checked", true);
+                        $("#has-custom-options-true").prop("checked", false);
+                    }
+                    $('#checkoptions-rows').find('.check-option').not('#check-option-blank').remove();
+                    var check_item_options = button.data('check-item-options');
+                    jQuery.each(check_item_options, function(i, val) {
+                        var option = $("#check-option-blank").clone().appendTo("#checkoptions-rows");
+                        option.removeAttr('id');
+                        option.show();
+                        option.find('.check-option-id').val(val.id);
+                        option.find('.check-option-name').val(val.name);
+                    });
+                    var checkitemid = button.data('checkitemid');
+                    $('#checkitemid-options').val(checkitemid);
+                });
+                $('#add-option').on('click', function() {
+                    var option = $("#check-option-blank").clone().appendTo("#checkoptions-rows");
+                    option.removeAttr('id');
+                    option.show();
+                });
+                $('#checkoptions-rows').on('click', '.closeme', function() {
+                    $(this).closest('.check-option').remove();
                 });
             });
         </script>

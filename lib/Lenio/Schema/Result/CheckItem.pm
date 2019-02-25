@@ -1,9 +1,6 @@
 use utf8;
 package Lenio::Schema::Result::CheckItem;
 
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
-
 =head1 NAME
 
 Lenio::Schema::Result::CheckItem
@@ -12,6 +9,8 @@ Lenio::Schema::Result::CheckItem
 
 use strict;
 use warnings;
+
+use Cpanel::JSON::XS;
 
 use base 'DBIx::Class::Core';
 
@@ -62,6 +61,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "task_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "has_custom_options",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -93,6 +94,35 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 1 },
 );
 
+=head2 custom_options
+
+Type: has_many
+
+Related object: L<Lenio::Schema::Result::CustomOption>
+
+=cut
+
+__PACKAGE__->has_many(
+  "check_item_options",
+  "Lenio::Schema::Result::CheckItemOption",
+  { "foreign.check_item_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+sub check_item_options_live
+{   my $self = shift;
+    # TT sometimes has probleme with arrays that are not refs
+    return [ grep { !$_->is_deleted } $self->check_item_options ];
+}
+
+sub check_item_options_json
+{   my $self = shift;
+    my @options = map {
+        +{ id => $_->id, name => $_->name }
+    } grep { !$_->is_deleted } $self->check_item_options;
+    return encode_json \@options;
+}
+
 =head2 task
 
 Type: belongs_to
@@ -113,10 +143,4 @@ __PACKAGE__->belongs_to(
   },
 );
 
-
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ClLR3EwOK9xPduiv/lVS7Q
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

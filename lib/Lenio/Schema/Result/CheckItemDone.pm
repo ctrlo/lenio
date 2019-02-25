@@ -69,6 +69,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "status",
   { data_type => "smallint", is_nullable => 1 },
+  "status_custom",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -99,6 +101,21 @@ __PACKAGE__->belongs_to(
   "check_done",
   "Lenio::Schema::Result::CheckDone",
   { id => "check_done_id" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "NO ACTION" },
+);
+
+=head2 status_custom
+
+Type: belongs_to
+
+Related object: L<Lenio::Schema::Result::CheckItemOption>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "status_custom",
+  "Lenio::Schema::Result::CheckItemOption",
+  { id => "status_custom" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 

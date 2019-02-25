@@ -54,7 +54,12 @@
                                 (<a data-toggle="modal" data-target="#modalnew"
                                     data-checkname="[% check_item.name | html %]"
                                     data-checkitemid="[% check_item.id %]"
-                                    style="cursor: pointer">edit name</a> | <a href="">options</a>)
+                                    style="cursor: pointer">edit name</a> |
+                                <a data-toggle="modal" data-target="#modaloptions"
+                                    data-has-custom-options="[% check_item.has_custom_options %]"
+                                    data-checkitemid="[% check_item.id %]"
+                                    data-check-item-options="[% check_item.check_item_options_json | html %]"
+                                    style="cursor: pointer">options</a>)
                             </td>
                         </tr>
                     [% END %]
@@ -72,11 +77,13 @@
                 <button class="btn btn-default" data-toggle="modal" data-target="#modaldelete">Delete</button>
             [% END %]
         </div>
+    </form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="modalnew" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+    <!-- Modal -->
+    <div class="modal fade" id="modalnew" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title" id="myModalLabel">Check item name</h4>
@@ -86,20 +93,67 @@
                             <label for="checkitem">Name</label>
                             <input type="text" name="checkitem" class="form-control" id="checkitem">
                         </div>
-                        <input type="hidden" value="" name="checkitemid" id="checkitemid">
+                        <input type="hidden" value="" name="checkitemid" id="checkitemid-name">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" name="submit_name" value="submit" class="btn btn-primary">Submit</button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
-        <!-- Modal -->
-        <div class="modal fade" id="modaldelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+    <!-- Modal -->
+    <div class="modal fade" id="modaloptions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Check item options</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" value="" name="checkitemid" id="checkitemid-options">
+                            <label>Check item options</label>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="has_custom_options" id="has-custom-options-false" value="0">
+                                    Use standard check item options
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="has_custom_options" id="has-custom-options-true" value="1">
+                                    Use the following drop-down options (<a style="cursor:pointer" id="add-option">add</a>):
+                                </label>
+                            </div>
+                        </div>
+                        <div id="checkoptions-rows">
+                            <div class="check-option" id="check-option-blank" style="display:none">
+                                <p>
+                                    <input type="hidden" name="check_option" class="check-option-id">
+                                    <input type="text" class="form-control check-option-name" style="width:80%; display:inline" name="check_option">
+                                    <button type="button" class="close closeme" style="float:none">&times;</button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" name="submit_options" value="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="modaldelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title" id="myModalLabel">Delete check</h4>
@@ -111,8 +165,7 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button type="submit" name="delete" value="delete" class="btn btn-primary">Confirm</button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-
-    </form>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->

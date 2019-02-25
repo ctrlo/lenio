@@ -316,30 +316,66 @@ any '/check_edit/:id' => require_login sub {
 
     if (param('submitcheck') && !$check->deleted)
     {
-        if (my $ci = param('checkitem'))
+        $check->name(param 'name');
+        $check->description(param 'description');
+        $check->period_qty(param 'period_qty');
+        $check->period_unit(param 'period_unit');
+        $check->set_site_id(param 'site_id');
+        if (process sub { $check->update_or_insert })
         {
-            my $checkitem = param('checkitemid')
-                ? rset('CheckItem')->find(param 'checkitemid')
-                : rset('CheckItem')->create({ task_id => $id });
-            $checkitem->name($ci);
-            if (process sub { $checkitem->insert_or_update } )
-            {
-                my $status = param('checkitemid') ? 'updated' : 'added';
-                forwardHome(
-                    { success => "The check item has been $status successfully" }, "check_edit/$id" );
-            }
+            forwardHome(
+                { success => 'The site check has been successfully updated' }, 'task' );
         }
-        else {
-            $check->name(param 'name');
-            $check->description(param 'description');
-            $check->period_qty(param 'period_qty');
-            $check->period_unit(param 'period_unit');
-            $check->set_site_id(param 'site_id');
-            if (process sub { $check->update_or_insert })
+    }
+
+    if (param 'submit_name')
+    {
+        my $checkitem = param('checkitemid')
+            ? rset('CheckItem')->find(param 'checkitemid')
+            : rset('CheckItem')->create({ task_id => $id });
+        error "You do not have access to this check item"
+            if param('checkitemid') && $checkitem->task->id != $check->id;
+        $checkitem->name(param 'checkitem');
+        if (process sub { $checkitem->insert_or_update } )
+        {
+            my $status = param('checkitemid') ? 'updated' : 'added';
+            forwardHome(
+                { success => "The check item has been $status successfully" }, "check_edit/$id" );
+        }
+    }
+
+    if (param 'submit_options')
+    {
+        my $checkitem = rset('CheckItem')->find(param 'checkitemid');
+        error "You do not have access to this check item"
+            if param('checkitemid') && $checkitem->task->id != $check->id;
+        if (process sub {
+            $checkitem->update({ has_custom_options => param('has_custom_options') ? 1 : 0 });
+            my @options = body_parameters->get_all('check_option');
+            # options are id followed by name
+            my %existing;
+            while (@options)
             {
-                forwardHome(
-                    { success => 'The site check has been successfully updated' }, 'task' );
+                my $option_id = shift @options;
+                my $option_name = shift @options;
+                next if !$option_id && !$option_name;
+                my $option = $option_id
+                    ? rset('CheckItemOption')->find($option_id)
+                    : rset('CheckItemOption')->new({ check_item_id => $checkitem->id });
+                error "You do not have access to this check item option"
+                    if $option_id && $option->check_item_id != $checkitem->id;
+                $option->name($option_name);
+                $option->insert_or_update;
+                $existing{$option->id} = 1;
             }
+            foreach my $ci (rset('CheckItemOption')->search({ check_item_id => $checkitem->id })->all)
+            {
+                $ci->update({ is_deleted => 1 }) if !$existing{$ci->id};
+            }
+        })
+        {
+            forwardHome(
+                { success => "The check item has been updated successfully" }, "check_edit/$id" );
         }
     }
 
@@ -411,11 +447,25 @@ any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
         {
             next unless $key =~ /^item([0-9]+)/;
             my $check_item_id = $1;
-            my $check_item_done = rset('CheckItemDone')->update_or_create({
-                check_item_id => $check_item_id,
-                check_done_id => $check_done->id,
-                status        => param("item$check_item_id"),
-            });
+            my $check_item = rset('CheckItem')->find($check_item_id)
+                or error "Check item not found";
+            $check_item->task_id == $check->id
+                or error "Check item is not valid";
+            if ($check_item->has_custom_options)
+            {
+                my $check_item_done = rset('CheckItemDone')->update_or_create({
+                    check_item_id => $check_item_id,
+                    check_done_id => $check_done->id,
+                    status_custom => param("item$check_item_id") || undef,
+                });
+            }
+            else {
+                my $check_item_done = rset('CheckItemDone')->update_or_create({
+                    check_item_id => $check_item_id,
+                    check_done_id => $check_done->id,
+                    status        => param("item$check_item_id") || undef,
+                });
+            }
         }
         forwardHome({ success => "Check has been recorded successfully" }, 'checks');
     }

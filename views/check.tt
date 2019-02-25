@@ -13,12 +13,23 @@
         [% done_item = check_done.find_check_item(item.id) %]
         <div class="form-group">
             <label for="item[% item.id %]" class="control-label">[% item.name %]</label>
-            <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
-                <option value="0" [% IF done_item.status == 0 %]selected[% END %]>Not completed</option>
-                <option value="1" [% IF done_item.status == 1 %]selected[% END %]>Completed</option>
-                <option value="-1" [% IF done_item.status == -1 %]selected[% END %]>Not applicable</option>
-                <option value="-2" [% IF done_item.status == -2 %]selected[% END %]>Out of order</option>
-            </select>
+            [% IF item.has_custom_options %]
+                <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
+                    [% IF NOT done_item.status_custom %]
+                        <option></option>
+                    [% END %]
+                    [% FOREACH option IN item.check_item_options_live %]
+                        <option value="[% option.id %]" [% IF done_item.status_custom.id == option.id %]selected[% END %]>[% option.name | html %]</option>
+                    [% END %]
+                </select>
+            [% ELSE %]
+                <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
+                    <option value="0" [% IF done_item.status == 0 %]selected[% END %]>Not completed</option>
+                    <option value="1" [% IF done_item.status == 1 %]selected[% END %]>Completed</option>
+                    <option value="-1" [% IF done_item.status == -1 %]selected[% END %]>Not applicable</option>
+                    <option value="-2" [% IF done_item.status == -2 %]selected[% END %]>Out of order</option>
+                </select>
+            [% END %]
         </div>
     [% END %]
     <div class="form-group">

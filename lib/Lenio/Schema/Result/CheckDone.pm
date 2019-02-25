@@ -153,8 +153,16 @@ sub find_check_item
 
 sub status
 {   my $self = shift;
-    my $not_done = grep { $_->status == 0 } $self->check_items_done;
-    my $done = grep { $_->status != 0 } $self->check_items_done;
+    my $not_done = grep {
+        $_->check_item->has_custom_options
+            ? (!defined $_->status_custom)
+            : ($_->status == 0)
+    } $self->check_items_done;
+    my $done = grep {
+        $_->check_item->has_custom_options
+            ? (defined $_->status_custom)
+            : ($_->status != 0)
+    } $self->check_items_done;
     my $status = $not_done && $done
        ? 'partdone'
        : !$not_done && !$done && $self->datetime # no check items
