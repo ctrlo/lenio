@@ -184,5 +184,19 @@
         </script>
     [% END %]
 
+    [% IF page == "check_edit" %]
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#modalnew').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var checkname = button.data('checkname');
+                    $('#checkitem').val(checkname);
+                    var checkitemid = button.data('checkitemid');
+                    $('#checkitemid').val(checkitemid);
+                });
+            });
+        </script>
+    [% END %]
+
 </body>
 </html>

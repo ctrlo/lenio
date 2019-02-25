@@ -50,7 +50,12 @@
                 <table class="table table-striped">
                     [% FOREACH check_item IN check.check_items %]
                         <tr>
-                            <td>[% check_item.name | html %]</td>
+                            <td>[% check_item.name | html %]
+                                (<a data-toggle="modal" data-target="#modalnew"
+                                    data-checkname="[% check_item.name | html %]"
+                                    data-checkitemid="[% check_item.id %]"
+                                    style="cursor: pointer">edit name</a> | <a href="">options</a>)
+                            </td>
                         </tr>
                     [% END %]
                 </table>
@@ -81,10 +86,11 @@
                             <label for="checkitem">Name</label>
                             <input type="text" name="checkitem" class="form-control" id="checkitem">
                         </div>
+                        <input type="hidden" value="" name="checkitemid" id="checkitemid">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">Add</button>
+                        <button type="submit" name="submitcheck" value="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->

@@ -318,10 +318,15 @@ any '/check_edit/:id' => require_login sub {
     {
         if (my $ci = param('checkitem'))
         {
-            if (process sub { rset('CheckItem')->create({ task_id => $id, name => $ci }) } )
+            my $checkitem = param('checkitemid')
+                ? rset('CheckItem')->find(param 'checkitemid')
+                : rset('CheckItem')->create({ task_id => $id });
+            $checkitem->name($ci);
+            if (process sub { $checkitem->insert_or_update } )
             {
+                my $status = param('checkitemid') ? 'updated' : 'added';
                 forwardHome(
-                    { success => 'The check item has been added successfully' }, "check_edit/$id" );
+                    { success => "The check item has been $status successfully" }, "check_edit/$id" );
             }
         }
         else {
