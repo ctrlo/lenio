@@ -653,6 +653,10 @@ any '/ticket/:id?' => require_login sub {
             error __"You do not have permission to edit this ticket"
                 unless var('login')->is_admin || $ticket->actionee eq 'local';
         }
+        else {
+            error __"You do not have permission to create a service item ticket"
+                if $global && !var('login')->is_admin;
+        }
 
         my $was_local = $id && $ticket->actionee eq 'local'; # Need old setting to see if to send email
         if (process sub { $ticket->update_or_insert })
