@@ -1,0 +1,101 @@
+{
+   "has_many" : {
+      "fetch" : 0
+   },
+   "might_have" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Comment",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Org"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Contractor"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Event"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItem"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Permission"
+      },
+      {
+         "class" : "CheckItemDone",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "class" : "Login",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginOrg"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Invoice"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Site",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Ticket",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      },
+      {
+         "class" : "CheckItemOption",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckDone"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Notice"
+      }
+   ],
+   "belongs_to" : {
+      "fetch" : 0
+   }
+}
