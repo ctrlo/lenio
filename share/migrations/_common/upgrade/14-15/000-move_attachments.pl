@@ -32,8 +32,9 @@ migrate {
 
     my $config = Lenio::Config->instance(config => $conf);
 
-    foreach my $attach ($schema->resultset('Attach')->all)
+    foreach my $attach_id ($schema->resultset('Attach')->get_column('id')->all)
     {
+        my $attach = $schema->resultset('Attach')->find($attach_id);
         my $target = Lenio::Schema::Result::Attach::idtofile($attach->id);
         $target->dir->mkpath;
         $target->spew(iomode => '>:raw', $attach->content);
