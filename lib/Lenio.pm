@@ -24,6 +24,7 @@ use Dancer2::Core::Cookie;
 use DateTime::Format::Strptime;
 use JSON qw(encode_json);
 use Lenio::Calendar;
+use Lenio::Config;
 use Lenio::Email;
 use Text::CSV;
 
@@ -32,6 +33,10 @@ use Dancer2::Plugin::Auth::Extensible;
 use Dancer2::Plugin::LogReport;
 
 set behind_proxy => config->{behind_proxy};
+
+Lenio::Config->instance(
+    config => config,
+);
 
 our $VERSION = '0.1';
 
@@ -561,16 +566,16 @@ any '/ticket/:id?' => require_login sub {
     }
 
     if ( param('attach') ) {
-        my $file = request->upload('newattach')
+        my $upload = request->upload('newattach')
             or error __"Please select a file to upload";
         my $attach = {
-            name        => $file->basename,
+            name        => $upload->basename,
             ticket_id   => $id,
-            content     => $file->content,
-            mimetype    => $file->type,
+            upload      => $upload,
+            mimetype    => $upload->type,
         };
 
-        if (process sub { rset('Attach')->create($attach) })
+        if (process sub { rset('Attach')->create_with_file($attach) })
         {
             my $args = {
                 login    => var('login'),
@@ -579,8 +584,8 @@ any '/ticket/:id?' => require_login sub {
                 url      => "/ticket/".$ticket->id,
                 subject  => "Ticket ".$ticket->id." attachment added - ",
                 attach   => {
-                    data      => $file->content,
-                    mime_type => $file->type,
+                    data      => $upload->content,
+                    mime_type => $upload->type,
                 },
             };
             my $email = Lenio::Email->new(
@@ -819,11 +824,10 @@ get '/tickets/?' => require_login sub {
 get '/attach/:file' => require_login sub {
     my $file = rset('Attach')->find(param 'file')
         or error __x"File ID {id} not found", id => param('file');
-    my $data = $file->content;
     my $site_id = $file->ticket->site_id;
     if ( var('login')->has_site($site_id))
     {
-        send_file( \$data, content_type => $file->mimetype );
+        send_file( $file->content, content_type => $file->mimetype, system_path => 1 );
     } else {
         forwardHome(
             { danger => 'You do not have permission to view this file' } );
