@@ -179,6 +179,7 @@
                     <th>Totals</th>
                     <th></th>
                     <th></th>
+                    <th></th>
                     [% IF show_dates %]
                         <th></th>
                     [% END %]
