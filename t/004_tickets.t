@@ -197,7 +197,6 @@ $schema->resultset('Comment')->create({
 $schema->resultset('Attach')->create({
     name        => "Filename.txt",
     ticket_id   => $ticket->id,
-    content     => "File content",
     mimetype    => 'text/plain',
 });
 
