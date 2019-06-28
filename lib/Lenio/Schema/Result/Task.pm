@@ -155,10 +155,19 @@ Related object: L<Lenio::Schema::Result::SiteTask>
 
 =cut
 
+our $SITEID;
 __PACKAGE__->has_many(
   "site_tasks",
   "Lenio::Schema::Result::SiteTask",
-  { "foreign.task_id" => "self.id" },
+  sub {
+      my $args = shift;
+      my $return = {
+          "$args->{foreign_alias}.task_id"  => { -ident => "$args->{self_alias}.id" },
+      };
+      $return->{"$args->{foreign_alias}.site_id"} = $SITEID
+          if $SITEID;
+      return $return;
+  },
   { cascade_copy => 0, cascade_delete => 1 },
 );
 

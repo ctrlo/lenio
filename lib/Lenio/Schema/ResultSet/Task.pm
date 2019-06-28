@@ -21,7 +21,13 @@ sub last_completed
 sub summary
 {   my ($self, %options) = @_;
 
-    my $site_id = $options{site_id};
+    my $order_by = [
+        'tasktype.name', 'me.name'
+    ];
+    my $site_id = $options{site_id}
+        or return $self->all({}, { order_by => $order_by })->all;
+
+    local $Lenio::Schema::Result::Task::SITEID = $site_id;
     my $search  = { site_check => 0 };
     $search->{'site_tasks.site_id'} = $site_id if $options{onlysite};
     $search->{'me.global'} = $options{global} if exists $options{global};
@@ -98,9 +104,7 @@ sub summary
 
     my $schema = $self->result_source->schema;
     $self->search($search, {
-        order_by => [
-            'tasktype.name', 'me.name'
-        ],
+        order_by => $order_by,
         prefetch => [
             'tasktype',
             {
@@ -209,6 +213,8 @@ sub overdue
 {   my ($self, %options) = @_;
 
     my $site_id   = $options{site_id};
+    local $Lenio::Schema::Result::Task::SITEID = $site_id
+        if $site_id;
     my @intervals = qw/year month day/;
     my $schema    = $self->result_source->schema;
 
