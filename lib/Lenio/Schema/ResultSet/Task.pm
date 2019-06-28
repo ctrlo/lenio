@@ -24,13 +24,15 @@ sub summary
     my $order_by = [
         'tasktype.name', 'me.name'
     ];
-    my $site_id = $options{site_id}
-        or return $self->search({}, { order_by => $order_by, join => 'tasktype' })->all;
+    my $site_id = $options{site_id};
+    my $search  = { site_check => 0 };
+    $search->{'site_tasks.site_id'} = $site_id if $site_id && $options{onlysite};
+    $search->{'me.global'} = $options{global} if exists $options{global};
+
+    $site_id
+        or return $self->search($search, { order_by => $order_by, join => 'tasktype' })->all;
 
     local $Lenio::Schema::Result::Task::SITEID = $site_id;
-    my $search  = { site_check => 0 };
-    $search->{'site_tasks.site_id'} = $site_id if $options{onlysite};
-    $search->{'me.global'} = $options{global} if exists $options{global};
 
     my @dates;
 
