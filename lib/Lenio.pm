@@ -1080,7 +1080,7 @@ any '/task/?:id?' => require_login sub {
             task_tickets      => 0,
             with_site_tickets => var('login')->is_admin ? 0 : undef,
             fy                => session('site_id') && session('fy'),
-        );
+        ) if session('site_id');
         if ($csv eq 'reactive')
         {
             my $csv = Text::CSV->new;
