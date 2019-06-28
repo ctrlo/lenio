@@ -235,12 +235,32 @@ sub overdue
                     ]
                 },
                 '+select' => [
-                    { max => $schema->resultset('Task')
-                        ->correlate('tickets')
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            }
+                        },
+                        {
+                            alias => 'metask',
+                        })
                         ->get_column('completed')
                         ->max_rs->as_query, -as => 'ticket_completed' },
-                    { max => $schema->resultset('Task')
-                        ->correlate('tickets')
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            }
+                        },
+                        {
+                            alias => 'metask',
+                        })
                         ->get_column('planned')
                         ->max_rs->as_query, -as => 'ticket_planned' },
                 ],

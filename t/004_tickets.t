@@ -52,7 +52,7 @@ my @tickets = (
     }
 );
 
-my $count;
+my $count = 3; # 3 already in database for second site
 foreach my $ticket (@tickets)
 {
     foreach my $completed (0, 1)

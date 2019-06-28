@@ -13,13 +13,8 @@ my $site      = $seed_data->site;
 
 ok( $login->has_site($site->id), "Initial login has access to initial site" );
 
-my $org2  = $schema->resultset('Org')->create({
-    name => 'Org2',
-});
-my $site2 = $schema->resultset('Site')->create({
-    name   => 'Site2',
-    org_id => $org2->id,
-});
+my $org2  = $seed_data->org2;
+my $site2 = $seed_data->site2;
 my $login2 = $schema->resultset('Login')->create({
     username => 'XX',
     email    => 'XX',

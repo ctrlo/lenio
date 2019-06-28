@@ -23,7 +23,7 @@ my $schema    = $seed_data->schema;
 my $site      = $seed_data->site;
 my $tasks     = $seed_data->tasks;
 
-my @overdue = $schema->resultset('Task')->overdue;
+my @overdue = $schema->resultset('Task')->overdue(site_id => $site->id);
 is( @overdue, 3, "All items overdue when no tickets raised" );
 
 foreach my $task (@$tasks)
@@ -38,7 +38,7 @@ foreach my $task (@$tasks)
     });
 }
 
-@overdue = $schema->resultset('Task')->overdue;
+@overdue = $schema->resultset('Task')->overdue(site_id => $site->id);
 is( @overdue, @$tasks, "Overdue item for all tasks when all tickets out of date" );
 
 # Remove one item from site, check it disappears
@@ -47,7 +47,7 @@ $schema->resultset('SiteTask')->search({
     site_id   => $site->id,
 })->delete;
 
-is( $schema->resultset('Task')->overdue, @$tasks - 1, "Overdue items reduce by one when task removed as item" );
+is( $schema->resultset('Task')->overdue(site_id => $site->id), @$tasks - 1, "Overdue items reduce by one when task removed as item" );
 
 # Add tickets to set task in date
 foreach my $task (@$tasks)
@@ -62,7 +62,7 @@ foreach my $task (@$tasks)
     });
 }
 
-@overdue = $schema->resultset('Task')->overdue;
+@overdue = $schema->resultset('Task')->overdue(site_id => $site->id);
 is( @overdue, 0, "No overdue items when tasks in date" );
 
 done_testing();

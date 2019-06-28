@@ -93,6 +93,18 @@ sub _build_org
     });
 }
 
+has org2 => (
+    is => 'lazy',
+);
+
+sub _build_org2
+{   my $self = shift;
+    $self->schema->resultset('Org')->create({
+        name   => 'Org2',
+        fyfrom => '2014-04-01',
+    });
+}
+
 has site => (
     is => 'lazy',
 );
@@ -102,6 +114,18 @@ sub _build_site
     $self->schema->resultset('Site')->create({
         name   => $self->data->{site},
         org_id => $self->org->id,
+    });
+}
+
+has site2 => (
+    is => 'lazy',
+);
+
+sub _build_site2
+{   my $self = shift;
+    $self->schema->resultset('Site')->create({
+        name   => 'Site 2',
+        org_id => $self->org2->id,
     });
 }
 
@@ -145,17 +169,33 @@ sub _build_tasks
     my @tasks;
     foreach my $t (@{$self->data->{tasks}})
     {
-        my $task = $self->schema->resultset('Task')->new({
+        my $th = {
             global      => 1,
             name        => $t->{name},
             description => $t->{description},
             tasktype_id => $self->tasktype->id,
             period_qty  => $t->{period_qty},
             period_unit => $t->{period_unit},
-        });
+        };
+        my $task = $self->schema->resultset('Task')->new($th);
         $task->set_site_id($self->site->id);
         $task->insert;
         push @tasks, $task;
+
+        # Create task in second site
+        $self->schema->resultset('SiteTask')->create({
+            task_id => $task->id,
+            site_id => $self->site2->id,
+        });
+        # And associated ticket
+        $self->schema->resultset('Ticket')->create({
+            name        => $task->name,
+            description => $task->description,
+            completed   => DateTime->now,
+            local_only  => 0,
+            task_id     => $task->id,
+            site_id     => $self->site2->id,
+        });
     }
     \@tasks;
 }

@@ -61,8 +61,8 @@ my @tests = (
         ],
         dates => [
             task2   => _to_dt('2016-08-05'),
-            ticket1 => _to_dt('2016-08-09'),
-            ticket2 => _to_dt('2016-08-16'),
+            ticket4 => _to_dt('2016-08-09'),
+            ticket5 => _to_dt('2016-08-16'),
             task1   => _to_dt('2016-08-23'),
             task1   => _to_dt('2016-08-30'),
         ],
@@ -86,9 +86,9 @@ my @tests = (
             },
         ],
         dates => [
-            ticket1 => _to_dt('2016-08-09'),
-            ticket2 => _to_dt('2016-08-13'),
-            ticket3 => _to_dt('2016-08-20'),
+            ticket4 => _to_dt('2016-08-09'),
+            ticket5 => _to_dt('2016-08-13'),
+            ticket6 => _to_dt('2016-08-20'),
             task1   => _to_dt('2016-08-27'),
         ],
     },
@@ -116,9 +116,9 @@ my @tests = (
         ],
         dates => [
             task1   => _to_dt('2016-08-05'),
-            ticket2 => _to_dt('2016-08-09'),
-            ticket3 => _to_dt('2016-08-13'),
-            ticket4 => _to_dt('2016-08-20'),
+            ticket5 => _to_dt('2016-08-09'),
+            ticket6 => _to_dt('2016-08-13'),
+            ticket7 => _to_dt('2016-08-20'),
             task1   => _to_dt('2016-08-27'),
         ],
     },
@@ -153,7 +153,7 @@ my @tests = (
         ],
         dates => [
             task2   => _to_dt('2016-08-10'),
-            ticket2 => _to_dt('2016-08-20'),
+            ticket5 => _to_dt('2016-08-20'),
         ],
     },
     {
@@ -173,7 +173,7 @@ my @tests = (
         ],
         dates => [
             task2   => _to_dt('2016-08-10'),
-            ticket2 => _to_dt('2016-08-20'),
+            ticket5 => _to_dt('2016-08-20'),
         ],
     },
     {
@@ -201,8 +201,8 @@ my @tests = (
             },
         ],
         dates => [
-            ticket1 => _to_dt('2016-08-11'),
-            ticket2 => _to_dt('2016-08-17'),
+            ticket4 => _to_dt('2016-08-11'),
+            ticket5 => _to_dt('2016-08-17'),
             task1   => _to_dt('2016-08-24'),
             task1   => _to_dt('2016-08-31'),
         ],
@@ -222,8 +222,8 @@ my @tests = (
             },
         ],
         dates => [
-            ticket1 => _to_dt('2016-08-05'),
-            ticket2 => _to_dt('2016-08-11'),
+            ticket4 => _to_dt('2016-08-05'),
+            ticket5 => _to_dt('2016-08-11'),
             task1   => _to_dt('2016-08-12'),
             task1   => _to_dt('2016-08-19'),
             task1   => _to_dt('2016-08-26'),
