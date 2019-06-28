@@ -112,7 +112,9 @@
                 [% IF login.is_admin AND site.id %]<th></th>[% END %]
                 <th>Type</th>
                 <th>Task</th>
-                <th>Contractor</th>
+                [% IF site.id %]
+                    <th>Contractor</th>
+                [% END %]
                 <th>Frequency</th>
                 [% IF site.id %]
                     [% IF show_dates %]
@@ -126,7 +128,7 @@
             [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
             [% FOR task IN tasks %]
                 [% IF site.id AND task.strike %][% strike = 'class="strike"' %][% ELSE %][% strike = '' %][% END %]
-                [% IF NOT task.strike OR login.is_admin %]
+                [% IF NOT strike OR login.is_admin %]
                     <tr [% strike %]>
                         [% IF login.is_admin AND site.id %]
                             <td>
@@ -152,14 +154,16 @@
                                 <a href="/task/[% task.id %]">[% task.name %]</a>
                             [% END %]
                         </td>
-                        <td>[% task.contractor_name | html %]</td>
+                        [% IF site.id %]
+                            <td>[% task.contractor_name | html %]</td>
+                        [% END %]
                         <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                         [% IF site.id %]
                             [% IF show_dates %]
                                 <td style="white-space:nowrap">
                                     [% task_id = task.id %]
-                                    [% IF task_completed.$task_id %]
-                                        [% task_completed.$task_id.strftime(dateformat) %]
+                                    [% IF task.last_completed %]
+                                        [% task.last_completed.strftime(dateformat) %]
                                     [% ELSE %]
                                         (never)
                                     [% END %]
@@ -170,8 +174,8 @@
                         [% END %]
                     </tr>
                 [% END %]
-                [% IF task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
-                [% IF task.cost_actual %][% cost_actual_total = cost_actual_total + task.cost_actual %][% END %]
+                [% IF site.id AND task.cost_planned %][% cost_planned_total = cost_planned_total + task.cost_planned %][% END %]
+                [% IF site.id AND task.cost_actual %][% cost_actual_total = cost_actual_total + task.cost_actual %][% END %]
             [% END %]
             [% IF site.id %]
                 <tr>

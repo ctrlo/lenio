@@ -1127,7 +1127,6 @@ any '/task/?:id?' => require_login sub {
         task             => $task,
         tasks            => \@tasks,
         tasks_local      => \@tasks_local,
-        task_completed   => rset('Task')->last_completed(site_id => session('site_id'), global => 1),
         tasktypes        => [rset('Tasktype')->all],
         adhocs           => \@adhocs,
         page             => 'task'

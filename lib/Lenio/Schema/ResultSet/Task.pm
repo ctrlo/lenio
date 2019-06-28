@@ -25,7 +25,7 @@ sub summary
         'tasktype.name', 'me.name'
     ];
     my $site_id = $options{site_id}
-        or return $self->all({}, { order_by => $order_by })->all;
+        or return $self->search({}, { order_by => $order_by, join => 'tasktype' })->all;
 
     local $Lenio::Schema::Result::Task::SITEID = $site_id;
     my $search  = { site_check => 0 };
