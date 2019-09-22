@@ -303,9 +303,12 @@ sub checks
     # out the subsequent ones required.
     foreach my $check (@site_checks)
     {
+        my $dtf  = $self->schema->storage->datetime_parser;
+
         my ($done) = $self->schema->resultset('CheckDone')->search({
             'task.id'           => $check->id,
             'site_task.site_id' => $self->site->id,
+            'me.datetime'       => { '<=' => $dtf->format_datetime($self->to) },
         },{
             'prefetch' => { 'site_task' => 'task' },
             '+select'  => { max => 'me.datetime', -as => 'last_done' },
