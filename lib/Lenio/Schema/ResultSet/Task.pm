@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use base qw(DBIx::Class::ResultSet);
 
+use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Lenio::FY;
 use Text::CSV;
 
@@ -279,7 +280,7 @@ sub overdue
                     'ticket_completed' => [
                         undef, 
                         {
-                            '<' => $self->dt_SQL_add($self->utc_now, $interval, { -ident => '.period_qty' }),
+                            '<' => $self->dt_SQL_subtract($self->utc_now, $interval, { -ident => '.period_qty' }),
                         },
                     ],
                 }
