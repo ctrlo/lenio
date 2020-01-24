@@ -405,11 +405,19 @@ sub sla
     my @tables; my @data; my $last_tasktype; my $subtotal = 0;
 
     my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
-    foreach my $task ($self->summary(site_id => $site->id, onlysite => 1))
+    foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1))
     {
-        my $tasktype_id = $task->tasktype && $task->tasktype->id;
-        my $type_changed = ($tasktype_id || -1) != ($last_tasktype || -1);
-        @data = () if $type_changed;
+        my $tasktype = $task->tasktype && $task->tasktype->name || 'Uncategorised';
+        if (defined $last_tasktype && $tasktype ne $last_tasktype)
+        {
+            push @tables, {
+                name => $last_tasktype,
+                data => [@data], # Copy
+                total => $subtotal,
+            };
+            $subtotal = 0;
+            @data = ();
+        }
 
         my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
         my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
@@ -423,18 +431,13 @@ sub sla
         ];
         $subtotal += ($task->cost_actual || 0);
 
-        if ($type_changed)
-        {
-            push @tables, {
-                name => $task->tasktype ? $task->tasktype->name : 'Uncategorised',
-                data => [@data], # Copy
-                total => $subtotal,
-            };
-            $subtotal = 0;
-        }
-
-        $last_tasktype = $tasktype_id;
+        $last_tasktype = $tasktype;
     }
+    push @tables, {
+        name => $last_tasktype,
+        data => [@data], # Copy
+        total => $subtotal,
+    };
 
     my $total = 0;
     foreach my $table (@tables)
