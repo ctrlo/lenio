@@ -219,6 +219,7 @@ sub overdue
 {   my ($self, %options) = @_;
 
     my $site_id   = $options{site_id};
+    my $login     = $options{login};
     local $Lenio::Schema::Result::Task::SITEID = $site_id
         if $site_id;
     my @intervals = qw/year month day/;
@@ -231,6 +232,7 @@ sub overdue
             'period_unit' => $interval,
         };
         $search->{global} = 1 unless $options{local};
+        $search->{global} = 0 if $login && !$login->is_admin;
         $search->{site_check} = 0; # Don't show site manager checks
         my $s = ref $site_id eq 'ARRAY' ? [ map { $_->id } @$site_id ] : $site_id;
         $search->{'site.id'} = $s if $s;
