@@ -1070,6 +1070,24 @@ any '/task/?:id?' => require_login sub {
             );
         }
 
+        if (var('login')->is_admin && query_parameters->get('sla') && query_parameters->get('sla') eq 'pdf')
+        {
+            my $site = rset('Site')->find(session 'site_id');
+
+            my $pdf = rset('Task')->sla(
+                site       => $site,
+                dateformat => $dateformat,
+                %{config->{lenio}->{invoice}},
+            );
+
+            my $now = DateTime->now->ymd;
+            return send_file(
+                \$pdf->content,
+                content_type => 'application/pdf',
+                filename     => $site->org->name." Service Level Agreement $now.pdf"
+            );
+        }
+
         # Get all the global tasks.
         @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
 

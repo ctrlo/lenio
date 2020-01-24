@@ -75,17 +75,28 @@
         <h3>Service items
 	[% IF site.id %]
             ([% site.org.name %] - [% site.name %])
-            <small><a href="?csv=service">Download</a></small>
         [% ELSE %]
             (All sites)
         [% END %]
 	</h3>
         <div class="row">
             <div class="col-md-8">
-            [% IF login.is_admin %]
-            <p>
-                <a href="/task/0" class="btn btn-default" role="button">Create new service item</a>
-            </p>
+                <div class="btn-toolbar">
+                    [% IF login.is_admin %]
+                        <div class="btn-group">
+                            <a href="/task/0" class="btn btn-default" role="button">Create new service item</a>
+                        </div>
+                    [% END %]
+                    <div class="btn-group dropdown">
+                        <a class="btn btn-default dropdown-toggle" role="button" data-toggle="dropdown" href="#">Download <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="drop4">
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="?csv=service">As CSV</a></li>
+                            [% IF login.is_admin %]
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?sla=pdf">Download SLA</a></li>
+                            [% END %]
+                        </ul>
+                    </div>
+                </div>
             [% END %]
             </div>
             <div class="col-md-4">
@@ -100,6 +111,7 @@
                 [% END %]
             </div>
         </div>
+        <p></p>
 
         [% IF login.is_admin %]
             <form method="post">

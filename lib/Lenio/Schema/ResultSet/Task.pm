@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use base qw(DBIx::Class::ResultSet);
 
+use utf8; # Needed for £ symbols in PDF
+
+use CtrlO::PDF;
 use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Lenio::FY;
 use Text::CSV;
@@ -376,6 +379,107 @@ sub csv
     $csv->combine('','','','','','Totals:',sprintf("%.2f", $cost_planned_total),sprintf("%.2f", $cost_actual_total));
     $csvout .= $csv->string."\n";
     return $csvout;
+}
+
+sub sla
+{   my ($self, %options) = @_;
+
+    my $site = $options{site};
+
+    my $pdf = CtrlO::PDF->new(
+        logo         => $options{logo},
+        logo_scaling => 0.25,
+        orientation  => "portrait", # Default
+        #footer      => "My PDF document footer",
+    );
+
+    # Add a page
+    $pdf->add_page;
+
+    # Add headings
+    $pdf->heading($options{company});
+    $pdf->heading('Service Contract Agreement', bottommargin => 20);
+    my $org = $site->org;
+    $pdf->text($org->full_address);
+
+    my @tables; my @data; my $last_tasktype; my $subtotal = 0;
+
+    my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
+    foreach my $task ($self->summary(site_id => $site->id, onlysite => 1))
+    {
+        my $tasktype_id = $task->tasktype && $task->tasktype->id;
+        my $type_changed = ($tasktype_id || -1) != ($last_tasktype || -1);
+        @data = () if $type_changed;
+
+        my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
+        my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
+        push @data, [
+            $task->name,
+            defined $task->cost_actual ? '£'.$task->cost_actual : '',
+            $task->period_qty.' '.$task->period_unit,
+            $task->contractor_name,
+            $next_due && $next_due->strftime($options{dateformat}),
+            $task->description,
+        ];
+        $subtotal += ($task->cost_actual || 0);
+
+        if ($type_changed)
+        {
+            push @tables, {
+                name => $task->tasktype ? $task->tasktype->name : 'Uncategorised',
+                data => [@data], # Copy
+                total => $subtotal,
+            };
+            $subtotal = 0;
+        }
+
+        $last_tasktype = $tasktype_id;
+    }
+
+    my $total = 0;
+    foreach my $table (@tables)
+    {
+        $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
+        my $hdr_props = {
+            repeat     => 1,
+            font_size  => 8,
+        };
+        my $data = $table->{data};
+        unshift @$data, [
+            'Item',
+            'Cost',
+            'Recommended frequency',
+            'Contractor',
+            'Due',
+            'Notes',
+        ];
+        $pdf->table(
+            data         => $data,
+            header_props => $hdr_props,
+            font_size    => 8,
+        );
+        $pdf->heading("Total cost: £".$table->{total}, indent => 350, size => 10);
+        $total += $table->{total};
+    }
+
+    $pdf->heading("Total fee for service contract: £$total +VAT", size => 14);
+
+    $pdf->heading("Contract Agreement", size => 12, topmargin => 15);
+    $pdf->text($options{sla_notes});
+
+    $pdf->heading("Signed", size => 12, topmargin => 15);
+    my $y = $pdf->_y;
+    $pdf->text("On behalf of ".$site->org->name);
+    $pdf->text("Position:");
+    $pdf->text("Date:");
+    $pdf->text("<u>Signature:</u>");
+    $pdf->_set__y($y);
+    $pdf->text("On behalf of $options{company}", indent => 250);
+    $pdf->text("Position:", indent => 250);
+    $pdf->text("Date:", indent => 250);
+    $pdf->text("Signature:", indent => 250);
+
+    return $pdf;
 }
 
 1;

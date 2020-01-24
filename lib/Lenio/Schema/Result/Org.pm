@@ -160,10 +160,15 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+sub full_address
+{   my $self = shift;
+    my @lines;
+    push @lines, $self->name if $self->name;
+    push @lines, $self->address1 if $self->address1;
+    push @lines, $self->address2 if $self->address2;
+    push @lines, $self->town if $self->town;
+    push @lines, $self->postcode if $self->postcode;
+    return join "\n", @lines;
+}
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8ywD82OYbQOCY0mqWY5ehg
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
