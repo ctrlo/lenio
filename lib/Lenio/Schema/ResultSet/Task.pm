@@ -471,12 +471,12 @@ sub sla
     $pdf->text($options{sla_notes});
 
     $pdf->heading("Signed", size => 12, topmargin => 15);
-    my $y = $pdf->_y;
+    my $y = $pdf->current_y;
     $pdf->text("On behalf of ".$site->org->name);
     $pdf->text("Position:");
     $pdf->text("Date:");
     $pdf->text("<u>Signature:</u>");
-    $pdf->_set__y($y);
+    $pdf->set_current_y($y);
     $pdf->text("On behalf of $options{company}", indent => 250);
     $pdf->text("Position:", indent => 250);
     $pdf->text("Date:", indent => 250);
