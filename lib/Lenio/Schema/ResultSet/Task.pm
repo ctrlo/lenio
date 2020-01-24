@@ -390,11 +390,14 @@ sub sla
         logo         => $options{logo},
         logo_scaling => 0.25,
         orientation  => "portrait", # Default
+        top_padding  => 50,
         #footer      => "My PDF document footer",
     );
 
     # Add a page
     $pdf->add_page;
+    # For the first page, move the cursor back up the page to remove the top_padding
+    $pdf->move_y_position(50);
 
     # Add headings
     $pdf->heading($options{company});
@@ -471,12 +474,12 @@ sub sla
     $pdf->text($options{sla_notes});
 
     $pdf->heading("Signed", size => 12, topmargin => 15);
-    my $y = $pdf->current_y;
+    my $y = $pdf->y_position;
     $pdf->text("On behalf of ".$site->org->name);
     $pdf->text("Position:");
     $pdf->text("Date:");
     $pdf->text("<u>Signature:</u>");
-    $pdf->set_current_y($y);
+    $pdf->set_y_position($y);
     $pdf->text("On behalf of $options{company}", indent => 250);
     $pdf->text("Position:", indent => 250);
     $pdf->text("Date:", indent => 250);
