@@ -122,6 +122,7 @@ get '/' => require_login sub {
               : session('site_id') ? session('site_id') : var('login')->sites;
     my @overdue = rset('Task')->overdue(
         site_id   => $sites,
+        login     => var('login'),
         local     => $local,
         sort      => session('task_sort'),
         sort_desc => session('task_desc'),
