@@ -49,6 +49,9 @@ lenio:
       within 14 days of the date of this invoice.
     footer_left: My Company Ltd - Company Number 123456
     footer_right: "VAT Registration Number: 123456"
+    sla_notes: |
+      1. This is SLA note 1
+      2. This is SLA note 2
 
 engines:
   session:
