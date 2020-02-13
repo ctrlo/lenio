@@ -125,9 +125,7 @@ sub fys
 
     # Calculate financial years for this organisation
     my $fyfrom = $self->org->fyfrom->clone;
-    my $now    = DateTime->now;
-    $now->add({ years => 1 }) # Check for future FY from of organisation
-        if DateTime->compare($fyfrom, $now) == 1;
+    my $now    = DateTime->now->add(years => 1); # Always add one to show next year's as well
     my @fys;
     while (DateTime->compare($now, $fyfrom) > 0)
     {

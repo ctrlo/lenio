@@ -1019,6 +1019,20 @@ any '/task/?:id?' => require_login sub {
         );
     }
 
+    if (body_parameters->get('populate'))
+    {
+        my $year = body_parameters->get('populate_from');
+        if (process sub { rset('Task')->populate_tickets(
+                site_id  => session('site_id'),
+                from     => $year,
+                to       => session('fy'),
+                login_id => var('login')->id,
+            ) })
+        {
+            forwardHome({ success => 'Tickets have been populated successfully' }, 'task' );
+        }
+    }
+
     if ( param('submit') ) {
 
         if (var('login')->is_admin)
@@ -1076,6 +1090,7 @@ any '/task/?:id?' => require_login sub {
             my $site = rset('Site')->find(session 'site_id');
 
             my $pdf = rset('Task')->sla(
+                fy         => session('fy'),
                 site       => $site,
                 dateformat => $dateformat,
                 %{config->{lenio}->{invoice}},
@@ -1137,7 +1152,10 @@ any '/task/?:id?' => require_login sub {
         $action = '';
     }
 
+    my $show_populate = ! grep $_->get_column('cost_planned'), @tasks;
+
     template 'task' => {
+        show_populate    => $show_populate,
         dateformat       => $dateformat,
         download         => $download,
         action           => $action,

@@ -9,6 +9,7 @@ use utf8; # Needed for £ symbols in PDF
 use CtrlO::PDF;
 use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Lenio::FY;
+use Log::Report;
 use Text::CSV;
 
 __PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1 Helper::ResultSet::CorrelateRelationship));
@@ -168,6 +169,50 @@ sub summary
                 ->count_rs->as_query,
        }
     })->all;
+}
+
+sub populate_tickets
+{   my ($self, %params) = @_;
+    my $tickets_rs = $self->result_source->schema->resultset('Ticket');
+    my $fy   = Lenio::FY->new(
+        site_id => $params{site_id},
+        year    => $params{from},
+        schema  => $self->result_source->schema,
+    );
+    my $dtf  = $self->result_source->schema->storage->datetime_parser;
+    my @tickets = $tickets_rs->search({
+        'me.site_id'      => $params{site_id},
+        'task.global'     => 1,
+        'me.cost_planned' => { '!=' => undef },
+        'me.planned'      => {
+            -between => [
+                $dtf->format_datetime($fy->costfrom),
+                $dtf->format_datetime($fy->costto),
+            ],
+        },
+    },{
+        join => 'task'
+    });
+
+    my $year_diff = $params{to} - $params{from};
+    my $count;
+    foreach my $ticket (@tickets)
+    {
+        my $planned = $ticket->completed->add(years => $year_diff);
+        $tickets_rs->create({
+            name          => $ticket->name,
+            description   => $ticket->description,
+            created_by    => $params{login_id},
+            planned       => $planned,
+            contractor_id => $ticket->contractor_id,
+            task_id       => $ticket->task_id,
+            site_id       => $params{site_id},
+            cost_planned  => $ticket->cost_actual,
+        });
+        $count++;
+    }
+
+    notice __nx"One ticket created", "{_count} tickets created", $count;
 }
 
 sub site_checks_csv
@@ -410,7 +455,7 @@ sub sla
     my @tables; my @data; my $last_tasktype; my $subtotal = 0;
 
     my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
-    foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1))
+    foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1, fy => $options{fy}))
     {
         my $tasktype = $task->tasktype && $task->tasktype->name || 'Uncategorised';
         if (defined $last_tasktype && $tasktype ne $last_tasktype)
@@ -428,13 +473,13 @@ sub sla
         my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
         push @data, [
             $task->name,
-            defined $task->cost_actual ? '£'.$task->cost_actual : '',
+            defined $task->cost_planned ? '£'.$task->cost_planned : '',
             $task->period_qty.' '.$task->period_unit,
             $task->contractor_name,
             $next_due && $next_due->strftime($options{dateformat}),
             $task->description,
         ];
-        $subtotal += ($task->cost_actual || 0);
+        $subtotal += ($task->cost_planned || 0);
 
         $last_tasktype = $tasktype;
     }
