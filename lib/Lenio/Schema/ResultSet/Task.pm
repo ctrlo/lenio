@@ -503,7 +503,7 @@ sub sla
         unshift @$data, [
             'Item',
             'Cost',
-            'Recommended frequency',
+            'Frequency',
             'Contractor',
             'Due',
             'Notes',
