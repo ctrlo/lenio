@@ -175,6 +175,7 @@ sub summary
 sub populate_tickets
 {   my ($self, %params) = @_;
     my $tickets_rs = $self->result_source->schema->resultset('Ticket');
+    my $guard = $self->result_source->schema->txn_scope_guard;
     my $fy   = Lenio::FY->new(
         site_id => $params{site_id},
         year    => $params{from},
@@ -185,7 +186,7 @@ sub populate_tickets
         'me.site_id'      => $params{site_id},
         'task.global'     => 1,
         'me.cost_planned' => { '!=' => undef },
-        'me.planned'      => {
+        'me.completed'    => {
             -between => [
                 $dtf->format_datetime($fy->costfrom),
                 $dtf->format_datetime($fy->costto),
@@ -212,6 +213,7 @@ sub populate_tickets
         });
         $count++;
     }
+    $guard->commit;
 
     notice __nx"One ticket created", "{_count} tickets created", $count;
 }
