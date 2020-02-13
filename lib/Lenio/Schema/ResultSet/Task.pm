@@ -32,6 +32,7 @@ sub summary
     my $site_id = $options{site_id};
     my $search  = { site_check => 0 };
     $search->{'site_tasks.site_id'} = $site_id if $site_id && $options{onlysite};
+    $search->{'site_tasks.site_id'} = undef if $site_id && $options{excluded};
     $search->{'me.global'} = $options{global} if exists $options{global};
 
     $site_id
@@ -457,7 +458,7 @@ sub sla
     my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
     foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1, fy => $options{fy}))
     {
-        my $tasktype = $task->tasktype && $task->tasktype->name || 'Uncategorised';
+        my $tasktype = $task->tasktype_name;
         if (defined $last_tasktype && $tasktype ne $last_tasktype)
         {
             push @tables, {
@@ -474,7 +475,7 @@ sub sla
         push @data, [
             $task->name,
             defined $task->cost_planned ? '£'.$task->cost_planned : '',
-            $task->period_qty.' '.$task->period_unit,
+            $task->period,
             $task->contractor_name,
             $next_due && $next_due->strftime($options{dateformat}),
             $task->description,
@@ -489,14 +490,15 @@ sub sla
         total => $subtotal,
     };
 
+    my $hdr_props = {
+        repeat     => 1,
+        font_size  => 8,
+    };
+
     my $total = 0;
     foreach my $table (@tables)
     {
         $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
-        my $hdr_props = {
-            repeat     => 1,
-            font_size  => 8,
-        };
         my $data = $table->{data};
         unshift @$data, [
             'Item',
@@ -531,6 +533,30 @@ sub sla
     $pdf->text("Position:", indent => 250);
     $pdf->text("Date:", indent => 250);
     $pdf->text("Signature:", indent => 250);
+
+    $pdf->add_page;
+    $pdf->heading('Excluded service items');
+    $pdf->text('The following items are not included as part of the service package');
+    @data = ([
+        'Item',
+        'Type',
+        'Recommended frequency',
+        'Notes',
+    ]);
+    foreach my $task ($self->summary(site_id => $site->id, excluded => 1, global => 1))
+    {
+        push @data, [
+            $task->name,
+            $task->tasktype_name,
+            $task->period,
+            $task->description,
+        ];
+    }
+    $pdf->table(
+        data         => \@data,
+        header_props => $hdr_props,
+        font_size    => 8,
+    );
 
     return $pdf;
 }

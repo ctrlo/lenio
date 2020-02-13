@@ -286,6 +286,16 @@ sub contractor_name
     $self->get_column('contractor_name');
 }
 
+sub tasktype_name
+{   my $self = shift;
+    $self->tasktype && $self->tasktype->name || 'Uncategorised';
+}
+
+sub period
+{   my $self = shift;
+    $self->period_qty.' '.$self->period_unit;
+}
+
 sub inflate_result {
     my $self = shift;
     my $data = $_[1];
