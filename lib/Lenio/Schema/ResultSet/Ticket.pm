@@ -27,6 +27,10 @@ sub summary
     {
         $search->{'me.completed'} = { '!=' => undef };
     }
+    if ($args{cost_only})
+    {
+        $search->{'me.cost_actual'} = { '>' => 0 };
+    }
 
     if (!$args{task_id})
     {
@@ -149,6 +153,7 @@ sub finsum
     my @tickets = $self->summary(
         site_id        => $site->id,
         fy             => $params{fy},
+        cost_only      => 1,
         completed_only => 1,
         sort           => 'type',
     );
