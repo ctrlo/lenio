@@ -104,7 +104,7 @@ sub summary
         : $args{sort} eq 'invoice'
         ? 'me.invoice_sent'
         : $args{sort} eq 'type'
-        ? 'tasktype.name'
+        ? ['tasktype.name', 'me.completed']
         : 'me.id';
     $order_by = { -desc => $order_by} if $args{sort_desc};
     $self->search($search, {
