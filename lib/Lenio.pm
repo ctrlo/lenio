@@ -1104,6 +1104,25 @@ any '/task/?:id?' => require_login sub {
             );
         }
 
+        if (var('login')->is_admin && query_parameters->get('finsum') && query_parameters->get('finsum') eq 'pdf')
+        {
+            my $site = rset('Site')->find(session 'site_id');
+
+            my $pdf = rset('Ticket')->finsum(
+                fy         => session('fy'),
+                site       => $site,
+                dateformat => $dateformat,
+                %{config->{lenio}->{invoice}},
+            );
+
+            my $now = DateTime->now->ymd;
+            return send_file(
+                \$pdf->content,
+                content_type => 'application/pdf',
+                filename     => $site->org->name." Financial Summary $now.pdf"
+            );
+        }
+
         # Get all the global tasks.
         @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
 

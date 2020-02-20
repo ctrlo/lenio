@@ -93,6 +93,7 @@
                             <li role="presentation"><a role="menuitem" tabindex="-1" href="?csv=service">As CSV</a></li>
                             [% IF login.is_admin %]
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="?sla=pdf">Download SLA</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?finsum=pdf">Download Financial Summary</a></li>
                             [% END %]
                         </ul>
                     </div>
