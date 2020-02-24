@@ -8,6 +8,7 @@ use utf8; # Needed for £ symbols in PDF
 
 use CtrlO::PDF;
 use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
+use Number::Format;
 use Lenio::FY;
 use Log::Report;
 use Text::CSV;
@@ -431,6 +432,13 @@ sub csv
     return $csvout;
 }
 
+sub _price
+{    my $f = new Number::Format(
+        -int_curr_symbol => '£',
+    );
+    $f->format_price(shift);
+}
+
 sub sla
 {   my ($self, %options) = @_;
 
@@ -476,7 +484,7 @@ sub sla
         my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
         push @data, [
             $task->name,
-            defined $task->cost_planned ? '£'.$task->cost_planned : '',
+            defined $task->cost_planned ? _price($task->cost_planned) : '',
             $task->period,
             $task->contractor_name,
             $next_due && $next_due->strftime($options{dateformat}),
@@ -515,11 +523,11 @@ sub sla
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->text("<b>Total cost: £$table->{total}</b>", indent => 350, size => 10);
+        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 350, size => 10);
         $total += $table->{total};
     }
 
-    $pdf->heading("Total fee for service contract: £$total +VAT", size => 14);
+    $pdf->heading("Total fee for service contract: "._price($total)." +VAT", size => 14);
 
     $pdf->heading("Contract Agreement", size => 12, topmargin => 15);
     $pdf->text($options{sla_notes});
