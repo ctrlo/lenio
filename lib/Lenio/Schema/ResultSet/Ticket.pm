@@ -173,13 +173,17 @@ sub finsum
             @data = ();
         }
 
-        push @data, [
+        my @d = (
             $ticket->name,
             $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : '',
             defined $ticket->cost_actual ? '£'.$ticket->cost_actual : '',
             $ticket->contractor ? $ticket->contractor->name : '',
-            $ticket->description,
-        ];
+        );
+        push @d, $ticket->description
+            unless $tasktype eq 'Reactive maintenance';
+        unshift @d, $ticket->id
+            if $tasktype eq 'Reactive maintenance';
+        push @data, \@d;
 
         $subtotal += ($ticket->cost_actual || 0);
 
@@ -202,19 +206,23 @@ sub finsum
     {
         $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
         my $data = $table->{data};
-        unshift @$data, [
+        my @headings = (
             'Item',
             'Date',
             'Cost',
             'Contractor',
-            'Notes',
-        ];
+        );
+        push @headings, 'Notes'
+            unless $table->{name} eq 'Reactive maintenance';
+        unshift @headings, 'ID'
+            if $table->{name} eq 'Reactive maintenance';
+        unshift @$data, \@headings;
         $pdf->table(
             data         => $data,
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->heading("Total cost: £".$table->{total}, indent => 350, size => 10);
+        $pdf->text("<b>Total cost: £$table->{total}</b>", indent => 350, size => 10);
         $total += $table->{total};
     }
 
