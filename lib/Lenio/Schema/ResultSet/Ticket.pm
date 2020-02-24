@@ -157,7 +157,7 @@ sub finsum
         completed_only => 1,
         sort           => 'type',
     );
-    my @tables; my @data; my $last_tasktype; my $subtotal = 0;
+    my @tables; my @data; my $last_tasktype; my $subtotal = 0; my $is_reactive;
 
     foreach my $ticket (@tickets)
     {
@@ -165,13 +165,15 @@ sub finsum
         if (defined $last_tasktype && $tasktype ne $last_tasktype)
         {
             push @tables, {
-                name => $last_tasktype,
-                data => [@data], # Copy
-                total => $subtotal,
+                name        => $last_tasktype,
+                data        => [@data], # Copy
+                total       => $subtotal,
+                is_reactive => $is_reactive,
             };
             $subtotal = 0;
             @data = ();
         }
+        $is_reactive = $tasktype eq 'Reactive maintenance';
 
         my @d = (
             $ticket->name,
@@ -180,9 +182,9 @@ sub finsum
             $ticket->contractor ? $ticket->contractor->name : '',
         );
         push @d, $ticket->description
-            unless $tasktype eq 'Reactive maintenance';
+            unless $is_reactive;
         unshift @d, $ticket->id
-            if $tasktype eq 'Reactive maintenance';
+            if $is_reactive;
         push @data, \@d;
 
         $subtotal += ($ticket->cost_actual || 0);
@@ -191,9 +193,10 @@ sub finsum
     }
 
     push @tables, {
-        name => $last_tasktype,
-        data => [@data], # Copy
-        total => $subtotal,
+        name        => $last_tasktype,
+        data        => [@data], # Copy
+        total       => $subtotal,
+        is_reactive => $is_reactive,
     };
 
     my $hdr_props = {
@@ -201,7 +204,7 @@ sub finsum
         font_size  => 8,
     };
 
-    my $total = 0;
+    my $total = 0; my $total_reactive = 0;
     foreach my $table (@tables)
     {
         $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
@@ -213,9 +216,9 @@ sub finsum
             'Contractor',
         );
         push @headings, 'Notes'
-            unless $table->{name} eq 'Reactive maintenance';
+            unless $table->{is_reactive};
         unshift @headings, 'ID'
-            if $table->{name} eq 'Reactive maintenance';
+            if $table->{is_reactive};
         unshift @$data, \@headings;
         $pdf->table(
             data         => $data,
@@ -223,10 +226,17 @@ sub finsum
             font_size    => 8,
         );
         $pdf->text("<b>Total cost: £$table->{total}</b>", indent => 350, size => 10);
-        $total += $table->{total};
+        if ($table->{is_reactive})
+        {
+            $total_reactive += $table->{total};
+        }
+        else {
+            $total += $table->{total};
+        }
     }
 
-    $pdf->heading("Total costs: £$total +VAT", size => 14);
+    $pdf->heading("Total reactive costs: £$total_reactive +VAT", size => 14);
+    $pdf->heading("Total service item costs: £$total +VAT", size => 14);
 
     $pdf;
 }
