@@ -230,9 +230,9 @@ sub site_checks_csv
     {
         my @row = (
             $check->name,
-            $check->period_qty." ".$check->period_unit.($check->period_qty > 1 ? 's' : ''),
+            $check->period_qty." ".$check->period_unit.($check->period_qty > 1 ? 's' : undef),
             $check->last_completed->strftime($dateformat),
-            ''
+            undef
         );
         $csv->combine(@row);
         $csvout .= $csv->string."\n";
@@ -439,11 +439,8 @@ sub _price
     $f->format_price(shift);
 }
 
-sub sla
+sub _pdf
 {   my ($self, %options) = @_;
-
-    my $site = $options{site};
-
     my $pdf = CtrlO::PDF->new(
         logo         => $options{logo},
         logo_scaling => 0.25,
@@ -459,12 +456,17 @@ sub sla
 
     # Add headings
     $pdf->heading($options{company});
-    $pdf->heading('Service Contract Agreement', bottommargin => 20);
-    my $org = $site->org;
+    $pdf->heading($options{title}, bottommargin => 20);
+    my $org = $options{site}->org;
     $pdf->text($org->full_address);
 
-    my @tables; my @data; my $last_tasktype; my $subtotal = 0;
+    $pdf;
+}
 
+sub _task_tables
+{   my ($self, %options) = @_;
+    my @tables; my @data; my $last_tasktype; my $subtotal = 0;
+    my $site = $options{site};
     my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
     foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1, fy => $options{fy}))
     {
@@ -482,15 +484,35 @@ sub sla
 
         my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
         my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
-        push @data, [
-            $task->name,
-            defined $task->cost_planned ? _price($task->cost_planned) : '',
-            $task->period,
-            $task->contractor_name,
-            $next_due && $next_due->strftime($options{dateformat}),
-            $task->description,
-        ];
-        $subtotal += ($task->cost_planned || 0);
+        my $price;
+        if ($options{finsum})
+        {
+            $price = defined $task->cost_actual
+                ? $task->cost_actual
+                : defined $task->cost_planned
+                ? $task->cost_planned
+                : undef,
+            push @data, [
+                $task->name,
+                $last_done && $last_done->strftime($options{dateformat}),
+                defined $price ? _price($price) : undef,
+                $task->period,
+                $task->contractor_name,
+                $task->description,
+            ];
+        }
+        else {
+            $price = $task->cost_planned;
+            push @data, [
+                $task->name,
+                defined $price ? _price($price) : undef,
+                $task->period,
+                $task->contractor_name,
+                $next_due && $next_due->strftime($options{dateformat}),
+                $task->description,
+            ];
+        }
+        $subtotal += ($price || 0);
 
         $last_tasktype = $tasktype;
     }
@@ -499,6 +521,17 @@ sub sla
         data => [@data], # Copy
         total => $subtotal,
     };
+    return @tables;
+}
+
+sub sla
+{   my ($self, %options) = @_;
+
+    my $site = $options{site};
+
+    my $pdf = $self->_pdf(%options, title => 'Service Contract Agreement');
+
+    my @tables = $self->_task_tables(%options);
 
     my $hdr_props = {
         repeat     => 1,
@@ -547,7 +580,7 @@ sub sla
     $pdf->add_page;
     $pdf->heading('Excluded service items');
     $pdf->text('The following items are not included as part of the service package');
-    @data = ([
+    my @data = ([
         'Item',
         'Type',
         'Recommended frequency',
@@ -569,6 +602,112 @@ sub sla
     );
 
     return $pdf;
+}
+
+sub finsum
+{   my ($self, %params) = @_;
+
+    my $pdf = $self->_pdf(%params, title => 'Financial Summary');
+
+    my $site = $params{site};
+
+    my @tickets = $self->result_source->schema->resultset('Ticket')->summary(
+        site_id        => $site->id,
+        fy             => $params{fy},
+        task_tickets   => 0,
+        cost_only      => 1,
+        completed_only => 1,
+        sort           => 'type',
+    );
+    my @tables; my @data; my $last_tasktype; my $subtotal = 0; my $is_reactive;
+
+    foreach my $ticket (@tickets)
+    {
+        my $tasktype = $ticket->task ? $ticket->task->tasktype_name : 'Reactive maintenance';
+        if (defined $last_tasktype && $tasktype ne $last_tasktype)
+        {
+            push @tables, {
+                name        => $last_tasktype,
+                data        => [@data], # Copy
+                total       => $subtotal,
+                is_reactive => $is_reactive,
+            };
+            $subtotal = 0;
+            @data = ();
+        }
+        $is_reactive = $tasktype eq 'Reactive maintenance';
+
+        my @d = (
+            $ticket->name,
+            $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
+            defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
+            $ticket->contractor ? $ticket->contractor->name : undef,
+        );
+        push @d, $ticket->description
+            unless $is_reactive;
+        unshift @d, $ticket->id
+            if $is_reactive;
+        push @data, \@d;
+
+        $subtotal += ($ticket->cost_actual || 0);
+
+        $last_tasktype = $tasktype;
+    }
+
+    push @tables, {
+        name        => $last_tasktype,
+        data        => [@data], # Copy
+        total       => $subtotal,
+        is_reactive => $is_reactive,
+    };
+
+    push @tables, $self->_task_tables(%params, finsum => 1);
+
+    my $hdr_props = {
+        repeat     => 1,
+        font_size  => 8,
+    };
+
+    my $total = 0; my $total_reactive = 0;
+    foreach my $table (@tables)
+    {
+        $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
+        my $data = $table->{data};
+        my @headings = $table->{is_reactive}
+            ? (
+                'ID',
+                'Item',
+                'Date',
+                'Cost',
+                'Contractor',
+            ) : (
+                'Item',
+                'Last done',
+                'Cost',
+                'Period',
+                'Contractor',
+                'Notes'
+            );
+        unshift @$data, \@headings;
+        $pdf->table(
+            data         => $data,
+            header_props => $hdr_props,
+            font_size    => 8,
+        );
+        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 350, size => 10);
+        if ($table->{is_reactive})
+        {
+            $total_reactive += $table->{total};
+        }
+        else {
+            $total += $table->{total};
+        }
+    }
+
+    $pdf->heading("Total reactive costs: "._price($total_reactive)." +VAT", size => 14);
+    $pdf->heading("Total service item costs: "._price($total)." +VAT", size => 14);
+
+    $pdf;
 }
 
 1;

@@ -1108,7 +1108,7 @@ any '/task/?:id?' => require_login sub {
         {
             my $site = rset('Site')->find(session 'site_id');
 
-            my $pdf = rset('Ticket')->finsum(
+            my $pdf = rset('Task')->finsum(
                 fy         => session('fy'),
                 site       => $site,
                 dateformat => $dateformat,
