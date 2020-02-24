@@ -515,7 +515,7 @@ sub sla
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->heading("Total cost: £".$table->{total}, indent => 350, size => 10);
+        $pdf->text("<b>Total cost: £$table->{total}</b>", indent => 350, size => 10);
         $total += $table->{total};
     }
 
