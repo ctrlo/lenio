@@ -73,6 +73,12 @@
                     <input type="text" name="cost_actual" class="form-control" id="cost_actual" value="[% ticket.cost_actual | html %]" [% readonly %]>
                 </div>
                 <div class="form-group">
+                    <label for="provisional">Provisional date</label>
+                    <input type="text" name="provisional"
+                        class="form-control [% UNLESS readonly %]datepicker[% END %]"
+                        id="provisional" value="[% ticket.provisional.ymd %]" [% readonly %]>
+                </div>
+                <div class="form-group">
                     <label for="planned">Planned</label>
                     <input type="text" name="planned"
                         class="form-control [% UNLESS readonly %]datepicker[% END %]"

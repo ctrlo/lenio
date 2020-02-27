@@ -68,6 +68,16 @@ sub summary
                     },
                     completed => undef,
                 ],
+                -and => [
+                    provisional => {
+                        -between => [
+                            $dtf->format_datetime($from),
+                            $dtf->format_datetime($to),
+                        ],
+                    },
+                    completed => undef,
+                    planned   => undef,
+                ],
             );
         }
         elsif ($from)
@@ -81,6 +91,13 @@ sub summary
                         '>' => $dtf->format_datetime($from),
                     },
                     completed => undef,
+                ],
+                -and => [
+                    provisional => {
+                        '>' => $dtf->format_datetime($from),
+                    },
+                    completed => undef,
+                    planned   => undef,
                 ],
             );
         }
@@ -96,6 +113,13 @@ sub summary
                     },
                     completed => undef,
                 ],
+                -and => [
+                    provisional => {
+                        '<' => $dtf->format_datetime($to),
+                    },
+                    completed => undef,
+                    planned   => undef,
+                ],
             );
         }
         # Also search for tickets without a planned date (in order to
@@ -104,8 +128,9 @@ sub summary
         # needing a planned date on the ticket that has been raised.
         push @dates, (
             -and => [
-                completed => undef,
-                planned   => undef,
+                completed   => undef,
+                planned     => undef,
+                provisional => undef,
             ],
         ) if $fy && (DateTime->compare(DateTime->now, $from) > 0)
            && (DateTime->compare(DateTime->now, $to) < 0);
@@ -206,7 +231,7 @@ sub populate_tickets
             name          => $ticket->name,
             description   => $ticket->description,
             created_by    => $params{login_id},
-            planned       => $planned,
+            provisional   => $planned,
             contractor_id => $ticket->contractor_id,
             task_id       => $ticket->task_id,
             site_id       => $params{site_id},

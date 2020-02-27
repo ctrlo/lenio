@@ -635,8 +635,9 @@ any '/ticket/:id?' => require_login sub {
         # If so, allow dates to be input
         my $global = $task && $task->global;
 
-        my $completed = (var('login')->is_admin || !$global) && _to_dt(param('completed'));
-        my $planned   = (var('login')->is_admin || !$global) && _to_dt(param('planned'));
+        my $completed   = (var('login')->is_admin || !$global) && _to_dt(param('completed'));
+        my $planned     = (var('login')->is_admin || !$global) && _to_dt(param('planned'));
+        my $provisional = (var('login')->is_admin || !$global) && _to_dt(param('provisional'));
 
         $ticket->name(param 'name');
         $ticket->description(param 'description');
@@ -649,6 +650,7 @@ any '/ticket/:id?' => require_login sub {
         $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
         $ticket->planned($planned);
+        $ticket->provisional($provisional);
         $ticket->task_id($task && $task->id);
         $ticket->site_id(param('site_id'));
 

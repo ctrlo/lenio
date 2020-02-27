@@ -126,6 +126,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "created_by",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "provisional",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "planned",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "completed",

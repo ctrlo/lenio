@@ -91,7 +91,17 @@ sub summary
             },
         };
         $planned->{completed} = undef; # XXX if $args{fy}; # Don't include planned tasks completed in another year
-        $search->{'-or'} = [$completed, $planned];
+        my $provisional = {
+            provisional   => {
+                -between => [
+                    $dtf->format_datetime($from),
+                    $dtf->format_datetime($to),
+                ],
+            },
+            completed => undef,
+            planned   => undef,
+        };
+        $search->{'-or'} = [$completed, $planned, $provisional];
     }
 
     $args{sort} ||= '';

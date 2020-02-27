@@ -126,17 +126,20 @@ sub tasks
             ticket_id   => $ticket->id,
             completed   => $ticket->completed,
             planned     => $ticket->planned,
+            provisional => $ticket->provisional,
         );
         if ($task_id)
         {
             # Take the completed date if it exists, otherwise take the planned
-            # date. Future items and warnings will be mapped out from this. If
-            # the planned is in the past, however, ignore it and plonk any
-            # overdue dates wherever they would have been (otherwise they won't
-            # be shown)
+            # date, otherwise take the provisional date. Future items and
+            # warnings will be mapped out from this. If the planned date is in
+            # the past, however, ignore it and plonk any overdue dates wherever
+            # they would have been (otherwise they won't be shown)
             my $completed_planned = $ticket->completed;
             $completed_planned ||= $ticket->planned
                 if $ticket->planned && $ticket->planned > $self->today;
+            $completed_planned ||= $ticket->provisional
+                if $ticket->provisional && $ticket->provisional > $self->today;
             $completed_planned or next;
             $done->{$task_id}->{$completed_planned} = $completed_planned;
             $lastcomp->{$task_id} = $ticket->completed
@@ -355,7 +358,7 @@ sub _cal_item
 {   my ($self, %item) = @_;
 
     # Only show planned where the ticket hasn't been completed.
-    return unless $item{completed} || $item{planned} || $item{due};
+    return unless $item{completed} || $item{planned} || $item{provisional} || $item{due};
 
     my $id  = $item{ticket_id}
             ? "ticket$item{ticket_id}"
@@ -391,10 +394,15 @@ sub _cal_item
             $t->{start} = $item{completed}->epoch * 1000;
             $t->{end}   = $item{completed}->epoch * 1000;
         }
-        else {
+        elsif ( $item{planned} ) {
             $t->{class} = $item{task_id} ? 'event-info' : 'event-special';
             $t->{start} = $item{planned}->epoch * 1000;
             $t->{end}   = $item{planned}->epoch * 1000;
+        }
+        else {
+            $t->{class} = $item{task_id} ? 'event-info' : 'event-special';
+            $t->{start} = $item{provisional}->epoch * 1000;
+            $t->{end}   = $item{provisional}->epoch * 1000;
         }
 
     }
