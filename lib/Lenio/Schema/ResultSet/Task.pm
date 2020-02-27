@@ -202,9 +202,14 @@ sub populate_tickets
 {   my ($self, %params) = @_;
     my $tickets_rs = $self->result_source->schema->resultset('Ticket');
     my $guard = $self->result_source->schema->txn_scope_guard;
-    my $fy   = Lenio::FY->new(
+    my $fy_from = Lenio::FY->new(
         site_id => $params{site_id},
         year    => $params{from},
+        schema  => $self->result_source->schema,
+    );
+    my $fy_to = Lenio::FY->new(
+        site_id => $params{site_id},
+        year    => $params{to},
         schema  => $self->result_source->schema,
     );
     my $dtf  = $self->result_source->schema->storage->datetime_parser;
@@ -214,8 +219,8 @@ sub populate_tickets
         'me.cost_planned' => { '!=' => undef },
         'me.completed'    => {
             -between => [
-                $dtf->format_datetime($fy->costfrom),
-                $dtf->format_datetime($fy->costto),
+                $dtf->format_datetime($fy_from->costfrom),
+                $dtf->format_datetime($fy_from->costto),
             ],
         },
     },{
@@ -223,10 +228,13 @@ sub populate_tickets
     });
 
     my $year_diff = $params{to} - $params{from};
-    my $count;
+    my $count = 0; # Ensure not undef if no tickets created
     foreach my $ticket (@tickets)
     {
         my $planned = $ticket->completed->add(years => $year_diff);
+        # Skip if the planned date will take us outside of the year we are
+        # populating
+        next if $planned < $fy_to->costfrom || $planned > $fy_to->costto;
         $tickets_rs->create({
             name          => $ticket->name,
             description   => $ticket->description,
