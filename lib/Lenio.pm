@@ -224,9 +224,10 @@ any ['get', 'post'] => '/user/:id' => require_login sub {
         $login->email_ticket($email_ticket);
         $login->only_mine($only_mine);
 
+        $login->is_admin(body_parameters->get('is_admin') ? 1 : 0)
+            if $is_admin;
         if ($is_admin && !$login->is_admin)
         {
-            $login->is_admin(body_parameters->get('is_admin') ? 1 : 0);
             my @org_ids = body_parameters->get_all('org_ids');
             $login->update_orgs(@org_ids);
         }
