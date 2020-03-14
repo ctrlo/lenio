@@ -99,16 +99,16 @@ hook before => sub {
         unless $login->sites;
  
     # Select individual site and check user has access
-    if ( param('site') && param('site') eq 'all' ) {
+    if ( query_parameters->get('site') && query_parameters->get('site') eq 'all' ) {
         session site_id => '';
     }
-    elsif ( param('site') ) {
-        session site_id => param('site')
-            if $login->has_site(param('site'));
+    elsif ( query_parameters->get('site') ) {
+        session site_id => query_parameters->get('site')
+            if $login->has_site(query_parameters->get('site'));
     }
     session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
 
-    session 'fy' => param('fy') if param('fy');
+    session 'fy' => quer_parameters->get('fy') if query_parameters->get('fy');
     session 'fy' => Lenio::FY->new(site_id => session('site_id'), schema => schema)->year
         if !session('fy');
 
@@ -134,10 +134,10 @@ hook before_template => sub {
 get '/' => require_login sub {
 
     # Deal with sort options
-    if (param 'sort')
+    if (query_parameters->get('sort'))
     {
-        session task_desc => session('task_sort') && session('task_sort') eq param('sort') ? !session('task_desc') : 0;
-        session task_sort => param('sort');
+        session task_desc => session('task_sort') && session('task_sort') eq query_paremeters->get('sort') ? !session('task_desc') : 0;
+        session task_sort => query_parameters->get('sort');
     }
 
     my $local = var('login')->is_admin ? 0 : 1; # Only show local tasks for non-admin
@@ -177,16 +177,9 @@ sub login_page_handler
 }
 
 # Dismiss a notice
-get '/close/:id' => require_login sub {
-    my $notice = rset('LoginNotice')->find(param 'id') or return;
+post '/close/:id' => require_login sub {
+    my $notice = rset('LoginNotice')->find(route_parameters->get('id')) or return;
     $notice->delete if $notice->login_id == var('login')->id;
-};
-
-get '/error' => require_login sub {
-    template 'error' => {
-        error => param('error'),
-        page  => 'error',
-    };
 };
 
 any ['get', 'post'] => '/user/:id' => require_login sub {
@@ -194,12 +187,12 @@ any ['get', 'post'] => '/user/:id' => require_login sub {
     my $is_admin = var('login')->is_admin;
     my $id       = $is_admin ? route_parameters->get('id') : var('login')->id;
 
-    my $email_comment = param('email_comment') ? 1 : 0;
-    my $email_ticket  = param('email_ticket') ? 1 : 0;
-    my $only_mine  = param('only_mine') ? 1 : 0;
-    if (!$id && $is_admin && param('submit'))
+    my $email_comment = body_parameters->get('email_comment') ? 1 : 0;
+    my $email_ticket  = body_parameters->get('email_ticket') ? 1 : 0;
+    my $only_mine  = body_parameters->get('only_mine') ? 1 : 0;
+    if (!$id && $is_admin && body_parameters->get('submit'))
     {
-        my $email = param('email')
+        my $email = body_parameters->get('email')
             or error "Please enter an email address for the new user";
         # check existing
         rset('Login')->active_rs->search({ email => $email })->count
@@ -214,7 +207,7 @@ any ['get', 'post'] => '/user/:id' => require_login sub {
     my $login    = $id && rset('Login')->find($id);
     $id && !$login and error "User ID {id} not found", id => $id;
 
-    if ($is_admin && param('delete'))
+    if ($is_admin && body_parameters->get('delete'))
     {
         if (process sub { $login->disable })
         {
@@ -222,18 +215,18 @@ any ['get', 'post'] => '/user/:id' => require_login sub {
         }
     }
 
-    if (param 'submit') {
-        $login->username(param 'email');
-        $login->email(param 'email');
-        $login->firstname(param 'firstname');
-        $login->surname(param 'surname');
+    if (body_parameters->get('submit')) {
+        $login->username(body_parameters->get('email'));
+        $login->email(body_parameters->get('email'));
+        $login->firstname(body_parameters->get('firstname'));
+        $login->surname(body_parameters->get('surname'));
         $login->email_comment($email_comment);
         $login->email_ticket($email_ticket);
         $login->only_mine($only_mine);
 
         if ($is_admin && !$login->is_admin)
         {
-            $login->is_admin(param('is_admin') ? 1 : 0);
+            $login->is_admin(body_parameters->get('is_admin') ? 1 : 0);
             my @org_ids = body_parameters->get_all('org_ids');
             $login->update_orgs(@org_ids);
         }
@@ -276,7 +269,7 @@ any ['get', 'post'] => '/contractor/?:id?' => require_login sub {
         $contractor = rset('Contractor')->find($id) || rset('Contractor')->new({});
     }
 
-    if (param('delete'))
+    if (body_parameters->get('delete'))
     {
         if (process (sub { $contractor->delete } ) )
         {
@@ -284,9 +277,9 @@ any ['get', 'post'] => '/contractor/?:id?' => require_login sub {
         }
     }
 
-    if (param 'submit')
+    if (body_parameters->get('submit'))
     {
-        $contractor->name(param 'name');
+        $contractor->name(body_parameters->get('name'));
         if (process sub { $contractor->update_or_insert })
         {
             forwardHome({ success => 'Contractor has been successfully added' }, 'contractor');
@@ -309,7 +302,7 @@ any ['get', 'post'] => '/notice/?:id?' => require_login sub {
     my $id = route_parameters->get('id');
     my $notice = defined $id && (rset('Notice')->find($id) || rset('Notice')->new({}));
 
-    if (param('delete'))
+    if (body_parameters->get('delete'))
     {
         if (process (sub { $notice->delete } ) )
         {
@@ -317,9 +310,9 @@ any ['get', 'post'] => '/notice/?:id?' => require_login sub {
         }
     }
 
-    if (param 'submit')
+    if (body_parameters->get('submit'))
     {
-        $notice->text(param 'text');
+        $notice->text(body_parameters->get('text'));
         if (process sub { $notice->update_or_insert })
         {
             forwardHome({ success => 'The notice has been successfully created' }, 'notice');
@@ -340,17 +333,17 @@ any ['get', 'post'] => '/check_edit/:id' => require_login sub {
 
     my $check = ($id && rset('Task')->find($id)) || rset('Task')->new({ site_check => 1, global => 0 });
 
-    my $site_id = ($check && ($check->site_tasks)[0] && ($check->site_tasks)[0]->site_id) || param('site_id');
+    my $site_id = ($check && ($check->site_tasks)[0] && ($check->site_tasks)[0]->site_id) || body_parameters->get('site_id');
     error "You do not have access to this check"
         if $id && !var('login')->has_site($site_id);
 
-    if (param('submitcheck') && !$check->deleted)
+    if (body_parameters->get('submitcheck') && !$check->deleted)
     {
-        $check->name(param 'name');
-        $check->description(param 'description');
-        $check->period_qty(param 'period_qty');
-        $check->period_unit(param 'period_unit');
-        $check->set_site_id(param 'site_id');
+        $check->name(body_parameters->get('name'));
+        $check->description(body_parameters->get('description'));
+        $check->period_qty(body_parameters->get('period_qty'));
+        $check->period_unit(body_parameters->get('period_unit'));
+        $check->set_site_id(body_parameters->get('site_id'));
         if (process sub { $check->update_or_insert })
         {
             forwardHome(
@@ -358,29 +351,29 @@ any ['get', 'post'] => '/check_edit/:id' => require_login sub {
         }
     }
 
-    if (param 'submit_name')
+    if (body_parameters->get('submit_name'))
     {
-        my $checkitem = param('checkitemid')
-            ? rset('CheckItem')->find(param 'checkitemid')
+        my $checkitem = body_parameters->get('checkitemid')
+            ? rset('CheckItem')->find(body_parameters->get('checkitemid'))
             : rset('CheckItem')->create({ task_id => $id });
         error "You do not have access to this check item"
-            if param('checkitemid') && $checkitem->task->id != $check->id;
-        $checkitem->name(param 'checkitem');
+            if body_parameters->get('checkitemid') && $checkitem->task->id != $check->id;
+        $checkitem->name(body_parameters->get('checkitem'));
         if (process sub { $checkitem->insert_or_update } )
         {
-            my $status = param('checkitemid') ? 'updated' : 'added';
+            my $status = body_parameters->get('checkitemid') ? 'updated' : 'added';
             forwardHome(
                 { success => "The check item has been $status successfully" }, "check_edit/$id" );
         }
     }
 
-    if (param 'submit_options')
+    if (body_parameters->get('submit_options'))
     {
-        my $checkitem = rset('CheckItem')->find(param 'checkitemid');
+        my $checkitem = rset('CheckItem')->find(body_parameters->get('checkitemid'));
         error "You do not have access to this check item"
-            if param('checkitemid') && $checkitem->task->id != $check->id;
+            if body_parameters->get('checkitemid') && $checkitem->task->id != $check->id;
         if (process sub {
-            $checkitem->update({ has_custom_options => param('has_custom_options') ? 1 : 0 });
+            $checkitem->update({ has_custom_options => body_parameters->get('has_custom_options') ? 1 : 0 });
             my @options = body_parameters->get_all('check_option');
             # options are id followed by name
             my %existing;
@@ -409,7 +402,7 @@ any ['get', 'post'] => '/check_edit/:id' => require_login sub {
         }
     }
 
-    if (param 'delete')
+    if (body_parameters->get('delete'))
     {
         if (process sub { $check->update({ deleted => DateTime->now }) })
         {
@@ -453,7 +446,7 @@ any ['get', 'post'] => '/check/?:task_id?/?:check_done_id?/?' => require_login s
     error "You do not have access to this check"
         unless var('login')->has_site($check_site_id);
 
-    if (param 'submit_check_done')
+    if (body_parameters->get('submit_check_done'))
     {
         my $site_task_id = $check_done_id ? $check_done->site_task_id : rset('SiteTask')->search({
             task_id => $task_id,
@@ -464,15 +457,15 @@ any ['get', 'post'] => '/check/?:task_id?/?:check_done_id?/?' => require_login s
         error __x"You do not have permission for site ID {id}", id => $site_id
             unless var('login')->has_site_task( $site_task_id );
 
-        my $datetime = _to_dt(param 'completed') || DateTime->now;
+        my $datetime = _to_dt(body_parameters->get('completed')) || DateTime->now;
 
         $check_done->datetime($datetime);
-        $check_done->comment(param 'comment');
+        $check_done->comment(body_parameters->get('comment'));
         $check_done->site_task_id($site_task_id);
         $check_done->login_id(var('login')->id);
         $check_done->update_or_insert;
 
-        my $params = params;
+        my $params = body_parameters;
         foreach my $key (keys %$params)
         {
             next unless $key =~ /^item([0-9]+)/;
@@ -509,7 +502,7 @@ any ['get', 'post'] => '/check/?:task_id?/?:check_done_id?/?' => require_login s
 };
 
 get '/ticket/view/:id?' => require_login sub {
-    my $id = param 'id';
+    my $id = route_parameters->get('id');
     redirect '/ticket'
         unless $id =~ /^[0-9]+$/;
     redirect "/ticket/$id";
@@ -556,7 +549,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         # Existing ticket, get task from DB
         $task = $ticket->task;
     }
-    elsif (defined($id) && !param('submit'))
+    elsif (defined($id) && !body_parameters->get('submit'))
     {
         # If applicable, Prefill ticket fields with initial values based on task
         if ($task)
@@ -590,7 +583,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         });
     }
 
-    if ( param('attach') ) {
+    if ( body_parameters->get('attach') ) {
         my $upload = request->upload('newattach')
             or error __"Please select a file to upload";
         my $attach = {
@@ -624,17 +617,17 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         }
     }
 
-    if ( param('attachrm') ) {
+    if ( body_parameters->get('attachrm') ) {
         error __"You do not have permission to delete attachments"
             unless var('login')->is_admin;
 
-        if (process sub { rset('Attach')->find(param 'attachrm')->delete })
+        if (process sub { rset('Attach')->find(body_parameters->get('attachrm'))->delete })
         {
             success __"Attachment has been deleted successfully";
         }
     }
 
-    if (param 'delete')
+    if (body_parameters->get('delete'))
     {
         error __"You do not have permission to delete this ticket"
             unless var('login')->is_admin || $ticket->actionee eq 'local';
@@ -646,14 +639,14 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
 
     # Comment can be added on ticket creation or separately.  Create the
     # object, which will be added at ticket insertion time or otherwise later.
-    my $comment = param('comment')
+    my $comment = body_parameters->get('comment')
         && rset('Comment')->new({
-            text      => param('comment'),
+            text      => body_parameters->get('comment'),
             login_id  => var('login')->id,
             datetime  => DateTime->now,
         });
 
-    if (param 'submit')
+    if (body_parameters->get('submit'))
     {
         # Find out if this is related to locally created task.
         # If so, allow dates to be input
@@ -663,20 +656,20 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         my $planned     = (var('login')->is_admin || !$global) && _to_dt(param('planned'));
         my $provisional = (var('login')->is_admin || !$global) && _to_dt(param('provisional'));
 
-        $ticket->name(param 'name');
-        $ticket->description(param 'description');
-        $ticket->contractor_invoice(param 'contractor_invoice');
-        $ticket->contractor_id(param('contractor') || undef);
-        $ticket->cost_planned(param('cost_planned') || undef);
-        $ticket->cost_actual(param('cost_actual') || undef);
-        $ticket->actionee(param 'actionee');
-        $ticket->report_received(param('report_received') ? 1 : 0);
-        $ticket->invoice_sent(param('invoice_sent') ? 1 : 0);
+        $ticket->name(body_parameters->get('name'));
+        $ticket->description(body_parameters->get('description'));
+        $ticket->contractor_invoice(body_parameters->get('contractor_invoice'));
+        $ticket->contractor_id(body_parameters->get('contractor') || undef);
+        $ticket->cost_planned(body_parameters->get('cost_planned') || undef);
+        $ticket->cost_actual(body_parameters->get('cost_actual') || undef);
+        $ticket->actionee(body_parameters->get('actionee'));
+        $ticket->report_received(body_parameters->get('report_received') ? 1 : 0);
+        $ticket->invoice_sent(body_parameters->get('invoice_sent') ? 1 : 0);
         $ticket->completed($completed);
         $ticket->planned($planned);
         $ticket->provisional($provisional);
         $ticket->task_id($task && $task->id);
-        $ticket->site_id(param('site_id'));
+        $ticket->site_id(body_parameters->get('site_id'));
 
         # A normal user cannot edit a ticket that has already been created,
         # unless it is related to a locally created task
@@ -732,7 +725,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
                     config   => config,
                     schema   => schema,
                     uri_base => request->uri_base,
-                    site     => rset('Site')->find(param 'site_id'),
+                    site     => $ticket->site,
                 );
                 $email->send($args);
             }
@@ -741,7 +734,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         }
     }
 
-    if (param 'addcomment')
+    if (body_parameters->get('addcomment'))
     {
         $comment->ticket_id($ticket->id);
         if (process sub { $comment->insert })
@@ -752,13 +745,13 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
                 url         => "/ticket/$id",
                 ticket      => $ticket,
                 subject     => "Ticket ".$ticket->id." updated - ",
-                comment     => param('comment'),
+                comment     => body_parameters->get('comment'),
             };
             my $email = Lenio::Email->new(
                 config   => config,
                 schema   => schema,
                 uri_base => request->uri_base,
-                site     => rset('Site')->find($ticket->site_id),
+                site     => $ticket->site,
             );
             $email->send($args);
         }
@@ -775,16 +768,16 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
 get '/tickets/?' => require_login sub {
 
     # Deal with sort options
-    if (param 'sort')
+    if (query_parameters->get('sort'))
     {
-        session ticket_desc => session('ticket_sort') && session('ticket_sort') eq param('sort') ? !session('ticket_desc') : 0;
-        session ticket_sort => param('sort');
+        session ticket_desc => session('ticket_sort') && session('ticket_sort') eq query_parameters->get('sort') ? !session('ticket_desc') : 0;
+        session ticket_sort => query_parameters('sort');
     }
 
     # Set filtering of tickets based on drop-down
-    if (defined param('task_tickets'))
+    if (defined body_parameters->get('task_tickets'))
     {
-        my $tt = param('task_tickets');
+        my $tt = body_parameters->get('task_tickets');
         my $task_tickets = $tt eq 'all'
             ? 'all'
             : $tt eq 'tasks'
@@ -813,13 +806,13 @@ get '/tickets/?' => require_login sub {
                      ? 1
                      : 0;
 
-    my $task = param('task_id') && rset('Task')->find(param 'task_id');
+    my $task = query_parameters->get('task_id') && rset('Task')->find(query_parameters->get('task_id'));
 
     my $uncompleted_only; my $task_id;
-    if (param('task_id'))
+    if (query_parameters->get('task_id'))
     {
         $uncompleted_only = 0;
-        $task_id          = param('task_id');
+        $task_id          = query_parameters->get('task_id');
     }
     elsif (session('task_tickets') ne 'tasks_invoice_report')
     {
@@ -849,8 +842,8 @@ get '/tickets/?' => require_login sub {
 };
 
 get '/attach/:file' => require_login sub {
-    my $file = rset('Attach')->find(param 'file')
-        or error __x"File ID {id} not found", id => param('file');
+    my $file = rset('Attach')->find(route_parameters->get('file'))
+        or error __x"File ID {id} not found", id => route_parameters->get('file');
     my $site_id = $file->ticket->site_id;
     if ( var('login')->has_site($site_id))
     {
@@ -882,7 +875,7 @@ any ['get', 'post'] => '/invoice/:id' => require_login sub {
     var('login')->is_admin
         or forwardHome({ danger => 'You do not have permission to edit invoices' });
 
-    if (param('delete'))
+    if (body_parameters->get('delete'))
     {
         if (process (sub { $invoice->delete } ) )
         {
@@ -890,7 +883,7 @@ any ['get', 'post'] => '/invoice/:id' => require_login sub {
         }
     }
 
-    if (param 'submit')
+    if (body_parameters->get('submit'))
     {
         $ticket or error __"No ticket specified to create the invoice for";
         $invoice->description(body_parameters->get('description'));
@@ -941,10 +934,10 @@ any ['get', 'post'] => '/invoice/:id' => require_login sub {
 
 get '/invoices' => require_login sub {
 
-    if (param 'sort')
+    if (query_parameters->get('sort'))
     {
-        session invoice_desc => session('invoice_sort') && session('invoice_sort') eq param('sort') ? !session('invoice_desc') : 0;
-        session invoice_sort => param('sort');
+        session invoice_desc => session('invoice_sort') && session('invoice_sort') eq query_parameters->get('sort') ? !session('invoice_desc') : 0;
+        session invoice_sort => query_parameters->get('sort');
     }
 
     my @invoices = rset('Invoice')->summary(
@@ -967,13 +960,13 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     if (var('login')->is_admin)
     {
-        if (param 'taskadd')
+        if (body_parameters->get('taskadd'))
         {
-            rset('SiteTask')->find_or_create({ task_id => param('taskadd'), site_id => session('site_id') });
+            rset('SiteTask')->find_or_create({ task_id => body_parameters->get('taskadd'), site_id => session('site_id') });
         }
-        if (param 'taskrm')
+        if (body_parameters->get('taskrm'))
         {
-            rset('SiteTask')->search({ task_id => param('taskrm'), site_id => session('site_id') })->delete;
+            rset('SiteTask')->search({ task_id => body_parameters->get('taskrm'), site_id => session('site_id') })->delete;
         }
     }
 
@@ -990,7 +983,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
                 unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
     }
 
-    if (param 'delete')
+    if (body_parameters->get('delete'))
     {
         my $site_id = $task->site_task_local && $task->site_task_local->site_id; # Site ID for local tasks
         if (var('login')->is_admin)
@@ -1012,9 +1005,9 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
     }
 
-    if ( var('login')->is_admin && param('tasktype_add') )
+    if ( var('login')->is_admin && body_parameters->get('tasktype_add') )
     {
-        if (process sub { rset('Tasktype')->create({name => param('tasktype_name')}) })
+        if (process sub { rset('Tasktype')->create({name => body_parameters->get('tasktype_name')}) })
         {
             forwardHome(
                 { success => 'Task type has been added' }, "task/$id" );
@@ -1059,7 +1052,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
     }
 
-    if ( param('submit') ) {
+    if ( body_parameters->get('submit') ) {
 
         if (var('login')->is_admin)
         {
@@ -1067,15 +1060,15 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
         else
         {
-            $task->set_site_id(param 'site_id');
+            $task->set_site_id(session('site_id'));
             $task->global(0);
         }
 
-        $task->name(param 'name');
-        $task->description(param 'description');
-        $task->tasktype_id(param('tasktype_id') || undef); # Fix empty string from form
-        $task->period_qty(param 'period_qty');
-        $task->period_unit(param 'period_unit');
+        $task->name(body_parameters->get('name'));
+        $task->description(body_parameters->get('description'));
+        $task->tasktype_id(body_parameters->get('tasktype_id') || undef); # Fix empty string from form
+        $task->period_qty(body_parameters->get('period_qty'));
+        $task->period_unit(body_parameters->get('period_unit'));
 
         if (process sub { $task->update_or_insert })
         {
@@ -1085,7 +1078,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     else
     {
-        my $csv = (session('site_id') && param('csv')) || ""; # prevent warnings. not for all sites
+        my $csv = (session('site_id') && query_parameters->get('csv')) || ""; # prevent warnings. not for all sites
 
         if ($csv eq 'service')
         {
@@ -1217,9 +1210,9 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
 get '/data' => require_login sub {
 
-    my $utc_offset = param('utc_offset') * -1; # Passed from calendar plugin as query parameter
-    my $from  = DateTime->from_epoch( epoch => ( param('from') / 1000 ) )->add( minutes => $utc_offset );
-    my $to    = DateTime->from_epoch( epoch => ( param('to') / 1000 ) )->add(minutes => $utc_offset );
+    my $utc_offset = query_parameters->get('utc_offset') * -1; # Passed from calendar plugin as query parameter
+    my $from  = DateTime->from_epoch( epoch => ( query_parameters->get('from') / 1000 ) )->add( minutes => $utc_offset );
+    my $to    = DateTime->from_epoch( epoch => ( query_parameters->get('to') / 1000 ) )->add(minutes => $utc_offset );
 
     my @tasks;
     my @sites = session('site_id')

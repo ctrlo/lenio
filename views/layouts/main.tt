@@ -129,7 +129,7 @@
         $('.alert').bind('closed.bs.alert', function ()
         {
             var id = $(this).data('someid'); 
-            $.get('/close/'+id);
+            $.post('/close/'+id+'?csrf_token=[% csrf_token %]');
         });
 
     </script>
