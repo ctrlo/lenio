@@ -189,7 +189,7 @@ get '/error' => require_login sub {
     };
 };
 
-any '/user/:id' => require_login sub {
+any ['get', 'post'] '/user/:id' => require_login sub {
 
     my $is_admin = var('login')->is_admin;
     my $id       = $is_admin ? route_parameters->get('id') : var('login')->id;
@@ -264,7 +264,7 @@ get '/users/?' => require_login sub {
     };
 };
 
-any '/contractor/?:id?' => require_login sub {
+any ['get', 'post'] '/contractor/?:id?' => require_login sub {
 
     var('login')->is_admin
         or forwardHome({ danger => 'You do not have permission to view contractors' });
@@ -301,7 +301,7 @@ any '/contractor/?:id?' => require_login sub {
     };
 };
 
-any '/notice/?:id?' => require_login sub {
+any ['get', 'post'] '/notice/?:id?' => require_login sub {
 
     var('login')->is_admin
         or forwardHome({ danger => 'You do not have permission to view notice settings' });
@@ -334,7 +334,7 @@ any '/notice/?:id?' => require_login sub {
     };
 };
  
-any '/check_edit/:id' => require_login sub {
+any ['get', 'post'] '/check_edit/:id' => require_login sub {
 
     my $id = route_parameters->get('id');
 
@@ -425,7 +425,7 @@ any '/check_edit/:id' => require_login sub {
     };
 };
 
-any '/checks/?' => require_login sub {
+get '/checks/?' => require_login sub {
 
     my $site_id = session 'site_id'
         or error __"Please select a site before viewing site checks";
@@ -438,7 +438,7 @@ any '/checks/?' => require_login sub {
     };
 };
 
-any '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
+any ['get', 'post'] '/check/?:task_id?/?:check_done_id?/?' => require_login sub {
 
     my $task_id       = route_parameters->get('task_id');
     my $check_done_id = route_parameters->get('check_done_id');
@@ -515,7 +515,7 @@ get '/ticket/view/:id?' => require_login sub {
     redirect "/ticket/$id";
 };
 
-any '/ticket/:id?' => require_login sub {
+any ['get', 'post'] '/ticket/:id?' => require_login sub {
 
     my $date    = query_parameters->get('date');
     my $id      = route_parameters->get('id');
@@ -861,7 +861,7 @@ get '/attach/:file' => require_login sub {
     }
 };
 
-any '/invoice/:id' => require_login sub {
+any ['get', 'post'] '/invoice/:id' => require_login sub {
 
     my $id      = route_parameters->get('id');
     my $invoice = defined $id && (rset('Invoice')->find($id) || rset('Invoice')->new({}));
@@ -939,7 +939,7 @@ any '/invoice/:id' => require_login sub {
     };
 };
 
-any '/invoices' => require_login sub {
+get '/invoices' => require_login sub {
 
     if (param 'sort')
     {
@@ -960,7 +960,7 @@ any '/invoices' => require_login sub {
     };
 };
 
-any '/task/?:id?' => require_login sub {
+any ['get', 'post'] '/task/?:id?' => require_login sub {
 
     my $action;
     my $id = route_parameters->get('id');
