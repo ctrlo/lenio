@@ -2,16 +2,16 @@
     [% IF reset %]
         <div class="row" style="margin-top:20px">
             <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
-                <form role="form" method="post">
+                <form role="form" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="[% csrf_token %]">
                     <fieldset>
                         <h2>Reset password</h2>
                         <hr>
                         <div class="form-group">
-                            <input type="password" name="password" id="password" class="form-control input-lg" placeholder="New password">
+                            <input type="password" name="password" id="password" class="form-control input-lg" placeholder="New password" autocomplete="off">
                         </div>
                         <div class="form-group">
-                            <input type="password" name="password2" id="password2" class="form-control input-lg" placeholder="Confirm password">
+                            <input type="password" name="password2" id="password2" class="form-control input-lg" placeholder="Confirm password" autocomplete="off">
                         </div>
                         <div class="row">
                             <div class="col-xs-6 col-sm-6 col-md-6">
@@ -74,16 +74,16 @@
     [% ELSE %]
         <div class="row" style="margin-top:20px">
             <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
-                <form role="form" method="post">
+                <form role="form" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="[% csrf_token %]">
                     <fieldset>
                         <h2>Please Sign In</h2>
                         <hr>
                         <div class="form-group">
-                            <input type="email" name="username" id="email" class="form-control input-lg" placeholder="Email Address" value="[% username %]">
+                            <input type="email" name="username" id="email" class="form-control input-lg" placeholder="Email Address" value="[% username %]" autocomplete="off">
                         </div>
                         <div class="form-group">
-                            <input type="password" name="password" id="password" class="form-control input-lg" placeholder="Password">
+                            <input type="password" name="password" id="password" class="form-control input-lg" placeholder="Password" autocomplete="off">
                         </div>
                         <span class="button-checkbox">
                             <button type="button" class="btn" data-color="info">Remember Me</button>
