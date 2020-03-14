@@ -26,6 +26,7 @@ use JSON qw(encode_json);
 use Lenio::Calendar;
 use Lenio::Config;
 use Lenio::Email;
+use Session::Token;
 use Text::CSV;
 
 use Dancer2::Plugin::DBIC;
@@ -54,6 +55,10 @@ my $dateformat = config->{lenio}->{dateformat};
 
 my $password_generator = CtrlO::Crypt::XkcdPassword->new;
 
+sub _update_csrf_token
+{   session csrf_token => Session::Token->new(length => 32)->get;
+}
+
 hook before => sub {
 
     # Used to display error messages
@@ -63,6 +68,24 @@ hook before => sub {
         or return;
 
     header "X-Frame-Options" => "DENY"; # Prevent clickjacking
+
+    if (!session 'csrf_token')
+    {
+        _update_csrf_token();
+    }
+
+    if (request->is_post)
+    {
+        # Protect against CSRF attacks
+        panic __x"csrf-token missing for path {path}", path => request->path
+            if !param 'csrf_token';
+        error __x"Suspected attack: CSRF token does not match that in the session"
+            if param('csrf_token') ne session('csrf_token');
+
+        # If it's a potential login, change the token
+        _update_csrf_token()
+            if request->path eq '/login';
+    }
 
     my $login = rset('Login')->find($user->{id});
 
@@ -103,8 +126,9 @@ hook before_template => sub {
     $tokens->{scheme}    ||= request->scheme; # May already be set for phantomjs requests
     $tokens->{hostlocal}   = config->{gads}->{hostlocal};
 
-    $tokens->{messages} = session('messages');
-    $tokens->{login}    = var('login');
+    $tokens->{messages}   = session('messages');
+    $tokens->{csrf_token} = session 'csrf_token';
+    $tokens->{login}      = var('login');
 };
 
 get '/' => require_login sub {

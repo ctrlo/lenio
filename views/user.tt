@@ -6,6 +6,7 @@
 
 <div class="row">
     <form role="form" method="post">
+        <input type="hidden" name="csrf_token" value="[% csrf_token %]">
         <div class="col-sm-6">
             <input type="hidden" name="username" value="[% edit_login.username %]">
             <div class="form-group">

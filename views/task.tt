@@ -5,6 +5,7 @@
         <h3>Create new service item</h3>
     [% END %]
     <form role="form" method="post">
+        <input type="hidden" name="csrf_token" value="[% csrf_token %]">
         <div class="form-group">
             <label for="name">Title</label>
             <input type="text" name="name" class="form-control" id="name" value="[% task.name %]">
@@ -107,6 +108,7 @@
             <div class="col-md-4">
                 [% IF site.id %]
                 <form method="get">
+                    <input type="hidden" name="csrf_token" value="[% csrf_token %]">
                     <select class="form-control" name="fy" onchange="this.form.submit()">
                         [% FOR fy IN site.fys %]
                             <option value="[% fy.year %]" [% IF session.fy == fy.year %]selected[% END %]>Show costs for [% fy.name %]</option>
@@ -120,6 +122,7 @@
 
         [% IF login.is_admin %]
             <form method="post">
+                <input type="hidden" name="csrf_token" value="[% csrf_token %]">
         [% END %]
         [% IF session.fy == site.fys.last.year # Don't show out of date planned/completed dates %]
             [% show_dates = 1 %]
@@ -281,7 +284,6 @@
             </p>
         [% END %]
         [% IF tasks_local.size %]
-        <form method="post">
         <table class="table table-striped">
             <tr>
                 <th>Task</th>
@@ -307,7 +309,6 @@
                 </tr>
                 [% END %]
         </table>
-        </form>
         [% ELSE %]
             <p>No local items created</p>
         [% END %]
@@ -318,6 +319,7 @@
 <div class="modal fade" id="modalnewtasktype" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form role="form" method="post">
+        <input type="hidden" name="csrf_token" value="[% csrf_token %]">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -342,6 +344,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form role="form" method="post">
+            <input type="hidden" name="csrf_token" value="[% csrf_token %]">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="myModalLabel">Download site checks</h4>
@@ -372,6 +375,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form role="form" method="post">
+            <input type="hidden" name="csrf_token" value="[% csrf_token %]">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="modal_populate_label">Populate tickets from previous year</h4>

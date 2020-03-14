@@ -15,6 +15,7 @@
     <div class="col-md-4">
         [% UNLESS task %]
         <form method="get">
+            <input type="hidden" name="csrf_token" value="[% csrf_token %]">
             <select class="form-control" name="task_tickets" onchange="this.form.submit()">
                 <option value="all" [% IF task_tickets == "all" %]selected[% END %]>Show all tickets</option>
                 <option value="reactive" [% IF task_tickets == "reactive" %]selected[% END %]>Show only reactive tickets</option>

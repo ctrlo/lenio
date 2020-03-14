@@ -8,6 +8,7 @@
     </small>
 </h3>
 <form class="form" role="form" method="post">
+    <input type="hidden" name="csrf_token" value="[% csrf_token %]">
     <input type="hidden" name="site_task_id" value="[% check.site_task_id %]">
     [% FOREACH item IN check.check_items %]
         [% done_item = check_done.find_check_item(item.id) %]

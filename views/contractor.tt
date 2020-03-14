@@ -6,6 +6,7 @@
     [% END %]
 
     <form role="form" method="post">
+        <input type="hidden" name="csrf_token" value="[% csrf_token %]">
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
@@ -37,7 +38,6 @@
         <a href="/contractor/0" class="btn btn-default" role="button">Add new contractor</a>
     </p>
     [% IF contractors.size %]
-	<form method="post">
 	<table class="table table-striped">
 	    <tr>
 		<th>ID</th>
@@ -51,7 +51,6 @@
 	    </tr>
 	    [% END %]
 	</table> 
-	</form>
     [% ELSE %]
 	<p>There are no existing contractors</p>
     [% END %]
