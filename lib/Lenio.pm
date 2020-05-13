@@ -600,6 +600,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         # New ticket submitted, create base object to be updated
         $ticket = rset('Ticket')->new({
             created_by => logged_in_user->{id},
+            created_at => DateTime->now,
         });
     }
 
@@ -781,6 +782,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         id           => $id,
         ticket       => $ticket,
         contractors  => [rset('Contractor')->ordered],
+        dateformat   => config->{lenio}->{dateformat},
         page         => 'ticket'
     };
 };

@@ -7,6 +7,7 @@ use base qw(DBIx::Class::ResultSet);
 use utf8; # Needed for £ symbols in PDF
 
 use CtrlO::PDF;
+use DateTime;
 use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Number::Format;
 use Lenio::FY;
@@ -239,6 +240,7 @@ sub populate_tickets
             name          => $ticket->name,
             description   => $ticket->description,
             created_by    => $params{login_id},
+            created_at    => DateTime->now,
             provisional   => $planned,
             contractor_id => $ticket->contractor_id,
             task_id       => $ticket->task_id,

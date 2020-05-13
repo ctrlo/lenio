@@ -1,0 +1,105 @@
+{
+   "has_many" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "class" : "CheckItemDone",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Comment"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Site"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginOrg"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginPermission"
+      },
+      {
+         "class" : "Event",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Notice",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Audit"
+      },
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemOption"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Login"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItem"
+      },
+      {
+         "class" : "Org",
+         "quantity" : "all"
+      },
+      {
+         "class" : "CheckDone",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "class" : "Attach",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Permission"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Invoice"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "class" : "Contractor",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      }
+   ],
+   "might_have" : {
+      "fetch" : 0
+   },
+   "belongs_to" : {
+      "fetch" : 0
+   }
+}

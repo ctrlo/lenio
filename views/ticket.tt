@@ -1,7 +1,12 @@
 [% IF ticket.id %]
     <h3>Ticket ID [% ticket.id %]
         [% IF ticket.created_by %]
-            <small>Created by [% ticket.created_by.full_name | html %]</small>
+            <small>
+                Created by [% ticket.created_by.full_name | html %]
+                [% IF ticket.created_at %]
+                    on [% ticket.created_at.strftime(dateformat) %]
+                [% END %]
+            </small>
         [% END %]
     </h3>
 [% ELSE %]
