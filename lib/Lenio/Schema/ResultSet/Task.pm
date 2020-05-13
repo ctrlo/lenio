@@ -485,9 +485,13 @@ sub _pdf
     # For the first page, move the cursor back up the page to remove the top_padding
     $pdf->move_y_position(50);
 
+    my $fy = Lenio::FY->new(site_id => $options{site}->id, year => $options{fy}, schema => $self->result_source->schema);
+    my $period = $fy->costfrom->strftime("%d %B %Y")." to ".$fy->costto->strftime("%d %B %Y");
+
     # Add headings
     $pdf->heading($options{company});
-    $pdf->heading($options{title}, bottommargin => 20);
+    $pdf->heading($options{title});
+    $pdf->heading($period, bottommargin => 20, size => 14);
     my $org = $options{site}->org;
     $pdf->text($org->full_address);
 
@@ -638,9 +642,11 @@ sub sla
 sub finsum
 {   my ($self, %params) = @_;
 
-    my $pdf = $self->_pdf(%params, title => 'Financial Summary');
-
     my $site = $params{site};
+
+    my $fy = Lenio::FY->new(site_id => $site->id, year => $params{fy}, schema => $self->result_source->schema);
+    my $period = $fy->costfrom->strftime($params{dateformat})." to ".$fy->costto->strftime($params{dateformat});
+    my $pdf = $self->_pdf(%params, title => 'Financial Summary', period => $period);
 
     my @tickets = $self->result_source->schema->resultset('Ticket')->summary(
         site_id        => $site->id,
@@ -735,8 +741,9 @@ sub finsum
         }
     }
 
-    $pdf->heading("Total reactive costs: "._price($total_reactive)." +VAT", size => 14);
     $pdf->heading("Total service item costs: "._price($total)." +VAT", size => 14);
+    $pdf->heading("Total reactive costs: "._price($total_reactive)." +VAT", size => 14);
+    $pdf->heading("Total cost of service contract: "._price($total_reactive + $total)." +VAT", size => 16);
 
     $pdf;
 }
