@@ -65,6 +65,19 @@ hook before => sub {
     return if param 'error';
 
     my $user = logged_in_user
+
+    my $method      = request->method;
+    my $path        = request->path;
+    my $query       = request->query_string;
+    my $username    = $user && $user->{username};
+    my $description = $user
+        ? qq(User "$username" made "$method" request to "$path")
+        : qq(Unauthenticated user made "$method" request to "$path");
+    $description .= qq( with query "$query") if $query;
+    # Log to audit
+    rset('Audit')->user_action(description => $description, url => $path, method => $method, login_id => $user && $user->{id});
+
+    $user
         or return;
 
     header "X-Frame-Options" => "DENY"; # Prevent clickjacking
@@ -175,6 +188,12 @@ sub login_page_handler
         reset_code          => request->parameters->get('new_password') || request->parameters->get('password_code_valid'),
     };
 }
+
+get '/logout' => sub {
+    app->destroy_session;
+    rset('Audit')->logout(logged_in_user->{username}, logged_in_user->{id}) = @_;
+    forwardHome();
+};
 
 # Dismiss a notice
 post '/close/:id' => require_login sub {
