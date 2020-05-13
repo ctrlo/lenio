@@ -184,9 +184,9 @@
                         <p>There are no files related to this ticket</p>
                     [% END %]
             </div>
-                <button class="btn btn-default" data-toggle="modal" data-target="#modal_attach">
+                <a role="button" href="#modal_attach" class="btn btn-default" data-toggle="modal" data-target="#modal_attach">
                     Attach new...
-                </button>
+                </a>
             [% END %]
         </div>
     </div>
