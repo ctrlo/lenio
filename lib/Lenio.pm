@@ -797,9 +797,9 @@ get '/tickets/?' => require_login sub {
     }
 
     # Set filtering of tickets based on drop-down
-    if (defined body_parameters->get('task_tickets'))
+    if (defined query_parameters->get('task_tickets'))
     {
-        my $tt = body_parameters->get('task_tickets');
+        my $tt = query_parameters->get('task_tickets');
         my $task_tickets = $tt eq 'all'
             ? 'all'
             : $tt eq 'tasks'
