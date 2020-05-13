@@ -75,29 +75,26 @@ sub summary
         my $from = $args{fy} ? $fy->costfrom : $args{from};
         my $to   = $args{fy} ? $fy->costto   : $args{to};
         my $completed = {
-            completed => {
-                -between => [
-                    $dtf->format_datetime($from),
-                    $dtf->format_datetime($to),
-                ],
-            },
+            completed => [
+                -and =>
+                    { '>=' => $dtf->format_datetime($from) },
+                    { '<'  => $dtf->format_datetime($to) },
+            ],
         };
         my $planned = {
-            planned   => {
-                -between => [
-                    $dtf->format_datetime($from),
-                    $dtf->format_datetime($to),
-                ],
-            },
+            planned => [
+                -and =>
+                    { '>=' => $dtf->format_datetime($from) },
+                    { '<'  => $dtf->format_datetime($to) },
+            ],
         };
         $planned->{completed} = undef; # XXX if $args{fy}; # Don't include planned tasks completed in another year
         my $provisional = {
-            provisional   => {
-                -between => [
-                    $dtf->format_datetime($from),
-                    $dtf->format_datetime($to),
-                ],
-            },
+            provisional => [
+                -and =>
+                    { '>=' => $dtf->format_datetime($from) },
+                    { '<'  => $dtf->format_datetime($to) },
+            ],
             completed => undef,
             planned   => undef,
         };

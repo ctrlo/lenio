@@ -54,28 +54,25 @@ sub summary
         if ($from && $to)
         {
             @dates = (
-                completed           => {
-                    -between => [
-                        $dtf->format_datetime($from),
-                        $dtf->format_datetime($to),
-                    ],
-                },
+                completed => [
+                    -and =>
+                        { '>=' => $dtf->format_datetime($from) },
+                        { '<'  => $dtf->format_datetime($to) },
+                ],
                 -and => [
-                    planned             => {
-                        -between => [
-                            $dtf->format_datetime($from),
-                            $dtf->format_datetime($to),
-                        ],
-                    },
+                    planned => [
+                        -and =>
+                            { '>=' => $dtf->format_datetime($from) },
+                            { '<'  => $dtf->format_datetime($to) },
+                    ],
                     completed => undef,
                 ],
                 -and => [
-                    provisional => {
-                        -between => [
-                            $dtf->format_datetime($from),
-                            $dtf->format_datetime($to),
-                        ],
-                    },
+                    provisional => [
+                        -and =>
+                            { '>=' => $dtf->format_datetime($from) },
+                            { '<'  => $dtf->format_datetime($to) },
+                    ],
                     completed => undef,
                     planned   => undef,
                 ],
@@ -218,12 +215,11 @@ sub populate_tickets
         'me.site_id'      => $params{site_id},
         'task.global'     => 1,
         'me.cost_planned' => { '!=' => undef },
-        'me.completed'    => {
-            -between => [
-                $dtf->format_datetime($fy_from->costfrom),
-                $dtf->format_datetime($fy_from->costto),
-            ],
-        },
+        'me.completed'    => [
+            -and =>
+                { '>=' => $dtf->format_datetime($fy_from->costfrom) },
+                { '<'  => $dtf->format_datetime($fy_from->costto) },
+        ],
     },{
         join => 'task'
     });
