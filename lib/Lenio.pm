@@ -1088,6 +1088,9 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
         $task->name(body_parameters->get('name'));
         $task->description(body_parameters->get('description'));
+        $task->contractor_requirements(body_parameters->get('contractor_requirements'));
+        $task->evidence_required(body_parameters->get('evidence_required'));
+        $task->statutory(body_parameters->get('statutory'));
         $task->tasktype_id(body_parameters->get('tasktype_id') || undef); # Fix empty string from form
         $task->period_qty(body_parameters->get('period_qty'));
         $task->period_unit(body_parameters->get('period_unit'));
