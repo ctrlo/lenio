@@ -119,9 +119,9 @@
                 </button>
                 <a href="/tickets" role="button" class="btn btn-default">Cancel</a>
                 [% IF ticket.id %]
-                    <button class="btn btn-default" data-toggle="modal" data-target="#modal_delete">
+                    <a href="" class="btn btn-default" data-toggle="modal" data-target="#modal_delete">
                         Delete
-                    </button>
+                    </a>
                 [% END %]
             </div>
             [% END %]
