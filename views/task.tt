@@ -28,15 +28,18 @@
             </div>
             <div class="form-group">
                 <label for="contractor_requirements">Contractor requirements</label>
-                <input type="text" name="contractor_requirements" class="form-control" id="contractor_requirements" value="[% task.contractor_requirements | html %]">
+                <textarea name="contractor_requirements" class="form-control" id="contractor_requirements"
+                    rows="3">[% task.contractor_requirements | html %]</textarea>
             </div>
             <div class="form-group">
                 <label for="evidence_required">Evidence required</label>
-                <input type="text" name="evidence_required" class="form-control" id="evidence_required" value="[% task.evidence_required | html %]">
+                <textarea name="evidence_required" class="form-control" id="evidence_required"
+                    rows="3">[% task.evidence_required | html %]</textarea>
             </div>
             <div class="form-group">
                 <label for="statutory">Statutory/regulatory notes</label>
-                <input type="text" name="statutory" class="form-control" id="statutory" value="[% task.statutory | html %]">
+                <textarea name="statutory" class="form-control" id="statutory"
+                    rows="3">[% task.statutory | html %]</textarea>
             </div>
         [% END %]
         <div class="form-group">
