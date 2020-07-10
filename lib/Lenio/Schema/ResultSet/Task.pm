@@ -144,7 +144,8 @@ sub summary
             },
         ],
         select => [
-            'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global', 'me.site_check',
+            'me.id', 'me.name', 'me.description', 'me.period_unit', 'me.period_qty', 'me.global',
+            'me.contractor_requirements', 'me.evidence_required', 'me.statutory', 'me.site_check',
             'site_tasks.site_id',
             # This next block selects the contractor of the most recent ticket
             # in the relevant selection
@@ -160,7 +161,9 @@ sub summary
             })->get_column('contractor.name')->max_rs->as_query,
         ],
         as => [qw/
-            id name description period_unit period_qty global site_check site_tasks.site_id contractor_name
+            id name description period_unit period_qty global
+            contractor_requirements evidence_required statutory
+            site_check site_tasks.site_id contractor_name
         /],
         '+columns' => {
             last_completed => $schema->resultset('Task')
@@ -475,7 +478,7 @@ sub _pdf
     my $pdf = CtrlO::PDF->new(
         logo         => $options{logo},
         logo_scaling => 0.25,
-        orientation  => "portrait", # Default
+        orientation  => $options{orientation} || "portrait", # Default
         top_padding  => 50,
         #footer      => "My PDF document footer",
     );
@@ -527,7 +530,17 @@ sub _task_tables
                 : defined $task->cost_planned
                 ? $task->cost_planned
                 : undef,
-            push @data, [
+            push @data, $options{sla} ? [
+                $task->name,
+                $task->description,
+                $task->period,
+                $task->contractor_requirements,
+                $task->evidence_required,
+                $task->contractor_name,
+                $last_done && $last_done->strftime($options{dateformat}),
+                defined $price ? _price($price) : undef,
+                $task->statutory,
+            ] : [
                 $task->name,
                 $last_done && $last_done->strftime($options{dateformat}),
                 defined $price ? _price($price) : undef,
@@ -538,7 +551,17 @@ sub _task_tables
         }
         else {
             $price = $task->cost_planned;
-            push @data, [
+            push @data, $options{sla} ? [
+                $task->name,
+                $task->description,
+                $task->period,
+                $task->contractor_requirements,
+                $task->evidence_required,
+                $task->contractor_name,
+                defined $price ? _price($price) : undef,
+                $next_due && $next_due->strftime($options{dateformat}),
+                $task->statutory,
+            ] : [
                 $task->name,
                 defined $price ? _price($price) : undef,
                 $task->period,
@@ -564,9 +587,9 @@ sub sla
 
     my $site = $options{site};
 
-    my $pdf = $self->_pdf(%options, title => 'Service Contract Agreement');
+    my $pdf = $self->_pdf(%options, title => 'Service Contract Agreement', orientation => 'landscape');
 
-    my @tables = $self->_task_tables(%options);
+    my @tables = $self->_task_tables(%options, sla => 1);
 
     my $hdr_props = {
         repeat     => 1,
@@ -580,11 +603,14 @@ sub sla
         my $data = $table->{data};
         unshift @$data, [
             'Item',
-            'Cost',
+            'Description',
             'Frequency',
+            'Contractor Requirements',
+            'Evidence Required',
             'Contractor',
+            'Cost',
             'Due',
-            'Notes',
+            'Statutory/ Regulatory/ Industry Code/ Good Practice',
         ];
         $pdf->table(
             data         => $data,
