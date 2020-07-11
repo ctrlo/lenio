@@ -1299,6 +1299,7 @@ get '/data' => require_login sub {
     my $utc_offset = query_parameters->get('utc_offset') * -1; # Passed from calendar plugin as query parameter
     my $from  = DateTime->from_epoch( epoch => ( query_parameters->get('from') / 1000 ) )->add( minutes => $utc_offset );
     my $to    = DateTime->from_epoch( epoch => ( query_parameters->get('to') / 1000 ) )->add(minutes => $utc_offset );
+    my $login = var('login');
 
     my @tasks;
     my @sites = rset('Site')->search({
@@ -1310,12 +1311,13 @@ get '/data' => require_login sub {
             to             => $to,
             site           => $site,
             multiple_sites => @sites > 1,
-            login          => var('login'),
+            login          => $login,
             schema         => schema,
             dateformat     => $dateformat,
         );
         push @tasks, $calendar->tasks;
-        push @tasks, $calendar->checks;
+        push @tasks, $calendar->checks
+            if !$login->is_admin;
     }
     _send_json ({
         success => 1,
