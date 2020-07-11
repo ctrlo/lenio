@@ -126,7 +126,7 @@ hook before => sub {
             if $login->has_site(query_parameters->get('site'));
         session group_id => undef;
     }
-    elsif (!defined('site_id') && !defined('group_id')) {
+    elsif (!defined(session 'site_id') && !defined(session 'group_id')) {
         session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
     }
 
