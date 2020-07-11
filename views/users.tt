@@ -12,9 +12,9 @@
 
         [% FOR l IN logins %]
             <tr>
-                <td><a href="/user/[% l.id %]">[% l.username %]</a></td>
-                <td>[% l.firstname %]</td>
-                <td>[% l.surname %]</td>
+                <td><a href="/user/[% l.id %]">[% l.username | html %]</a></td>
+                <td>[% l.firstname | html %]</td>
+                <td>[% l.surname | html %]</td>
             </tr>
         [% END %]
     </table>

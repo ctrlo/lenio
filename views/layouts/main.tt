@@ -56,7 +56,13 @@
                         <li [% IF page == "invoice" %]class="active"[% END %]><a href="/invoices">Invoices</a></li>
                         <li [% IF page == "notice" %]class="active"[% END %]><a href="/notice">Notices</a></li>
                         <li [% IF page == "contractor" %]class="active"[% END %]><a href="/contractor">Contractors</a></li>
-                        <li [% IF page == "user" %]class="active"[% END %]><a href="/users">Users</a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Admin <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li [% IF page == "user" %]class="active"[% END %]><a href="/users">Users</a></li>
+                                <li [% IF page == "group" %]class="active"[% END %]><a href="/groups">Site groups</a></li>
+                            </ul>
+                        </li>
                     [% ELSE %]
                         <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Summary</a></li>
                         <li [% IF page == "check" %]class="active"[% END %]><a href="/checks">Site checks</a></li>
@@ -74,6 +80,18 @@
                     </a>
                     <ul class="dropdown-menu scrollable-menu">
                         <li><a href="?site=all">All sites</a></li>
+                        [% IF login.is_admin AND groups.size %]
+                            <li class="divider"></li>
+                            [% FOREACH group IN groups %]
+                                <li>
+                                <a href="?group=[% group.id %]">
+                                    [% group.name | html %]
+                                    [% IF group.id == session.group_id %]
+                                        <span class="glyphicon glyphicon-ok"></span>
+                                    [% END %]
+                                </a></li>
+                            [% END %]
+                        [% END %]
                         <li class="divider"></li>
                         [% FOR site IN login.sites %]
                         <li>

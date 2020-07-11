@@ -116,6 +116,12 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+__PACKAGE__->has_many(
+  "site_groups",
+  "Lenio::Schema::Result::SiteGroup",
+  { "foreign.site_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
 
 # Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-16 11:45:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:k2lbRiS+ORau+TuTEQwvcg
@@ -139,6 +145,10 @@ sub fys
     \@fys;
 }
 
+sub fullname
+{   my $self = shift;
+    $self->name." (".$self->org->name.")";
+}
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

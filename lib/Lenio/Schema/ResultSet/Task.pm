@@ -317,8 +317,7 @@ sub overdue
         $search->{global} = 1 unless $options{local};
         $search->{global} = 0 if $login && !$login->is_admin;
         $search->{site_check} = 0; # Don't show site manager checks
-        my $s = ref $site_id eq 'ARRAY' ? [ map { $_->id } @$site_id ] : $site_id;
-        $search->{'site.id'} = $s if $s;
+        $search->{'site.id'} = $site_id if $site_id;
 
         my $now = $self->result_source->storage->datetime_parser->format_date(DateTime->now);
         push @tasks, $self->search(

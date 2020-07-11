@@ -1,0 +1,19 @@
+<h3>Site groups</h3>
+<p>
+    <a href="/group/0" class="btn btn-default" role="button">Add new group</a>
+</p>
+[% IF groups.size %]
+    <table class="table table-striped">
+        <tr>
+            <th>Name</th>
+        </tr>
+
+        [% FOR g IN groups %]
+            <tr>
+                <td><a href="/group/[% g.id %]">[% g.name | html %]</a></td>
+            </tr>
+        [% END %]
+    </table>
+[% ELSE %]
+    <p>There are no existing groups</p>
+[% END %]

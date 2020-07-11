@@ -113,13 +113,31 @@ hook before => sub {
  
     # Select individual site and check user has access
     if ( query_parameters->get('site') && query_parameters->get('site') eq 'all' ) {
-        session site_id => '';
+        session site_id => undef;
+        session group_id => undef;
+    }
+    elsif ($login->is_admin && query_parameters->get('group'))
+    {
+        session site_id => undef;
+        session group_id => query_parameters->get('group');
     }
     elsif ( query_parameters->get('site') ) {
         session site_id => query_parameters->get('site')
             if $login->has_site(query_parameters->get('site'));
+        session group_id => undef;
     }
-    session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
+    elsif (!defined('site_id') && !defined('group_id')) {
+        session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
+    }
+
+    my $site_ids = $login->is_admin && session('site_id')
+                 ? session('site_id')
+                 : $login->is_admin && session('group_id')
+                 ? rset('Group')->find(session 'group_id')->site_ids
+                 : session('site_id')
+                 ? session('site_id')
+                 : $login->site_ids;
+    var site_ids => $site_ids;
 
     session 'fy' => query_parameters->get('fy') if query_parameters->get('fy');
     session 'fy' => Lenio::FY->new(site_id => session('site_id'), schema => schema)->year
@@ -142,6 +160,7 @@ hook before_template => sub {
     $tokens->{messages}   = session('messages');
     $tokens->{csrf_token} = session 'csrf_token';
     $tokens->{login}      = var('login');
+    $tokens->{groups}     = [schema->resultset('Group')->ordered];
 };
 
 get '/' => require_login sub {
@@ -154,11 +173,8 @@ get '/' => require_login sub {
     }
 
     my $local = var('login')->is_admin ? 0 : 1; # Only show local tasks for non-admin
-    my $sites = var('login')->is_admin
-              ? session('site_id')
-              : session('site_id') ? session('site_id') : var('login')->sites;
     my @overdue = rset('Task')->overdue(
-        site_id   => $sites,
+        site_id   => var('site_ids'),
         login     => var('login'),
         local     => $local,
         sort      => session('task_sort'),
@@ -274,6 +290,44 @@ get '/users/?' => require_login sub {
     template 'users' => {
         logins    => [rset('Login')->active],
         page      => 'user'
+    };
+};
+
+any ['get', 'post'] => '/group/:id' => require_login sub {
+
+    var('login')->is_admin
+        or error "You do not have access to this page";
+
+    my $id = route_parameters->get('id');
+
+    my $group = ($id && rset('Group')->find($id)) || rset('Group')->new({});
+
+    if (body_parameters->get('submit'))
+    {
+        $group->name(body_parameters->get('name'));
+        $group->set_site_ids([body_parameters->get_all('site_ids')]);
+        if (process sub { $group->write })
+        {
+            forwardHome(
+                { success => 'The group has been successfully updated' }, 'groups' );
+        }
+    }
+
+    template 'group' => {
+        group => $group,
+        sites => [rset('Site')->ordered_org->all],
+        page  => 'group'
+    };
+};
+
+get '/groups/?' => require_login sub {
+
+    var('login')->is_admin
+        or error "You do not have access to this page";
+
+    template 'groups' => {
+        groups => [rset('Group')->ordered],
+        page   => 'groups'
     };
 };
 
@@ -441,7 +495,7 @@ any ['get', 'post'] => '/check_edit/:id' => require_login sub {
 get '/checks/?' => require_login sub {
 
     my $site_id = session 'site_id'
-        or error __"Please select a site before viewing site checks";
+        or error __"Please select a single site before viewing site checks";
 
     template 'checks' => {
         site        => rset('Site')->find(session 'site_id'),
@@ -458,7 +512,7 @@ any ['get', 'post'] => '/check/?:task_id?/?:check_done_id?/?' => require_login s
     my $check         = rset('Task')->find($task_id);
 
     my $site_id = session 'site_id'
-        or error __"Please select a site before viewing site checks";
+        or error __"Please select a single site before viewing site checks";
 
     my $check_done = $check_done_id ? rset('CheckDone')->find($check_done_id) : rset('CheckDone')->new({});
 
@@ -842,7 +896,7 @@ get '/tickets/?' => require_login sub {
     }
     my @tickets = rset('Ticket')->summary(
         login               => var('login'),
-        site_id             => session('site_id'),
+        site_id             => var('site_ids'),
         uncompleted_only    => $uncompleted_only,
         sort                => session('ticket_sort'),
         sort_desc           => session('ticket_desc'),
@@ -964,7 +1018,7 @@ get '/invoices' => require_login sub {
 
     my @invoices = rset('Invoice')->summary(
         login     => var('login'),
-        site_id   => session('site_id'),
+        site_id   => var('site_ids'),
         sort      => session('invoice_sort'),
         sort_desc => session('invoice_desc'),
     );
@@ -982,6 +1036,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     if (var('login')->is_admin)
     {
+        session('site_id') or error "Please select a single site first";
         if (body_parameters->get('taskadd'))
         {
             rset('SiteTask')->find_or_create({ task_id => body_parameters->get('taskadd'), site_id => session('site_id') });
@@ -1042,6 +1097,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
     };
     if (body_parameters->get('download_site_checks'))
     {
+        session('site_id') or error "Please select a single site first";
         my $from = _to_dt(body_parameters->get('download_from') || $download->{default_from});
         my $to = _to_dt(body_parameters->get('download_to') || $download->{default_to});
         my $csv = rset('CheckDone')->summary_csv(
@@ -1062,6 +1118,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     if (body_parameters->get('populate'))
     {
+        session('site_id') or error "Please select a single site first";
         my $year = body_parameters->get('populate_from');
         if (process sub { rset('Task')->populate_tickets(
                 site_id  => session('site_id'),
@@ -1074,8 +1131,9 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
     }
 
-    if ( body_parameters->get('submit') ) {
-
+    if ( body_parameters->get('submit') )
+    {
+        session('site_id') or error "Please select a single site first";
         if (var('login')->is_admin)
         {
             $task->global(1);
@@ -1103,6 +1161,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     else
     {
+        session('site_id') or error "Please select a single site first";
         my $csv = (session('site_id') && query_parameters->get('csv')) || ""; # prevent warnings. not for all sites
 
         if ($csv eq 'service')
@@ -1131,6 +1190,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
         if (var('login')->is_admin && query_parameters->get('sla') && query_parameters->get('sla') eq 'pdf')
         {
+            session('site_id') or error "Please select a single site first";
             my $site = rset('Site')->find(session 'site_id');
 
             my $pdf = rset('Task')->sla(
@@ -1150,6 +1210,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
         if (var('login')->is_admin && query_parameters->get('finsum') && query_parameters->get('finsum') eq 'pdf')
         {
+            session('site_id') or error "Please select a single site first";
             my $site = rset('Site')->find(session 'site_id');
 
             my $pdf = rset('Task')->finsum(
@@ -1168,16 +1229,16 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
 
         # Get all the global tasks.
-        @tasks = rset('Task')->summary(site_id => session('site_id'), global => 1, fy => session('fy'));
+        @tasks = rset('Task')->summary(site_id => var('site_ids'), global => 1, fy => session('fy'));
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(
             login             => var('login'),
-            site_id           => session('site_id'),
+            site_id           => var('site_ids'),
             task_tickets      => 0,
             with_site_tickets => var('login')->is_admin ? 0 : undef,
             fy                => session('site_id') && session('fy'),
-        ) if session('site_id');
+        ) if var('site_ids');
         if ($csv eq 'reactive')
         {
             my $csv = Text::CSV->new;
@@ -1211,7 +1272,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
             );
         }
         # Get all the local tasks
-        @tasks_local = rset('Task')->summary(site_id => session('site_id'), global => 0, onlysite => 1, fy => session('fy'));
+        @tasks_local = rset('Task')->summary(site_id => var('site_ids'), global => 0, onlysite => 1, fy => session('fy'));
         $action = '';
     }
 
@@ -1240,17 +1301,18 @@ get '/data' => require_login sub {
     my $to    = DateTime->from_epoch( epoch => ( query_parameters->get('to') / 1000 ) )->add(minutes => $utc_offset );
 
     my @tasks;
-    my @sites = session('site_id')
-              ? ( rset('Site')->find( session 'site_id' ) )
-              : var('login')->sites;
+    my @sites = rset('Site')->search({
+        id => var('site_ids'),
+    });
     foreach my $site (@sites) {
         my $calendar = Lenio::Calendar->new(
-            from       => $from,
-            to         => $to,
-            site       => $site,
-            login      => var('login'),
-            schema     => schema,
-            dateformat => $dateformat,
+            from           => $from,
+            to             => $to,
+            site           => $site,
+            multiple_sites => @sites > 1,
+            login          => var('login'),
+            schema         => schema,
+            dateformat     => $dateformat,
         );
         push @tasks, $calendar->tasks;
         push @tasks, $calendar->checks;

@@ -305,6 +305,11 @@ sub sites
     @sites;
 }
 
+sub site_ids
+{   my $self = shift;
+    [ map $_->id, $self->sites ];
+}
+
 sub full_name
 {   my $self = shift;
     ($self->surname||'') . ", " . ($self->firstname||'');

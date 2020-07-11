@@ -55,6 +55,11 @@ has site => (
     is  => 'ro',
 );
 
+has multiple_sites => (
+    is  => 'ro',
+    isa => Bool,
+);
+
 has login => (
     is  => 'ro',
 );
@@ -367,7 +372,7 @@ sub _cal_item
             ? "/ticket/$item{ticket_id}"
             : "/ticket/0?task_id=$item{task_id}&site_id=".$self->site->id."&date=".$item{due}->ymd('-');
 
-    my $title = $item{name};
+    my $title = $self->multiple_sites ? $item{name}." - ".$self->site->fullname : $item{name};
     my $t = {
         id        => $id,
         title     => $title,
