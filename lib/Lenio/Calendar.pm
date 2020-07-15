@@ -60,6 +60,20 @@ has multiple_sites => (
     isa => Bool,
 );
 
+has contractors => (
+    is     => 'ro',
+    isa    => ArrayRef,
+    coerce => sub {
+        my $value = shift;
+        $value ||= [];
+        if (ref $value eq 'HASH')
+        {
+            $value = [keys %$value];
+        }
+        $value;
+    },
+);
+
 has login => (
     is  => 'ro',
 );
@@ -88,8 +102,9 @@ has task_summary_previous => (
 sub _build_task_summary_previous
 {   my $self = shift;
     my %options = (
-        to      => $self->from,
-        site_id => $self->site->id,
+        to             => $self->from,
+        site_id        => $self->site->id,
+        contractor_ids => $self->contractors,
     );
     $options{global} = 1 if $self->login->is_admin;
     [$self->schema->resultset('Task')->summary(%options, onlysite => 1)];
@@ -104,10 +119,11 @@ sub _build_ticket_summary
 {   my $self = shift;
     [
         $self->schema->resultset('Ticket')->summary(
-            site_id => $self->site->id,
-            from    => $self->from,
-            to      => $self->to,
-            login   => $self->login,
+            site_id        => $self->site->id,
+            contractor_ids => $self->contractors,
+            from           => $self->from,
+            to             => $self->to,
+            login          => $self->login,
         )
     ];
 }

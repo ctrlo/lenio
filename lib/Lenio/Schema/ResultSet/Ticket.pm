@@ -15,6 +15,7 @@ sub summary
     $search->{'me.site_id'}          = $args{site_id} if $args{site_id};
     $search->{'login_orgs.login_id'} = $args{login}->id if $args{login} && !$args{login}->is_admin;
     $search->{'me.task_id'}          = $args{task_id} if defined $args{task_id};
+    $search->{'me.contractor_id'}    = $args{contractor_ids} if $args{contractor_ids} && @{$args{contractor_ids}};
 
     panic "Need site_id when using fy argument"
         if $args{fy} && !$args{site_id};

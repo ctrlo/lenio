@@ -135,6 +135,10 @@ sub summary
     }
 
     my $schema = $self->result_source->schema;
+    my $having = $options{contractor_ids} && @{$options{contractor_ids}}
+        ? { contractor_id => $options{contractor_ids} }
+        : undef;
+
     $self->search($search, {
         order_by => $order_by,
         prefetch => [
@@ -152,19 +156,34 @@ sub summary
             $schema->resultset('Ticket')->search({
                 'ticket.id' => {'=' => $schema->resultset('Task')
                     ->correlate('tickets')
-                    ->search({ site_id => $site_id, -or => [@dates]})
+                    ->search({ site_id => $site_id })
                     ->get_column('id')
                     ->max_rs->as_query}
             },{
                 alias    => 'ticket', # Prevent conflict with other "me" table
                 prefetch => 'contractor',
             })->get_column('contractor.name')->max_rs->as_query,
+            # This next block selects the contractor ID of the most recent ticket
+            # in the relevant selection
+            {
+                "" => $schema->resultset('Ticket')->search({
+                    'ticket2.id' => {'=' => $schema->resultset('Task')
+                        ->correlate('tickets')
+                        ->search({ site_id => $site_id })
+                        ->get_column('id')
+                        ->max_rs->as_query}
+                },{
+                    alias    => 'ticket2', # Prevent conflict with other "me" table
+                })->get_column('contractor_id')->max_rs->as_query,
+                -as => 'contractor_id',
+            }
         ],
         as => [qw/
             id name description period_unit period_qty global
             contractor_requirements evidence_required statutory
-            site_check site_tasks.site_id contractor_name
+            site_check site_tasks.site_id contractor_name contractor_id
         /],
+         having => $having,
         '+columns' => {
             last_completed => $schema->resultset('Task')
                 ->correlate('tickets')

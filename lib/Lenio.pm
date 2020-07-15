@@ -130,6 +130,21 @@ hook before => sub {
         session(site_id => ($login->sites)[0]->id) unless (defined session('site_id'));
     }
 
+    my $contractors = session('contractors') || {};
+    if (my $contractor_id = query_parameters->get('contractor'))
+    {
+        if ($contractors->{$contractor_id}) {
+            delete $contractors->{$contractor_id};
+        } else {
+            $contractors->{$contractor_id} = 1;
+        }
+    }
+    elsif (defined query_parameters->get('contractor')) # clear all
+    {
+        $contractors = {};
+    }
+    session 'contractors' => $contractors;
+
     my $site_ids = $login->is_admin && session('site_id')
                  ? session('site_id')
                  : $login->is_admin && session('group_id')
@@ -161,6 +176,8 @@ hook before_template => sub {
     $tokens->{csrf_token} = session 'csrf_token';
     $tokens->{login}      = var('login');
     $tokens->{groups}     = [schema->resultset('Group')->ordered];
+    $tokens->{contractors} = [rset('Contractor')->ordered];
+    $tokens->{contractors_selected} = session 'contractors';
 };
 
 get '/' => require_login sub {
@@ -1311,6 +1328,7 @@ get '/data' => require_login sub {
             to             => $to,
             site           => $site,
             multiple_sites => @sites > 1,
+            contractors    => session('contractors'),
             login          => $login,
             schema         => schema,
             dateformat     => $dateformat,
