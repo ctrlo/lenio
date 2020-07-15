@@ -113,7 +113,7 @@ hook before => sub {
  
     # Select individual site and check user has access
     if ( query_parameters->get('site') && query_parameters->get('site') eq 'all' ) {
-        session site_id => undef;
+        session site_id => '';
         session group_id => undef;
     }
     elsif ($login->is_admin && query_parameters->get('group'))
