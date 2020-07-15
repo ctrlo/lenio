@@ -635,13 +635,14 @@ sub sla
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 350, size => 10);
+        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 500, size => 10);
         $total += $table->{total};
     }
 
     $pdf->heading("Total fee for service contract: "._price($total)." +VAT", size => 14);
 
-    $pdf->heading("Contract Agreement", size => 12, topmargin => 15);
+    $pdf->add_page;
+    $pdf->heading("Signature of Service Level Agreement", size => 12, topmargin => 15);
     $pdf->text($options{sla_notes});
 
     $pdf->heading("Signed", size => 12, topmargin => 15);
