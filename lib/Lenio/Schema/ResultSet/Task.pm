@@ -659,7 +659,7 @@ sub sla
 
     $pdf->add_page;
     $pdf->heading('Excluded service items');
-    $pdf->text('The following items are not included as part of the service package');
+    $pdf->text('EXCLUSIONS: In accordance with the Terms and Conditions of this SLA the items highlighted in "Excluded Service Items" are not included within the SLA Agreement. They are either not applicable to the schools and/ or will be managed and competed by the school premises team directly.');
     my @data = ([
         'Item',
         'Type',
