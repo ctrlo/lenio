@@ -495,7 +495,7 @@ sub _pdf
 {   my ($self, %options) = @_;
     my $pdf = CtrlO::PDF->new(
         logo         => $options{logo},
-        logo_scaling => 0.25,
+        logo_scaling => 0.15,
         orientation  => $options{orientation} || "portrait", # Default
         top_padding  => 50,
         #footer      => "My PDF document footer",
