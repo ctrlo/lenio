@@ -45,6 +45,7 @@
             <div class="form-group">
                 <label for="actionee">Actionee</label>
                 <select class="form-control" id="actionee" name="actionee" [% readonly %]>
+                    <option value="admin" [% IF ticket.actionee == "admin" %]selected[% END %]>Action currently with [% company_name | html %]</option>
                     <option value="external" [% IF ticket.actionee == "external" %]selected[% END %]>To be rectified by external contractor</option>
                     <option value="local" [% IF ticket.actionee == "local" %]selected[% END %]>Site to rectify locally</option>
                     <option value="with_site" [% IF ticket.actionee == "with_site" %]selected[% END %]>Waiting for action from local site</option>

@@ -178,6 +178,7 @@ hook before_template => sub {
     $tokens->{groups}     = [schema->resultset('Group')->ordered];
     $tokens->{contractors} = [rset('Contractor')->ordered];
     $tokens->{contractors_selected} = session 'contractors';
+    $tokens->{company_name} = config->{lenio}->{invoice}->{company};
 };
 
 get '/' => require_login sub {
@@ -877,6 +878,8 @@ get '/tickets/?' => require_login sub {
             ? 'tasks'
             : $tt eq 'with_site'
             ? 'with_site'
+            : $tt eq 'with_admin'
+            ? 'with_admin'
             : $tt eq 'tasks_invoice_report'
             ? 'tasks_invoice_report'
             : 'reactive';
@@ -889,7 +892,7 @@ get '/tickets/?' => require_login sub {
 
     my $task_tickets = session('task_tickets') eq 'all'
                      ? undef
-                     : session('task_tickets') eq 'tasks' || session('task_tickets') eq 'tasks_invoice_report'
+                     : session('task_tickets') eq 'tasks' || session('task_tickets') eq 'tasks_invoice_report' || session('task_tickets') eq 'with_admin'
                      ? 1
                      : 0;
 
@@ -898,6 +901,12 @@ get '/tickets/?' => require_login sub {
                      : session('task_tickets') eq 'with_site'
                      ? 1
                      : 0;
+
+    my $with_admin = session('task_tickets') eq 'with_site'
+                     ? 0
+                     : session('task_tickets') eq 'with_admin'
+                     ? 1
+                     : undef;
 
     my $task = query_parameters->get('task_id') && rset('Task')->find(query_parameters->get('task_id'));
 
@@ -919,6 +928,7 @@ get '/tickets/?' => require_login sub {
         sort_desc           => session('ticket_desc'),
         task_id             => $task_id,
         task_tickets        => $task_id ? undef : $task_tickets,
+        with_admin          => $with_admin,
         with_site_tickets   => $with_site_tickets,
         need_invoice_report => session('task_tickets') eq 'tasks_invoice_report',
     );

@@ -41,12 +41,21 @@ sub summary
                 ? { '!=' => undef }
                 : undef;
         }
+        my @actionee;
         if (defined $args{with_site_tickets})
         {
-            $search->{'me.actionee'} = $args{with_site_tickets}
+            push @actionee, $args{with_site_tickets}
                 ? 'with_site'
                 : { '!=' => 'with_site' };
         }
+        if (defined $args{with_admin})
+        {
+            push @actionee, $args{with_admin}
+                ? 'admin'
+                : { '!=' => 'admin' };
+        }
+        $search->{'me.actionee'} = [-and => @actionee]
+            if @actionee;
     }
 
     if ($args{need_invoice_report})
