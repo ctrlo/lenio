@@ -79,6 +79,20 @@
                     <label for="cost_actual">Actual cost</label>
                     <input type="text" name="cost_actual" class="form-control" id="cost_actual" value="[% ticket.cost_actual | html %]" [% readonly %]>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Last completed</label>
+                            <input type="text" class="form-control" value="[% ticket.last_completed.strftime(dateformat) | html %]" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Next due</label>
+                            <input type="text" class="form-control" value="[% ticket.next_due.strftime(dateformat) | html %]" readonly>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="provisional">Date copied from previous year</label>
                     <input type="text" name="provisional"

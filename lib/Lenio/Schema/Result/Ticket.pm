@@ -297,4 +297,21 @@ sub validate {
         or error __x"Invalid actionee {actionee}", actionee => $self->actionee;
 }
 
+sub last_completed
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $date = $schema->resultset('Ticket')->search({
+        task_id => $self->task_id,
+        site_id => $self->site_id,
+    })->get_column('completed')->max
+        or return undef;
+    $self->parse_dt($date);
+}
+
+sub next_due
+{   my $self = shift;
+    $self->last_completed or return undef;
+    $self->last_completed->add($self->task->period_unit."s" => $self->task->period_qty);
+}
+
 1;
