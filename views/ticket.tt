@@ -13,6 +13,10 @@
     <h3>Create new ticket</h3>
 [% END %]
 
+[% IF ticket.task %]
+    <h4>[% ticket.task.name | html %]</h4>
+[% END %]
+
 [% UNLESS !ticket.id OR login.is_admin OR ticket.actionee == "local" %]
     [% readonly = "readonly" %]
 [% END %]
