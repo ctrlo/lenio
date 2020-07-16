@@ -185,11 +185,13 @@ sub tasks
         while (DateTime->compare($date, $self->to) < 0)
         {
             my %item = (
-                name         => $task->name,
-                description  => $task->description,
-                task_id      => $task->id,
-                due          => $date->clone,
-                next_planned => $task->next_planned,
+                name            => $task->name,
+                description     => $task->description,
+                task_id         => $task->id,
+                due             => $date->clone,
+                next_planned    => $task->next_planned,
+                next_planned_id => $task->next_planned_id,
+                has_provisional => $task->has_provisional,
             );
             push @calendar2, $self->_cal_item(%item)
                 if !$done->{$task->id}->{$date} && DateTime->compare($date, $self->from) >= 0; # Could be before current range
@@ -386,6 +388,10 @@ sub _cal_item
             : "task$item{task_id}";
     my $url = $item{ticket_id}
             ? "/ticket/$item{ticket_id}"
+            : $item{next_planned_id}
+            ? "/ticket/$item{next_planned_id}"
+            : $item{has_provisional}
+            ? "/tickets/?task_id=$item{task_id}&sort=id&order=desc"
             : "/ticket/0?task_id=$item{task_id}&site_id=".$self->site->id."&date=".$item{due}->ymd('-');
 
     my $title = $self->multiple_sites ? $item{name}." - ".$self->site->fullname : $item{name};
@@ -399,13 +405,17 @@ sub _cal_item
         if ( DateTime->compare( $item{due}, $self->today ) < 0)
         {
             $t->{class} = 'event-important';
-            # Is it planned in for a future date?
-            $t->{title} .= " (planned for ".$item{next_planned}->strftime($self->dateformat).")"
-                if $item{next_planned} && $item{next_planned} > $self->today && $item{next_planned} > $item{due};
+        }
+        elsif ($item{next_planned})
+        {
+            $t->{class} = 'event-warning-planned';
         }
         else {
             $t->{class} = 'event-warning';
         }
+        # Is it planned in for a future date?
+        $t->{title} .= " (planned for ".$item{next_planned}->strftime($self->dateformat).")"
+            if $item{next_planned};
         $t->{start} = $item{due}->epoch * 1000;
         $t->{end}   = $item{due}->epoch * 1000;
     }

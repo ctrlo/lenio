@@ -338,7 +338,10 @@
   background-color: #1e90ff;
 }
 .event-warning {
-  background-color: #e3bc08;
+  background-color: #ec971f;
+}
+.event-warning-planned {
+  background-color: #ffff66;
 }
 .event-inverse {
   background-color: #1b1b1b;

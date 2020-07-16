@@ -287,6 +287,19 @@ sub next_planned
     $self->parse_dt($next_planned);
 }
 
+sub next_planned_id
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    my $next_planned = $self->get_column('next_planned_id')
+        or return undef;
+}
+
+sub has_provisional
+{   my $self = shift;
+    my $schema = $self->result_source->schema;
+    !!$self->get_column('has_provisional')
+}
+
 sub contractor_name
 {   my $self = shift;
     $self->get_column('contractor_name');

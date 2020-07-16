@@ -50,14 +50,17 @@
         <td><div class="circle event-info"></div>Task planned</td>
         <td><div class="circle event-success"></div>Task completed</td>
         <td><div class="circle event-special"></div>Reactive</td>
+        <td><div class="circle event-warning-planned"></div>Task due (planned for other date)</td>
     </tr>
-    <tr>
-        <td><div class="check-margin check-notdone check-margin"></div>Check not done</td>
-        <td><div class="check-margin check-due-daily"></div>Check due</td>
-        <td><div class="check-margin check-partdone"></div>Check partly done</td>
-        <td><div class="check-margin check-done"></div>Check done</td>
-        <td><div class="check-margin check-comment"></div>Check done with comments</td>
-    </tr>
+    [% IF NOT login.is_admin %]
+        <tr>
+            <td><div class="check-margin check-notdone check-margin"></div>Check not done</td>
+            <td><div class="check-margin check-due-daily"></div>Check due</td>
+            <td><div class="check-margin check-partdone"></div>Check partly done</td>
+            <td><div class="check-margin check-done"></div>Check done</td>
+            <td><div class="check-margin check-comment"></div>Check done with comments</td>
+        </tr>
+    [% END %]
 </table>
 <div class="page-header">
     <div class="pull-right form-inline">

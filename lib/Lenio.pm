@@ -864,7 +864,13 @@ get '/tickets/?' => require_login sub {
     # Deal with sort options
     if (query_parameters->get('sort'))
     {
-        session ticket_desc => session('ticket_sort') && session('ticket_sort') eq query_parameters->get('sort') ? !session('ticket_desc') : 0;
+        if (my $order = query_parameters->get('order'))
+        {
+            session ticket_desc => $order eq 'desc' ? 1 : 0;
+        }
+        else {
+            session ticket_desc => session('ticket_sort') && session('ticket_sort') eq query_parameters->get('sort') ? !session('ticket_desc') : 0;
+        }
         session ticket_sort => query_parameters('sort');
     }
 
