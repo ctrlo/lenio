@@ -1,33 +1,125 @@
+<h3>Tickets[% IF task %] ([% task.name %])[% END %]</h3>
 [% IF login.is_admin OR NOT task.global %]
-    <h3>New ticket</h3>
-    <p>
-        [% IF task %]
-            <a href="/ticket/0?task_id=[% task.id %]&site_id=[% login.site.id %]" class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
-        [% ELSE %]
-            <a href="/ticket/0" class="btn btn-default" role="button">Create new reactive ticket</a>
-        [% END %]
-    </p>
+
+    [% IF task %]
+        <a href="/ticket/0?task_id=[% task.id %]&site_id=[% login.site.id %]"
+            class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
+    [% ELSE %]
+        <a href="/ticket/0" class="btn btn-default" role="button">Create new reactive ticket</a>
+    [% END %]
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Filter <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li role="presentation" class="dropdown-header">Ticket types</li>
+            <li>
+                <a href="?filter-type=reactive[% IF NOT ticket_filter.type.reactive %]&set=1[% END %]">
+                    Reactive tickets
+                    [% IF ticket_filter.type.reactive %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-type=task[% IF NOT ticket_filter.type.task %]&set=1[% END %]">
+                    Tickets for tasks
+                    [% IF ticket_filter.type.task %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Ticket status</li>
+            <li>
+                <a href="?filter-status">Any status</a>
+            </li>
+            <li>
+                <a href="?filter-status=not-planned[% IF NOT ticket_filter.status.not_planned %]&set=1[% END %]">
+                    Not planned
+                    [% IF ticket_filter.status.not_planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-status=planned[% IF NOT ticket_filter.status.planned %]&set=1[% END %]">
+                    Planned but not completed
+                    [% IF ticket_filter.status.planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-status=completed[% IF NOT ticket_filter.status.completed %]&set=1[% END %]">
+                    Completed
+                    [% IF ticket_filter.status.completed %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Actionee</li>
+            <li>
+                <a href="?filter-actionee">Any actionee</a>
+            </li>
+            <li>
+                <a href="?filter-actionee=admin[% IF NOT ticket_filter.actionee.admin %]&set=1[% END %]">
+                    Action on [% company_name | html %]
+                    [% IF ticket_filter.actionee.admin %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=contractor[% IF NOT ticket_filter.actionee.contractor %]&set=1[% END %]">
+                    Action on contractor
+                    [% IF ticket_filter.actionee.contractor %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=local-action[% IF NOT ticket_filter.actionee.local_action %]&set=1[% END %]">
+                    Waiting for action from local site
+                    [% IF ticket_filter.actionee.local_action %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=local-site[% IF NOT ticket_filter.actionee.local_site %]&set=1[% END %]">
+                    To be rectified by local site
+                    [% IF ticket_filter.actionee.local_site %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Dates</li>
+            <li>
+                <a href="?filter-dates">All dates</a>
+            </li>
+            <li>
+                <a href="?filter-dates=this-month[% IF NOT ticket_filter.dates.this_month %]&set=1[% END %]">
+                    This month
+                    [% IF ticket_filter.dates.this_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-dates=next-month[% IF NOT ticket_filter.dates.next_month %]&set=1[% END %]">
+                    Next month
+                    [% IF ticket_filter.dates.next_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Invoicing and reporting</li>
+            <li>
+                <a href="?filter-ir=no-invoice[% IF NOT ticket_filter.ir.no_invoice %]&set=1[% END %]">
+                    Tickets without invoice
+                    [% IF ticket_filter.ir.no_invoice %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-ir=no-invoice-sent[% IF NOT ticket_filter.ir.no_invoice_sent %]&set=1[% END %]">
+                    Tickets without invoice sent
+                    [% IF ticket_filter.ir.no_invoice_sent %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-ir=no-report[% IF NOT ticket_filter.ir.no_report %]&set=1[% END %]">
+                    Tickets without report
+                    [% IF ticket_filter.ir.no_report %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+        </ul>
+    </div>
+    <p></p>
+
 [% END %]
-<div class="row">
-    <div class="col-md-8">
-        <h3>Existing tickets[% IF task %] ([% task.name %])[% END %]</h3>
-    </div>
-    <div class="col-md-4">
-        [% UNLESS task %]
-        <form method="get">
-            <input type="hidden" name="csrf_token" value="[% csrf_token %]">
-            <select class="form-control" name="task_tickets" onchange="this.form.submit()">
-                <option value="all" [% IF task_tickets == "all" %]selected[% END %]>Show all tickets</option>
-                <option value="reactive" [% IF task_tickets == "reactive" %]selected[% END %]>Show only reactive tickets</option>
-                <option value="tasks" [% IF task_tickets == "tasks" %]selected[% END %]>Show only tickets related to tasks</option>
-                <option value="with_admin" [% IF task_tickets == "with_admin" %]selected[% END %]>Show tickets with action on [% company_name | html %]</option>
-                <option value="with_site" [% IF task_tickets == "with_site" %]selected[% END %]>Show tickets with action waiting on local site</option>
-                <option value="tasks_invoice_report" [% IF task_tickets == "tasks_invoice_report" %]selected[% END %]>Show only tickets related to tasks without invoice or report</option>
-            </select>
-        </form>
-        [% END %]
-    </div>
-</div>
 <table class="table table-striped">
     <tr>
         [% IF task %]

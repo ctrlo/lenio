@@ -20,51 +20,131 @@ sub summary
     panic "Need site_id when using fy argument"
         if $args{fy} && !$args{site_id};
 
-    if ($args{uncompleted_only})
+    my $filter = $args{filter};
+
+    my @filters;
+
+    if (my $status = $filter->{status})
     {
-        $search->{'me.completed'} = undef;
-    }
-    if ($args{completed_only})
-    {
-        $search->{'me.completed'} = { '!=' => undef };
-    }
-    if ($args{cost_only})
-    {
-        $search->{'me.cost_actual'} = { '>' => 0 };
+        my @status;
+        if ($status->{not_planned})
+        {
+            push @status, {'me.planned' => undef};
+        }
+        if ($status->{planned})
+        {
+            push @status, {'me.planned' => { '!=' => undef } };
+        }
+        if ($status->{completed})
+        {
+            push @status, {'me.completed' => { '!=' => undef } };
+        }
+        push @filters, {
+            -or => \@status,
+        } if @status;
     }
 
-    if (!$args{task_id})
+    if (my $actionee = $filter->{actionee})
     {
-        if (defined $args{task_tickets})
-        {
-            $search->{'me.task_id'} = $args{task_tickets}
-                ? { '!=' => undef }
-                : undef;
-        }
         my @actionee;
-        if (defined $args{with_site_tickets})
+        if ($actionee->{admin})
         {
-            push @actionee, $args{with_site_tickets}
-                ? 'with_site'
-                : { '!=' => 'with_site' };
+            push @actionee, {'me.actionee' => 'admin'};
         }
-        if (defined $args{with_admin})
+        if ($actionee->{local_action})
         {
-            push @actionee, $args{with_admin}
-                ? 'admin'
-                : { '!=' => 'admin' };
+            push @actionee, {'me.actionee' => 'local'};
         }
-        $search->{'me.actionee'} = [-and => @actionee]
-            if @actionee;
+        if ($actionee->{local_site})
+        {
+            push @actionee, {'me.actionee' => 'with_site'};
+        }
+        if ($actionee->{contractor})
+        {
+            push @actionee, {'me.actionee' => 'external'};
+        }
+        push @filters, {
+            -or => \@actionee,
+        } if @actionee;
     }
 
-    if ($args{need_invoice_report})
+    if (my $dates = $filter->{dates})
     {
-        $search->{'-or'} = [
-            report_received => 0,
-            invoice_sent    => 0,
-        ]
+        my $dtf = $self->result_source->schema->storage->datetime_parser;
+        my @dates;
+        if ($dates->{this_month})
+        {
+            my $from = DateTime->now->truncate(to => 'month');
+            my $to   = $from->clone->add(months => 1);
+            push @dates, {
+                -and => [
+                    'me.provisional' => { '>=' => $dtf->format_date($from) },
+                    'me.provisional' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.planned' => { '>=' => $dtf->format_date($from) },
+                    'me.planned' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.completed' => { '>=' => $dtf->format_date($from) },
+                    'me.completed' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+        }
+        if ($dates->{next_month})
+        {
+            my $from = DateTime->now->add(months => 1)->truncate(to => 'month');
+            my $to   = $from->clone->add(months => 1);
+            push @dates, {
+                -and => [
+                    'me.provisional' => { '>=' => $dtf->format_date($from) },
+                    'me.provisional' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.planned' => { '>=' => $dtf->format_date($from) },
+                    'me.planned' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.completed' => { '>=' => $dtf->format_date($from) },
+                    'me.completed' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+        }
+        push @filters, {
+            -or => \@dates,
+        } if @dates;
     }
+
+    if (my $ir = $filter->{ir})
+    {
+        my @ir;
+        if ($ir->{no_invoice})
+        {
+            push @ir, {'invoice.id' => undef};
+        }
+        if ($ir->{no_invoice_sent})
+        {
+            push @ir, {'me.invoice_sent' => 0};
+        }
+        if ($ir->{no_report})
+        {
+            push @ir, {'me.report_received' => 0};
+        }
+        push @filters, {
+            -or => \@ir,
+        } if @ir;
+    }
+
+    $search->{'-and'} = \@filters
+        if @filters;
 
     # Don't show local tickets for admin or financial summary
     if (!$args{login} || $args{login}->is_admin)
@@ -139,6 +219,7 @@ sub summary
                 },
             }
         ],
+        join => 'invoice',
         order_by => $order_by,
     })->all;
 }

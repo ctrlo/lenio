@@ -875,68 +875,104 @@ get '/tickets/?' => require_login sub {
     }
 
     # Set filtering of tickets based on drop-down
-    if (defined query_parameters->get('task_tickets'))
+    my $ticket_filter = session 'ticket_filter';
+
+    if (defined query_parameters->get('filter-type'))
     {
-        my $tt = query_parameters->get('task_tickets');
-        my $task_tickets = $tt eq 'all'
-            ? 'all'
-            : $tt eq 'tasks'
-            ? 'tasks'
-            : $tt eq 'with_site'
-            ? 'with_site'
-            : $tt eq 'with_admin'
-            ? 'with_admin'
-            : $tt eq 'tasks_invoice_report'
-            ? 'tasks_invoice_report'
-            : 'reactive';
-        session task_tickets => $task_tickets;
-    }
-    elsif (!session('task_tickets'))
-    {
-        session 'task_tickets' => 'reactive'; # Default to only reactionary
+        if (my $tt = query_parameters->get('filter-type'))
+        {
+            $ticket_filter->{type}->{reactive} = !!query_parameters->get('set')
+                if $tt eq 'reactive';
+            $ticket_filter->{type}->{task} = !!query_parameters->get('set')
+                if $tt eq 'task';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{type};
+        }
     }
 
-    my $task_tickets = session('task_tickets') eq 'all'
-                     ? undef
-                     : session('task_tickets') eq 'tasks' || session('task_tickets') eq 'tasks_invoice_report' || session('task_tickets') eq 'with_admin'
-                     ? 1
-                     : 0;
+    if (defined query_parameters->get('filter-status'))
+    {
+        if (my $tt = query_parameters->get('filter-status'))
+        {
+            $ticket_filter->{status}->{not_planned} = !!query_parameters->get('set')
+                if $tt eq 'not-planned';
+            $ticket_filter->{status}->{planned} = !!query_parameters->get('set')
+                if $tt eq 'planned';
+            $ticket_filter->{status}->{completed} = !!query_parameters->get('set')
+                if $tt eq 'completed';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{status};
+        }
+    }
 
-    my $with_site_tickets = session('task_tickets') eq 'all'
-                     ? undef
-                     : session('task_tickets') eq 'with_site'
-                     ? 1
-                     : 0;
+    if (defined query_parameters->get('filter-actionee'))
+    {
+        if (my $tt = query_parameters->get('filter-actionee'))
+        {
+            $ticket_filter->{actionee}->{admin} = !!query_parameters->get('set')
+                if $tt eq 'admin';
+            $ticket_filter->{actionee}->{contractor} = !!query_parameters->get('set')
+                if $tt eq 'contractor';
+            $ticket_filter->{actionee}->{local_action} = !!query_parameters->get('set')
+                if $tt eq 'local-action';
+            $ticket_filter->{actionee}->{local_site} = !!query_parameters->get('set')
+                if $tt eq 'local-site';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{actionee};
+        }
+    }
 
-    my $with_admin = session('task_tickets') eq 'with_site'
-                     ? 0
-                     : session('task_tickets') eq 'with_admin'
-                     ? 1
-                     : undef;
+    if (defined query_parameters->get('filter-dates'))
+    {
+        if (my $tt = query_parameters->get('filter-dates'))
+        {
+            $ticket_filter->{dates}->{this_month} = !!query_parameters->get('set')
+                if $tt eq 'this-month';
+            $ticket_filter->{dates}->{next_month} = !!query_parameters->get('set')
+                if $tt eq 'next-month';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{dates};
+        }
+    }
+
+    if (defined query_parameters->get('filter-ir'))
+    {
+        if (my $tt = query_parameters->get('filter-ir'))
+        {
+            $ticket_filter->{ir}->{no_invoice} = !!query_parameters->get('set')
+                if $tt eq 'no-invoice';
+            $ticket_filter->{ir}->{no_invoice_sent} = !!query_parameters->get('set')
+                if $tt eq 'no-invoice-sent';
+            $ticket_filter->{ir}->{no_report} = !!query_parameters->get('set')
+                if $tt eq 'no-report';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{ir};
+        }
+    }
+
+    session ticket_filter => $ticket_filter;
 
     my $task = query_parameters->get('task_id') && rset('Task')->find(query_parameters->get('task_id'));
 
-    my $uncompleted_only; my $task_id;
-    if (query_parameters->get('task_id'))
-    {
-        $uncompleted_only = 0;
-        $task_id          = query_parameters->get('task_id');
-    }
-    elsif (session('task_tickets') ne 'tasks_invoice_report')
-    {
-        $uncompleted_only = 1;
-    }
+    my $task_id = query_parameters->get('task_id');
+
     my @tickets = rset('Ticket')->summary(
-        login               => var('login'),
-        site_id             => var('site_ids'),
-        uncompleted_only    => $uncompleted_only,
-        sort                => session('ticket_sort'),
-        sort_desc           => session('ticket_desc'),
-        task_id             => $task_id,
-        task_tickets        => $task_id ? undef : $task_tickets,
-        with_admin          => $with_admin,
-        with_site_tickets   => $with_site_tickets,
-        need_invoice_report => session('task_tickets') eq 'tasks_invoice_report',
+        login     => var('login'),
+        site_id   => var('site_ids'),
+        sort      => session('ticket_sort'),
+        sort_desc => session('ticket_desc'),
+        task_id   => $task_id,
+        filter    => $ticket_filter,
     );
 
     template 'tickets' => {
@@ -945,7 +981,7 @@ get '/tickets/?' => require_login sub {
         sort         => session('ticket_sort'),
         sort_desc    => session('ticket_desc'),
         dateformat   => config->{lenio}->{dateformat},
-        task_tickets => session('task_tickets'),
+        ticket_filter => session('ticket_filter'),
         page         => 'ticket'
     };
 };
