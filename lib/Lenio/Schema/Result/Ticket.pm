@@ -310,7 +310,7 @@ sub last_completed
 
 sub next_due
 {   my $self = shift;
-    $self->last_completed or return undef;
+    $self->last_completed && $self->task or return undef;
     $self->last_completed->add($self->task->period_unit."s" => $self->task->period_qty);
 }
 
