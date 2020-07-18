@@ -129,10 +129,11 @@
             <li role="separator" class="divider"></li>
             [% FOREACH type IN site_tasks %]
                 <li role="presentation" class="dropdown-header">[% type.name | html %]</li>
-                [% FOREACH task IN type.tasks %]
+                [% FOREACH t IN type.tasks %]
                     <li>
-                        <a href="?task_id=[% task.id %]">
-                            [% task.name | html %]
+                        <a href="?task_id=[% t.id %]">
+                            [% t.name | html %]
+                            [% IF task.id == t.id %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                         </a>
                     </li>
                 [% END %]
