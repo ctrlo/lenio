@@ -388,17 +388,28 @@ sub overdue
         $search->{'site.id'} = $site_id if $site_id;
 
         my $now = $self->result_source->storage->datetime_parser->format_date(DateTime->now);
+        # Prefetch doesn't really work here, as the get_column of the special
+        # subquery columns do not seem to respect a null value if it is fetched
+        # via site_tasks()
         push @tasks, $self->search(
             $search,
             {
-                prefetch => {
+                join => {
                     'site_tasks' => [
                         {
                             'site' => 'org'
                         }
                     ]
                 },
-                '+select' => [
+                'select' => [
+                    'me.name',
+                    'me.period_qty',
+                    'me.period_unit',
+                    { "" => 'site.name', -as => 'site_name' },
+                    { "" => 'site.id', -as => 'site_id' },
+                    { "" => 'org.name', -as => 'org_name' },
+                    { "" => 'org.id', -as => 'org_id' },
+
                     { max => $schema->resultset('Ticket')
                         ->search({
                             'metask.site_id' => {
@@ -481,25 +492,29 @@ sub overdue
 
     foreach my $task (@tasks)
     {
-        foreach my $site_task ($task->site_tasks)
-        {
-            my $parser = $self->result_source->storage->datetime_parser;
-            my $ticket_planned_raw = $task->get_column('ticket_planned');
-            my $ticket_planned     = $ticket_planned_raw && $parser->parse_date($ticket_planned_raw);
-            my $ticket_completed_raw = $task->get_column('ticket_completed');
-            my $ticket_completed     = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
-            push @all_tasks, {
-                id                => $task->id,
-                name              => $task->name,
-                global            => $task->global,
-                task              => $task,
-                site              => $site_task->site,
-                last_planned      => $ticket_planned,
-                last_planned_id   => $task->get_column('ticket_planned_id'),
-                last_completed    => $ticket_completed,
-                last_completed_id => $task->get_column('ticket_completed_id'),
-            };
-        }
+        my $parser = $self->result_source->storage->datetime_parser;
+        my $ticket_planned_raw   = $task->get_column('ticket_planned');
+        my $ticket_planned       = $ticket_planned_raw && $parser->parse_date($ticket_planned_raw);
+        my $ticket_completed_raw = $task->get_column('ticket_completed');
+        my $ticket_completed     = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
+        push @all_tasks, {
+            id                => $task->id,
+            name              => $task->name,
+            global            => $task->global,
+            task              => $task,
+            site              => {
+                id   => $task->get_column('site_id'),
+                name => $task->get_column('site_name'),
+                org  => {
+                    id   => $task->get_column('org_id'),
+                    name => $task->get_column('org_name'),
+                },
+            },
+            last_planned      => $ticket_planned,
+            last_planned_id   => $task->get_column('ticket_planned_id'),
+            last_completed    => $ticket_completed,
+            last_completed_id => $task->get_column('ticket_completed_id'),
+        };
     }
 
     $options{sort} ||= '';
