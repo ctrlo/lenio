@@ -227,6 +227,46 @@ sub summary
     })->all;
 }
 
+sub site_tasks_grouped
+{   my ($self, %args) = @_;
+
+    if (my $site_ids = $args{site_ids})
+    {
+        my @all = $self->search({
+            'site_tasks.site_id' => $site_ids,
+            'task.global'        => 1,
+        },{
+            prefetch => {
+                site_tasks => [
+                    'site',
+                    {
+                        task => 'tasktype',
+                    }
+                ]
+            },
+            order_by => ['tasktype.name', 'task.name'],
+        })->all;
+        my @types; my @tasks; my $last_type;
+        foreach my $task (@all)
+        {
+            if ($last_type && $task->tasktype->name ne $last_type)
+            {
+                push @types, {
+                    name  => $last_type,
+                    tasks => [@tasks],
+                };
+                @tasks = ();
+            }
+            push @tasks, $task;
+            $last_type = $task->tasktype->name;
+        }
+        return @types, {
+            name  => $last_type,
+            tasks => [@tasks],
+        };
+    }
+}
+
 sub populate_tickets
 {   my ($self, %params) = @_;
     my $tickets_rs = $self->result_source->schema->resultset('Ticket');

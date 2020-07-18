@@ -117,6 +117,31 @@
             </li>
         </ul>
     </div>
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Task <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="?task_id">All tasks</a>
+            </li>
+            <li role="separator" class="divider"></li>
+            [% FOREACH type IN site_tasks %]
+                <li role="presentation" class="dropdown-header">[% type.name | html %]</li>
+                [% FOREACH task IN type.tasks %]
+                    <li>
+                        <a href="?task_id=[% task.id %]">
+                            [% task.name | html %]
+                        </a>
+                    </li>
+                [% END %]
+                [% UNLESS loop.last %]
+                    <li role="separator" class="divider"></li>
+                [% END %]
+            [% END %]
+        </ul>
+    </div>
     <p></p>
 
 [% END %]

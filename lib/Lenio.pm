@@ -962,21 +962,32 @@ get '/tickets/?' => require_login sub {
 
     session ticket_filter => $ticket_filter;
 
-    my $task = query_parameters->get('task_id') && rset('Task')->find(query_parameters->get('task_id'));
+    if (defined query_parameters->get('task_id'))
+    {
+        if (my $task_id = query_parameters->get('task_id'))
+        {
+            session task_id => $task_id
+                if $task_id =~ /^[0-9]+$/;
+        }
+        else {
+            session task_id => undef;
+        }
+    }
 
-    my $task_id = query_parameters->get('task_id');
+    my $task = session('task_id') && rset('Task')->find(session('task_id'));
 
     my @tickets = rset('Ticket')->summary(
         login     => var('login'),
         site_id   => var('site_ids'),
         sort      => session('ticket_sort'),
         sort_desc => session('ticket_desc'),
-        task_id   => $task_id,
+        task_id   => $task && $task->id,
         filter    => $ticket_filter,
     );
 
     template 'tickets' => {
         task         => $task, # Tickets related to task
+        site_tasks   => [rset('Task')->site_tasks_grouped(site_ids => var('site_ids'))],
         tickets      => \@tickets,
         sort         => session('ticket_sort'),
         sort_desc    => session('ticket_desc'),
