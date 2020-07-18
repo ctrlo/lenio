@@ -1383,7 +1383,7 @@ get '/data' => require_login sub {
 
     my @tasks;
     my @sites = rset('Site')->search({
-        id => var('site_ids'),
+        'me.id' => var('site_ids'),
     });
     foreach my $site (@sites) {
         my $calendar = Lenio::Calendar->new(

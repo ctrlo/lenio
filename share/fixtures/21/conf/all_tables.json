@@ -1,0 +1,113 @@
+{
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "class" : "CheckItemOption",
+         "quantity" : "all"
+      },
+      {
+         "class" : "EventOrg",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Org",
+         "quantity" : "all"
+      },
+      {
+         "class" : "CheckDone",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Event",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Group"
+      },
+      {
+         "class" : "Permission",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "class" : "CheckItem",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Site",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginNotice"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Contractor"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Login"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Comment"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Invoice"
+      },
+      {
+         "class" : "SiteGroup",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginOrg"
+      },
+      {
+         "class" : "Audit",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Notice"
+      }
+   ],
+   "belongs_to" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   },
+   "might_have" : {
+      "fetch" : 0
+   }
+}

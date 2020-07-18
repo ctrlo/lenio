@@ -11,11 +11,19 @@ use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
+our $VERSION = 21;
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cqoWFzuqKg+mYLbjJYfNWA
+sub resultset
+{   my $self = shift;
+    my $rs = $self->next::method(@_);
 
-our $VERSION = 20;
+    # Is this the site table itself?
+    return $rs->search_rs({ 'me.deleted' => undef })
+        if $rs->result_source->name eq 'org';
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+    # Otherwise add a site_id search if applicable
+    return $rs unless $rs->result_source->has_column('org_id');
+    $rs->search_rs({ 'org.deleted' => undef }, { join => 'org' });
+}
+
 1;

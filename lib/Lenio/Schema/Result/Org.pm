@@ -99,6 +99,8 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "created",
   { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1 },
+  "deleted",
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
