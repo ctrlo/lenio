@@ -139,6 +139,9 @@ sub tasks
     # First add all the tickets in this time period. 
     foreach my $ticket (@{$self->ticket_summary})
     {
+        # Remove provisional tickets for the time being
+        next if !$ticket->completed && !$ticket->planned;
+
         my $task_id = $ticket->task_id;
         push @calendar1, $self->_cal_item(
             name        => $ticket->name,
