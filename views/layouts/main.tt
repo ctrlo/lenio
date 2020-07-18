@@ -215,6 +215,18 @@
         </script>
     [% END %]
 
+    [% IF page == "task" %]
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#modal_rm_task').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var task_id = button.data('task-id');
+                    $('#taskrm').val(task_id);
+                });
+            });
+        </script>
+    [% END %]
+
     [% IF page == "check_edit" %]
         <script type="text/javascript">
             $(document).ready(function () {

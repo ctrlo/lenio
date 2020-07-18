@@ -25,6 +25,15 @@ sub last_completed
     \%completed;
 }
 
+sub global
+{   my $self = shift;
+    $self->search_rs({
+        global => 1,
+    },{
+        order_by => 'me.name',
+    });
+}
+
 sub summary
 {   my ($self, %options) = @_;
 

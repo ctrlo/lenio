@@ -1309,7 +1309,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
 
         # Get all the global tasks.
-        @tasks = rset('Task')->summary(site_id => var('site_ids'), global => 1, fy => session('fy'));
+        @tasks = rset('Task')->summary(site_id => var('site_ids'), global => 1, fy => session('fy'), onlysite => 1);
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(
@@ -1367,6 +1367,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         site_checks      => [rset('Task')->site_checks(session 'site_id')],
         task             => $task,
         tasks            => \@tasks,
+        all_tasks        => [rset('Task')->global->all],
         tasks_local      => \@tasks_local,
         tasktypes        => [rset('Tasktype')->all],
         adhocs           => \@adhocs,
