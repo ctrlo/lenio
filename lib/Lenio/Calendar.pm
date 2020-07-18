@@ -394,7 +394,7 @@ sub _cal_item
             : $item{next_planned_id}
             ? "/ticket/$item{next_planned_id}"
             : $item{has_provisional}
-            ? "/tickets/?task_id=$item{task_id}&sort=id&order=desc"
+            ? "/tickets/?task_id=$item{task_id}&filter-status=not-planned"
             : "/ticket/0?task_id=$item{task_id}&site_id=".$self->site->id."&date=".$item{due}->ymd('-');
 
     my $title = $self->multiple_sites ? $item{name}." - ".$self->site->fullname : $item{name};
