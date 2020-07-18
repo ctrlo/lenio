@@ -45,7 +45,7 @@ sub summary
         my @status;
         if ($status->{not_planned})
         {
-            push @status, {'me.planned' => undef};
+            push @status, {'me.planned' => undef, 'me.completed' => undef};
         }
         if ($status->{planned})
         {
