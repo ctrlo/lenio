@@ -423,10 +423,42 @@ sub overdue
                             }
                         },
                         {
+                            alias    => 'metask',
+                            order_by => { -desc => 'metask.completed' },
+                            rows     => 1,
+                        })
+                        ->get_column('id')
+                        ->as_query, -as => 'ticket_completed_id' },
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            }
+                        },
+                        {
                             alias => 'metask',
                         })
                         ->get_column('planned')
                         ->max_rs->as_query, -as => 'ticket_planned' },
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            }
+                        },
+                        {
+                            alias    => 'metask',
+                            order_by => { -desc => 'metask.planned' },
+                            rows     => 1,
+                        })
+                        ->get_column('id')
+                        ->as_query, -as => 'ticket_planned_id' },
                 ],
                 group_by => [
                     'site_tasks.task_id', 'site_tasks.site_id',
@@ -457,13 +489,15 @@ sub overdue
             my $ticket_completed_raw = $task->get_column('ticket_completed');
             my $ticket_completed     = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
             push @all_tasks, {
-                id             => $task->id,
-                name           => $task->name,
-                global         => $task->global,
-                task           => $task,
-                site           => $site_task->site,
-                last_planned   => $ticket_planned,
-                last_completed => $ticket_completed,
+                id                => $task->id,
+                name              => $task->name,
+                global            => $task->global,
+                task              => $task,
+                site              => $site_task->site,
+                last_planned      => $ticket_planned,
+                last_planned_id   => $task->get_column('ticket_planned_id'),
+                last_completed    => $ticket_completed,
+                last_completed_id => $task->get_column('ticket_completed_id'),
             };
         }
     }

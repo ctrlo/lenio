@@ -20,14 +20,14 @@
                 <td>[% task.site.org.name %] ([% task.site.name %])</td>
                 <td>
                     [% IF task.last_completed %]
-                        [% task.last_completed.strftime(dateformat) %]
+                        <a href="/ticket/[% task.last_completed_id %]">[% task.last_completed.strftime(dateformat) %]</a>
                     [% ELSE %]
                         (never)
                     [% END %]
                 </td>
                 <td>
                     [% IF task.last_planned %]
-                        [% task.last_planned.strftime(dateformat) %]
+                        <a href="/ticket/[% task.last_planned_id %]">[% task.last_planned.strftime(dateformat) %]</a>
                     [% ELSE %]
                         (no planned date)
                     [% END %]
