@@ -24,6 +24,22 @@ sub summary
 
     my @filters;
 
+    if (my $type = $filter->{type})
+    {
+        my @type;
+        if ($type->{reactive})
+        {
+            push @type, {'me.task_id' => undef};
+        }
+        if ($type->{task})
+        {
+            push @type, {'me.task_id' => { '!=' => undef } };
+        }
+        push @filters, {
+            -or => \@type,
+        } if @type;
+    }
+
     if (my $status = $filter->{status})
     {
         my @status;
