@@ -147,7 +147,7 @@ hook before => sub {
 
     my $site_ids = $login->is_admin && session('site_id')
                  ? session('site_id')
-                 : $login->is_admin && session('group_id')
+                 : $login->is_admin && session('group_id') && rset('Group')->find(session 'group_id')
                  ? rset('Group')->find(session 'group_id')->site_ids
                  : session('site_id')
                  ? session('site_id')
