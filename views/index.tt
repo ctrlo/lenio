@@ -8,7 +8,7 @@
             <th><a href="?sort=org" style="color:inherit">Site</a></th>
             <th><a href="?sort=completed" style="color:inherit">Last done</a></th>
             <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
-            <th>Uncompleted</th>
+            <th>Relevant uncompleted ticket</th>
         </tr>
 
         [% FOR task IN tasks %]
@@ -61,7 +61,7 @@
 <table>
     <tr>
         <td><div class="circle event-important"></div>Task overdue</td>
-        <td><div class="circle event-warning"></div>Task due</td>
+        <td><div class="circle event-warning"></div>Task due (not planned)</td>
         <td><div class="circle event-info"></div>Task planned</td>
         <td><div class="circle event-success"></div>Task completed</td>
         <td><div class="circle event-special"></div>Reactive</td>
