@@ -495,10 +495,12 @@ sub overdue
                             'metask.planned'   => undef,
                         },
                         {
-                            alias => 'metask',
+                            alias    => 'metask',
+                            order_by => { -asc => 'metask.id' },
+                            rows     => 1,
                         })
                         ->get_column('provisional')
-                        ->min_rs->as_query, -as => 'ticket_provisional' },
+                        ->as_query, -as => 'ticket_provisional' },
                     { max => $schema->resultset('Ticket')
                         ->search({
                             'metask.site_id' => {
@@ -512,7 +514,7 @@ sub overdue
                         },
                         {
                             alias    => 'metask',
-                            order_by => { -asc => 'metask.provisional' },
+                            order_by => { -asc => 'metask.id' },
                             rows     => 1,
                         })
                         ->get_column('id')
