@@ -631,7 +631,7 @@ sub _pdf
 
 sub _task_tables
 {   my ($self, %options) = @_;
-    my @tables; my @data; my $last_tasktype; my $subtotal = 0;
+    my @tables; my @data; my $last_tasktype; my $subtotal_planned = 0; my $subtotal_actual = 0;
     my $site = $options{site};
     my $task_completed = $self->last_completed(site_id => $site->id, global => 1);
     foreach my $task ($self->summary(site_id => $site->id, onlysite => 1, global => 1, fy => $options{fy}))
@@ -640,72 +640,56 @@ sub _task_tables
         if (defined $last_tasktype && $tasktype ne $last_tasktype)
         {
             push @tables, {
-                name => $last_tasktype,
-                data => [@data], # Copy
-                total => $subtotal,
+                name          => $last_tasktype,
+                data          => [@data], # Copy
+                total_planned => $subtotal_planned,
+                total_actual  => $subtotal_actual,
             };
-            $subtotal = 0;
+            $subtotal_planned = 0;
+            $subtotal_actual  = 0;
             @data = ();
         }
 
         my $last_done = $task_completed->{$task->id} && $task_completed->{$task->id};
         my $next_due  = $last_done && $last_done->clone->add($task->period_unit.'s' => $task->period_qty);
-        my $price;
+        my ($price_planned, $price_actual);
         if ($options{finsum})
         {
-            $price = defined $task->cost_actual
-                ? $task->cost_actual
-                : defined $task->cost_planned
-                ? $task->cost_planned
-                : undef,
-            push @data, $options{sla} ? [
-                $task->name,
-                $task->description,
-                $task->period,
-                $task->contractor_requirements,
-                $task->evidence_required,
-                $task->contractor_name,
-                $last_done && $last_done->strftime($options{dateformat}),
-                defined $price ? _price($price) : undef,
-                $task->statutory,
-            ] : [
+            $price_planned = $task->cost_planned;
+            $price_actual  = $task->cost_actual;
+            push @data, [
                 $task->name,
                 $last_done && $last_done->strftime($options{dateformat}),
-                defined $price ? _price($price) : undef,
+                defined $price_planned ? _price($price_planned) : undef,
+                defined $price_actual ? _price($price_actual) : undef,
                 $task->period,
                 $task->contractor_name,
-                $task->description,
             ];
         }
         else {
-            $price = $task->cost_planned;
-            push @data, $options{sla} ? [
+            $price_planned = $task->cost_planned;
+            push @data, [
                 $task->name,
                 $task->description,
                 $task->period,
                 $task->contractor_requirements,
                 $task->evidence_required,
                 $task->contractor_name,
-                defined $price ? _price($price) : undef,
+                defined $price_planned ? _price($price_planned) : undef,
                 $next_due && $next_due->strftime($options{dateformat}),
                 $task->statutory,
-            ] : [
-                $task->name,
-                defined $price ? _price($price) : undef,
-                $task->period,
-                $task->contractor_name,
-                $next_due && $next_due->strftime($options{dateformat}),
-                $task->description,
             ];
         }
-        $subtotal += ($price || 0);
+        $subtotal_planned += ($price_planned || 0);
+        $subtotal_actual  += ($price_actual || 0);
 
         $last_tasktype = $tasktype;
     }
     push @tables, {
-        name => $last_tasktype,
-        data => [@data], # Copy
-        total => $subtotal,
+        name          => $last_tasktype,
+        data          => [@data], # Copy
+        total_planned => $subtotal_planned,
+        total_actual  => $subtotal_actual,
     };
     return @tables;
 }
@@ -745,8 +729,8 @@ sub sla
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 500, size => 10);
-        $total += $table->{total};
+        $pdf->text("<b>Total cost: "._price($table->{total_planned})."</b>", indent => 500, size => 10);
+        $total += $table->{total_planned};
     }
 
     $pdf->heading("Total fee for service contract: "._price($total)." +VAT", size => 14);
@@ -808,10 +792,17 @@ sub finsum
         fy             => $params{fy},
         task_tickets   => 0,
         cost_only      => 1,
-        completed_only => 1,
         sort           => 'type',
+        filter         => {
+            status => {
+                completed => 1,
+            },
+            type => {
+                reactive => 1,
+            },
+        },
     );
-    my @tables; my @data; my $last_tasktype; my $subtotal = 0; my $is_reactive;
+    my @tables; my @data; my $last_tasktype; my $subtotal_planned = 0; my $subtotal_actual; my $is_reactive;
 
     foreach my $ticket (@tickets)
     {
@@ -819,12 +810,13 @@ sub finsum
         if (defined $last_tasktype && $tasktype ne $last_tasktype)
         {
             push @tables, {
-                name        => $last_tasktype,
-                data        => [@data], # Copy
-                total       => $subtotal,
-                is_reactive => $is_reactive,
+                name          => $last_tasktype,
+                data          => [@data], # Copy
+                total_planned => $subtotal_planned,
+                total_actual  => $subtotal_actual,
+                is_reactive   => $is_reactive,
             };
-            $subtotal = 0;
+            $subtotal_planned = 0; $subtotal_actual = 0;
             @data = ();
         }
         $is_reactive = $tasktype eq 'Reactive maintenance';
@@ -832,25 +824,26 @@ sub finsum
         my @d = (
             $ticket->name,
             $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
+            defined $ticket->cost_planned ? _price($ticket->cost_planned) : undef,
             defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
             $ticket->contractor ? $ticket->contractor->name : undef,
         );
-        push @d, $ticket->description
-            unless $is_reactive;
         unshift @d, $ticket->id
             if $is_reactive;
         push @data, \@d;
 
-        $subtotal += ($ticket->cost_actual || 0);
+        $subtotal_planned += ($ticket->cost_planned || 0);
+        $subtotal_actual  += ($ticket->cost_actual || 0);
 
         $last_tasktype = $tasktype;
     }
 
     push @tables, {
-        name        => $last_tasktype,
-        data        => [@data], # Copy
-        total       => $subtotal,
-        is_reactive => $is_reactive,
+        name          => $last_tasktype,
+        data          => [@data], # Copy
+        total_planned => $subtotal_planned,
+        total_actual  => $subtotal_actual,
+        is_reactive   => $is_reactive,
     };
 
     push @tables, $self->_task_tables(%params, finsum => 1);
@@ -860,7 +853,7 @@ sub finsum
         font_size  => 8,
     };
 
-    my $total = 0; my $total_reactive = 0;
+    my $total_planned = 0; my $total_actual = 0; my $total_reactive_planned = 0; my $total_reactive_actual = 0;
     foreach my $table (@tables)
     {
         $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
@@ -870,15 +863,16 @@ sub finsum
                 'ID',
                 'Item',
                 'Date',
-                'Cost',
+                'Planned cost',
+                'Actual cost',
                 'Contractor',
             ) : (
                 'Item',
                 'Last done',
-                'Cost',
+                'Planned cost',
+                'Actual cost',
                 'Period',
                 'Contractor',
-                'Notes'
             );
         unshift @$data, \@headings;
         $pdf->table(
@@ -886,19 +880,23 @@ sub finsum
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->text("<b>Total cost: "._price($table->{total})."</b>", indent => 350, size => 10);
+        $pdf->text("<b>Total planned cost: "._price($table->{total_planned})."</b>", indent => 350, size => 10);
+        $pdf->text("<b>Total actual cost: "._price($table->{total_actual})."</b>", indent => 350, size => 10);
         if ($table->{is_reactive})
         {
-            $total_reactive += $table->{total};
+            $total_reactive_planned += $table->{total_planned};
+            $total_reactive_actual += $table->{total_actual};
         }
         else {
-            $total += $table->{total};
+            $total_planned += $table->{total_planned};
+            $total_actual  += $table->{total_actual};
         }
     }
 
-    $pdf->heading("Total service item costs: "._price($total)." +VAT", size => 14);
-    $pdf->heading("Total reactive costs: "._price($total_reactive)." +VAT", size => 14);
-    $pdf->heading("Total cost of service contract: "._price($total_reactive + $total)." +VAT", size => 16);
+    $pdf->heading("Agreed total cost of service contract: "._price($total_planned)." +VAT", size => 16);
+    $pdf->heading("Total actual annual cost to date: "._price($total_actual)." +VAT", size => 16);
+    $pdf->heading("Total Cost of Service Contract + Reactive Maintenance Call outs total cost: "
+        ._price($total_actual + $total_reactive_actual)." +VAT", size => 16);
 
     $pdf;
 }
