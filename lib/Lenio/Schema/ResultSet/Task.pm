@@ -875,7 +875,7 @@ sub finsum
                 'Service completed',
                 'Planned cost',
                 'Actual cost',
-                'Period',
+                'Frequency',
                 'Contractor',
             );
         unshift @$data, \@headings;
