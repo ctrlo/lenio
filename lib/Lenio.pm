@@ -978,7 +978,7 @@ get '/tickets/?' => require_login sub {
 
     my @tickets = rset('Ticket')->summary(
         login     => var('login'),
-        site_id   => var('site_ids'),
+        site_id   => query_parameters->get('site_id') || var('site_ids'),
         sort      => session('ticket_sort'),
         sort_desc => session('ticket_desc'),
         task_id   => $task && $task->id,

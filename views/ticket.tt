@@ -14,7 +14,7 @@
 [% END %]
 
 [% IF ticket.task %]
-    <h4>[% ticket.task.name | html %]</h4>
+    <h4><a href="/tickets?task_id=[% ticket.task_id %]&site_id=[% ticket.site_id %]">[% ticket.task.name | html %]</a></h4>
 [% END %]
 
 [% UNLESS !ticket.id OR login.is_admin OR ticket.actionee == "local" %]
