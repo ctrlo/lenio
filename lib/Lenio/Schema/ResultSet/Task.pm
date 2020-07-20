@@ -661,7 +661,7 @@ sub _task_tables
                 $task->name,
                 $next_due && $next_due->strftime($options{dateformat}),
                 $task->next_planned && $task->next_planned->strftime($options{dateformat}),
-                $last_done && $last_done->strftime($options{dateformat}),
+                $task->last_completed && $task->last_completed->strftime($options{dateformat}),
                 defined $price_planned ? _price($price_planned) : undef,
                 defined $price_actual ? _price($price_actual) : undef,
                 $task->period,
@@ -879,9 +879,17 @@ sub finsum
                 'Contractor',
             );
         unshift @$data, \@headings;
+        my $cellprops = [];
+        foreach my $row (@$data)
+        {
+            push @$cellprops, !$table->{is_reactive} && $row->[3]
+                ? [({background_color => '#77dd77'}) x @$row]
+                : [(undef) x @$row];
+        }
         $pdf->table(
             data         => $data,
             header_props => $hdr_props,
+            cell_props   => $cellprops,
             font_size    => 8,
         );
         $pdf->text("<b>Total planned cost: "._price($table->{total_planned})."</b>", indent => 350, size => 10);
