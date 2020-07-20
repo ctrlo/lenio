@@ -6,7 +6,7 @@ use base qw(DBIx::Class::ResultSet);
 
 sub active_rs
 {   shift->search({
-        deleted => undef,
+        'me.deleted' => undef,
     }, {
         order_by => [
             'me.surname', 'me.firstname',
