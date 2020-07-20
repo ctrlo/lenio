@@ -162,23 +162,26 @@ sub summary
             'site_tasks.site_id',
             # This next block selects the contractor of the most recent ticket
             # in the relevant selection
-            $schema->resultset('Ticket')->search({
-                'ticket.id' => {'=' => $schema->resultset('Task')
-                    ->correlate('tickets')
-                    ->search({ site_id => $site_id })
-                    ->get_column('id')
-                    ->max_rs->as_query}
-            },{
-                alias    => 'ticket', # Prevent conflict with other "me" table
-                prefetch => 'contractor',
-            })->get_column('contractor.name')->max_rs->as_query,
+            {
+                "" => $schema->resultset('Ticket')->search({
+                    'ticket.id' => {'=' => $schema->resultset('Task')
+                        ->correlate('tickets')
+                        ->search({ site_id => $site_id, -or => [@dates] })
+                        ->get_column('id')
+                        ->max_rs->as_query}
+                },{
+                    alias    => 'ticket', # Prevent conflict with other "me" table
+                    prefetch => 'contractor',
+                })->get_column('contractor.name')->max_rs->as_query,
+                -as => 'contractor_name',
+            },
             # This next block selects the contractor ID of the most recent ticket
             # in the relevant selection
             {
                 "" => $schema->resultset('Ticket')->search({
                     'ticket2.id' => {'=' => $schema->resultset('Task')
                         ->correlate('tickets')
-                        ->search({ site_id => $site_id })
+                        ->search({ site_id => $site_id, -or => [@dates] })
                         ->get_column('id')
                         ->max_rs->as_query}
                 },{
