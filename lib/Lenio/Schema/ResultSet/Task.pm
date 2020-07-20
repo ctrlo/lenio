@@ -414,6 +414,7 @@ sub overdue
                     ]
                 },
                 'select' => [
+                    'me.id',
                     'me.name',
                     'me.period_qty',
                     'me.period_unit',
@@ -482,6 +483,40 @@ sub overdue
                         })
                         ->get_column('id')
                         ->as_query, -as => 'ticket_planned_id' },
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            },
+                            'metask.completed' => undef,
+                            'metask.planned'   => undef,
+                        },
+                        {
+                            alias => 'metask',
+                        })
+                        ->get_column('provisional')
+                        ->min_rs->as_query, -as => 'ticket_provisional' },
+                    { max => $schema->resultset('Ticket')
+                        ->search({
+                            'metask.site_id' => {
+                                -ident => 'site_tasks.site_id'
+                            },
+                            'metask.task_id' => {
+                                -ident => 'site_tasks.task_id'
+                            },
+                            'metask.completed' => undef,
+                            'metask.planned'   => undef,
+                        },
+                        {
+                            alias    => 'metask',
+                            order_by => { -asc => 'metask.provisional' },
+                            rows     => 1,
+                        })
+                        ->get_column('id')
+                        ->as_query, -as => 'ticket_provisional_id' },
                 ],
                 group_by => [
                     'site_tasks.task_id', 'site_tasks.site_id',
@@ -489,6 +524,12 @@ sub overdue
                 having => {
                     'ticket_completed' => [
                         undef, 
+                        {
+                            '<' => $self->dt_SQL_subtract($self->utc_now, $interval, { -ident => '.period_qty' }),
+                        },
+                    ],
+                    ticket_planned => [
+                        undef,
                         {
                             '<' => $self->dt_SQL_subtract($self->utc_now, $interval, { -ident => '.period_qty' }),
                         },
@@ -505,10 +546,12 @@ sub overdue
     foreach my $task (@tasks)
     {
         my $parser = $self->result_source->storage->datetime_parser;
-        my $ticket_planned_raw   = $task->get_column('ticket_planned');
-        my $ticket_planned       = $ticket_planned_raw && $parser->parse_date($ticket_planned_raw);
-        my $ticket_completed_raw = $task->get_column('ticket_completed');
-        my $ticket_completed     = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
+        my $ticket_provisional_raw = $task->get_column('ticket_provisional');
+        my $ticket_provisional     = $ticket_provisional_raw && $parser->parse_date($ticket_provisional_raw);
+        my $ticket_planned_raw     = $task->get_column('ticket_planned');
+        my $ticket_planned         = $ticket_planned_raw && $parser->parse_date($ticket_planned_raw);
+        my $ticket_completed_raw   = $task->get_column('ticket_completed');
+        my $ticket_completed       = $ticket_completed_raw && $parser->parse_date($ticket_completed_raw);
         push @all_tasks, {
             id                => $task->id,
             name              => $task->name,
@@ -522,10 +565,12 @@ sub overdue
                     name => $task->get_column('org_name'),
                 },
             },
-            last_planned      => $ticket_planned,
-            last_planned_id   => $task->get_column('ticket_planned_id'),
-            last_completed    => $ticket_completed,
-            last_completed_id => $task->get_column('ticket_completed_id'),
+            first_provisional    => $ticket_provisional,
+            first_provisional_id => $task->get_column('ticket_provisional_id'),
+            last_planned         => $ticket_planned,
+            last_planned_id      => $task->get_column('ticket_planned_id'),
+            last_completed       => $ticket_completed,
+            last_completed_id    => $task->get_column('ticket_completed_id'),
         };
     }
 

@@ -1,4 +1,4 @@
-<h3>Tasks overdue</h3>
+<h3>Tasks overdue and unplanned</h3>
 
 [% IF tasks.size %]
 
@@ -8,14 +8,12 @@
             <th><a href="?sort=org" style="color:inherit">Site</a></th>
             <th><a href="?sort=completed" style="color:inherit">Last done</a></th>
             <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
+            <th>Uncompleted</th>
         </tr>
 
         [% FOR task IN tasks %]
             <tr>
                 <td>[% task.name %]
-                    [% IF login.is_admin OR NOT task.global %]
-                    (<a href="/ticket/0?task_id=[% task.id %]&site_id=[% session.site_id %]">Create ticket</a>)
-                    [% END %]
                 </td>
                 <td>[% task.site.org.name %] ([% task.site.name %])</td>
                 <td>
@@ -30,6 +28,17 @@
                         <a href="/ticket/[% task.last_planned_id %]">[% task.last_planned.strftime(dateformat) %]</a>
                     [% ELSE %]
                         (no planned date)
+                    [% END %]
+                </td>
+                <td>
+                    [% IF task.first_provisional %]
+                        <a href="/ticket/[% task.first_provisional_id %]">[% task.first_provisional.strftime(dateformat) %]</a>
+                    [% ELSE %]
+                        [% IF login.is_admin OR NOT task.global %]
+                            (<a href="/ticket/0?task_id=[% task.id %]&site_id=[% task.site.id %]">Create ticket</a>)
+                        [% ELSE %]
+                            (no uncompleted ticket)
+                        [% END %]
                     [% END %]
                 </td>
             </tr>
