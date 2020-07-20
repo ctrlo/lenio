@@ -659,6 +659,8 @@ sub _task_tables
             $price_actual  = $task->cost_actual;
             push @data, [
                 $task->name,
+                $next_due && $next_due->strftime($options{dateformat}),
+                $task->next_planned && $task->next_planned->strftime($options{dateformat}),
                 $last_done && $last_done->strftime($options{dateformat}),
                 defined $price_planned ? _price($price_planned) : undef,
                 defined $price_actual ? _price($price_actual) : undef,
@@ -868,7 +870,9 @@ sub finsum
                 'Contractor',
             ) : (
                 'Item',
-                'Last done',
+                'Service due',
+                'Service planned',
+                'Service completed',
                 'Planned cost',
                 'Actual cost',
                 'Period',
