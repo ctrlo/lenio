@@ -134,6 +134,50 @@ sub summary
                 ]
             };
         }
+        if ($dates->{this_fy})
+        {
+            # Although FY is different by site, assume it's from 1st April.
+            # This is so that we can filter across multiple sites.
+            my $now  = DateTime->now;
+            my $year = $now->month >= 4 ? $now->year : $now->year - 1;
+            my $from = DateTime->new(
+                year  => $year,
+                month => 4,
+                day   => 1,
+            );
+            my $to   = $from->clone->add(years => 1);
+            push @dates, {
+                -and => [
+                    'me.provisional' => { '>=' => $dtf->format_date($from) },
+                    'me.provisional' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.planned' => { '>=' => $dtf->format_date($from) },
+                    'me.planned' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+            push @dates, {
+                -and => [
+                    'me.completed' => { '>=' => $dtf->format_date($from) },
+                    'me.completed' => { '<' => $dtf->format_date($to) },
+                ]
+            };
+        }
+        if ($dates->{blank})
+        {
+            push @dates, {
+                -and => [
+                    'me.provisional' => undef,
+                    'me.provisional' => undef,
+                    'me.planned' => undef,
+                    'me.planned' => undef,
+                    'me.completed' => undef,
+                    'me.completed' => undef,
+                ]
+            };
+        }
         push @filters, {
             -or => \@dates,
         } if @dates;

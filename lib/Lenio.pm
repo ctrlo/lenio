@@ -936,6 +936,10 @@ get '/tickets/?' => require_login sub {
                 if $tt eq 'this-month';
             $ticket_filter->{dates}->{next_month} = !!query_parameters->get('set')
                 if $tt eq 'next-month';
+            $ticket_filter->{dates}->{this_fy} = !!query_parameters->get('set')
+                if $tt eq 'this-fy';
+            $ticket_filter->{dates}->{blank} = !!query_parameters->get('set')
+                if $tt eq 'blank';
         }
         else {
             # Clear

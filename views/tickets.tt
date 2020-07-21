@@ -95,6 +95,18 @@
                     [% IF ticket_filter.dates.next_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                 </a>
             </li>
+            <li>
+                <a href="?filter-dates=this-fy[% IF NOT ticket_filter.dates.this_fy %]&set=1[% END %]">
+                    This financial year
+                    [% IF ticket_filter.dates.this_fy %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-dates=blank[% IF NOT ticket_filter.dates.blank %]&set=1[% END %]">
+                    Dates blank
+                    [% IF ticket_filter.dates.blank %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
             <li role="separator" class="divider"></li>
             <li role="presentation" class="dropdown-header">Invoicing and reporting</li>
             <li>
