@@ -1411,11 +1411,18 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
         # Get any adhoc tasks
         @adhocs = rset('Ticket')->summary(
-            login             => var('login'),
-            site_id           => var('site_ids'),
-            task_tickets      => 0,
-            with_site_tickets => var('login')->is_admin ? 0 : undef,
-            fy                => session('site_id') && session('fy'),
+            login        => var('login'),
+            site_id      => var('site_ids'),
+            task_tickets => 0,
+            fy           => session('site_id') && session('fy'),
+            filter       => {
+                type => {
+                    reactive => 1,
+                },
+                costs => {
+                    actual => 1,
+                },
+            },
         ) if var('site_ids');
         if ($csv eq 'reactive')
         {

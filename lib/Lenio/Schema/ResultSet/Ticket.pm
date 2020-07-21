@@ -84,6 +84,22 @@ sub summary
         } if @actionee;
     }
 
+    if (my $costs = $filter->{costs})
+    {
+        my @costs;
+        if ($costs->{actual})
+        {
+            push @costs, {'me.cost_actual' => { '!=' => undef }};
+        }
+        if ($costs->{planned})
+        {
+            push @costs, {'me.cost_planned' => { '!=' => undef }};
+        }
+        push @filters, {
+            -or => \@costs,
+        } if @costs;
+    }
+
     if (my $dates = $filter->{dates})
     {
         my $dtf = $self->result_source->schema->storage->datetime_parser;
