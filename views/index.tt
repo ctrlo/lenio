@@ -33,11 +33,7 @@
                 <td>
                     [% IF task.first_provisional_id %]
                         <a href="/ticket/[% task.first_provisional_id %]">
-                            [% IF task.first_provisional %]
-                                [% task.first_provisional.strftime(dateformat) %]
-                            [% ELSE %]
-                                Ticket [% task.first_provisional_id %]
-                            [% END %]
+                            Ticket [% task.first_provisional_id %]
                         </a>
                     [% ELSE %]
                         [% IF login.is_admin OR NOT task.global %]
