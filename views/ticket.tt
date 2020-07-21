@@ -161,26 +161,32 @@
             <div class="form-group">
                 <label for="comment">Comments</label>
                 [% FOR comment IN ticket.comments %]
-                <div class="well well-sm">
-                    <strong>
-                        [% dt = comment.datetime %]
-                        [%# Timezone floating from DB. Set to UTC then local %]
-                        [% dt = dt.set_time_zone('UTC') %]
-                        [% dt = dt.set_time_zone('Europe/London') %]
-                        By [% comment.login.full_name | html %] ([% dt %])
-                    </strong>
-                    [% IF login.is_admin %]
-                        <span class="pull-right">(<a href="#" data-toggle="modal"
-                            data-target="#modal_comment_delete" data-comment_id="[% comment.id %]">Delete comment</a>)
-                        </span>
-                    [% END %]
-                <br />[% comment.text | html %]</div>
+                    [% NEXT IF comment.admin_only AND NOT login.is_admin %]
+                    <div class="well well-sm">
+                        <strong>
+                            [% dt = comment.datetime %]
+                            [%# Timezone floating from DB. Set to UTC then local %]
+                            [% dt = dt.set_time_zone('UTC') %]
+                            [% dt = dt.set_time_zone('Europe/London') %]
+                            By [% comment.login.full_name | html %] ([% dt %])
+                        </strong>
+                        [% IF login.is_admin %]
+                            <span class="pull-right">(<a href="#" data-toggle="modal"
+                                data-target="#modal_comment_delete" data-comment_id="[% comment.id %]">Delete comment</a>)
+                            </span>
+                        [% END %]
+                    <br />[% comment.text | html %]</div>
                 [% END %]
                 <textarea name="comment" id="comments" class="form-control" rows="3"></textarea>
             </div>
             <div class="form-group">
                 [% IF ticket.id %]
-                <button type="submit" name="addcomment" value="submit" class="btn btn-default">Add comment</button>
+                    [% IF login.is_admin %]
+                        <button type="submit" name="addcomment" value="public" class="btn btn-default">Add public comment</button>
+                        <button type="submit" name="addcomment" value="private" class="btn btn-default">Add private comment</button>
+                    [% ELSE %]
+                        <button type="submit" name="addcomment" value="submit" class="btn btn-default">Add comment</button>
+                    [% END %]
                 [% END %]
             </div>
         </div>

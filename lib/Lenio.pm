@@ -837,26 +837,32 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         }
     }
 
-    if (body_parameters->get('addcomment'))
+    if (my $submit = body_parameters->get('addcomment'))
     {
         $comment->ticket_id($ticket->id);
-        if (process sub { $comment->insert })
+        if ($submit eq 'private' && var('login')->is_admin)
         {
-            my $args = {
-                login       => var('login'),
-                template    => 'ticket/comment',
-                url         => "/ticket/$id",
-                ticket      => $ticket,
-                subject     => "Ticket ".$ticket->id." updated - ",
-                comment     => body_parameters->get('comment'),
-            };
-            my $email = Lenio::Email->new(
-                config   => config,
-                schema   => schema,
-                uri_base => request->uri_base,
-                site     => $ticket->site,
-            );
-            $email->send($args);
+            $comment->admin_only(1);
+        }
+        else {
+            if (process sub { $comment->insert })
+            {
+                my $args = {
+                    login       => var('login'),
+                    template    => 'ticket/comment',
+                    url         => "/ticket/$id",
+                    ticket      => $ticket,
+                    subject     => "Ticket ".$ticket->id." updated - ",
+                    comment     => body_parameters->get('comment'),
+                };
+                my $email = Lenio::Email->new(
+                    config   => config,
+                    schema   => schema,
+                    uri_base => request->uri_base,
+                    site     => $ticket->site,
+                );
+                $email->send($args);
+            }
         }
     }
 
