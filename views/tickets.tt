@@ -22,7 +22,7 @@
             </li>
             <li>
                 <a href="?filter-type=task[% IF NOT ticket_filter.type.task %]&set=1[% END %]">
-                    Tickets for tasks
+                    Tickets for services
                     [% IF ticket_filter.type.task %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                 </a>
             </li>
@@ -56,7 +56,7 @@
             </li>
             <li>
                 <a href="?filter-actionee=admin[% IF NOT ticket_filter.actionee.admin %]&set=1[% END %]">
-                    Action on [% company_name | html %]
+                    Action currently on [% company_name | html %]
                     [% IF ticket_filter.actionee.admin %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                 </a>
             </li>
@@ -68,13 +68,13 @@
             </li>
             <li>
                 <a href="?filter-actionee=local-action[% IF NOT ticket_filter.actionee.local_action %]&set=1[% END %]">
-                    Waiting for action from local site
+                    Action currently with site
                     [% IF ticket_filter.actionee.local_action %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                 </a>
             </li>
             <li>
                 <a href="?filter-actionee=local-site[% IF NOT ticket_filter.actionee.local_site %]&set=1[% END %]">
-                    To be rectified by local site
+                    To be rectified in-house
                     [% IF ticket_filter.actionee.local_site %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                 </a>
             </li>
