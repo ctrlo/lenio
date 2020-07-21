@@ -49,7 +49,7 @@ sub summary
         }
         if ($status->{planned})
         {
-            push @status, {'me.planned' => { '!=' => undef } };
+            push @status, {'me.planned' => { '!=' => undef }, 'me.completed' => undef };
         }
         if ($status->{completed})
         {
@@ -69,11 +69,11 @@ sub summary
         }
         if ($actionee->{local_action})
         {
-            push @actionee, {'me.actionee' => 'local'};
+            push @actionee, {'me.actionee' => 'with_site'};
         }
         if ($actionee->{local_site})
         {
-            push @actionee, {'me.actionee' => 'with_site'};
+            push @actionee, {'me.actionee' => 'local'};
         }
         if ($actionee->{contractor})
         {
