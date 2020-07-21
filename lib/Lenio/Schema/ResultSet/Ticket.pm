@@ -283,7 +283,11 @@ sub summary
         : $args{sort} eq 'type'
         ? ['tasktype.name', 'me.completed']
         : 'me.id';
-    $order_by = { -desc => $order_by} if $args{sort_desc};
+    if ($args{sort_desc} || !$args{sort}) # Sort descending for default with ID
+    {
+        $order_by = { -desc => $order_by};
+    }
+
     $self->search($search, {
         prefetch => [
             {
