@@ -877,6 +877,89 @@ get '/tickets/?' => require_login sub {
     # Set filtering of tickets based on drop-down
     my $ticket_filter = session 'ticket_filter';
 
+    my $filter_names = {
+        reactive        => {
+            url   => 'reactive',
+            group => 'type',
+            name  => 'Reactive tickets',
+        },
+        task            => {
+            url   => 'task',
+            group => 'type',
+            name  => 'Tickets for services',
+        },
+        not_planned     => {
+            url   => 'not-planned',
+            group => 'status',
+            name  => 'Not planned',
+        },
+        planned         => {
+            url   => 'planned',
+            group => 'status',
+            name  => 'Planned but not completed',
+        },
+        completed       => {
+            url   => 'completed',
+            group => 'status',
+            name  => 'Completed',
+        },
+        admin           => {
+            url   => 'admin',
+            group => 'actionee',
+            name  => 'Action currently on '.config->{lenio}->{invoice}->{company},
+        },
+        contractor      => {
+            url   => 'contractor',
+            group => 'actionee',
+            name  => 'Action on contractor',
+        },
+        local_action    => {
+            url   => 'local-action',
+            group => 'actionee',
+            name  => 'Action currently with site',
+        },
+        local_site      => {
+            url   => 'local-site',
+            group => 'actionee',
+            name  => 'To be rectified in-house',
+        },
+        this_month      => {
+            url   => 'this-month',
+            group => 'dates',
+            name  => 'This month',
+        },
+        next_month      => {
+            url   => 'next-month',
+            group => 'dates',
+            name  => 'Next month',
+        },
+        this_fy         => {
+            url   => 'this-fy',
+            group => 'dates',
+            name  => 'This financial year',
+        },
+        blank           => {
+            url   => 'blank',
+            group => 'dates',
+            name  => 'Dates blank',
+        },
+        no_invoice      => {
+            url   => 'no-invoice',
+            group => 'ir',
+            name  => 'Tickets without invoice',
+        },
+        no_invoice_sent => {
+            url   => 'no-invoice-sent',
+            group => 'ir',
+            name  => 'Tickets without invoice sent',
+        },
+        no_report       => {
+            url   => 'no-report',
+            group => 'ir',
+            name  => 'Tickets without report',
+        },
+    };
+
     if (defined query_parameters->get('filter-type'))
     {
         if (my $tt = query_parameters->get('filter-type'))
@@ -989,15 +1072,26 @@ get '/tickets/?' => require_login sub {
         filter    => $ticket_filter,
     );
 
+    my @selected_filters;
+    foreach my $type (keys %$ticket_filter)
+    {
+        foreach my $name (keys %{$ticket_filter->{$type}})
+        {
+            push @selected_filters, $name if $ticket_filter->{$type}->{$name};
+        }
+    };
+
     template 'tickets' => {
-        task         => $task, # Tickets related to task
-        site_tasks   => [rset('Task')->site_tasks_grouped(site_ids => var('site_ids'))],
-        tickets      => \@tickets,
-        sort         => session('ticket_sort'),
-        sort_desc    => session('ticket_desc'),
-        dateformat   => config->{lenio}->{dateformat},
-        ticket_filter => session('ticket_filter'),
-        page         => 'ticket'
+        task             => $task, # Tickets related to task
+        site_tasks       => [rset('Task')->site_tasks_grouped(site_ids => var('site_ids'))],
+        tickets          => \@tickets,
+        sort             => session('ticket_sort'),
+        sort_desc        => session('ticket_desc'),
+        dateformat       => config->{lenio}->{dateformat},
+        ticket_filter    => session('ticket_filter'),
+        selected_filters => \@selected_filters,
+        filter_names     => $filter_names,
+        page             => 'ticket'
     };
 };
 
