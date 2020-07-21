@@ -138,6 +138,8 @@ __PACKAGE__->add_columns(
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "completed",
   { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
+  "cancelled",
+  { data_type => "date", datetime_undef_if_invalid => 1, is_nullable => 1 },
   "contractor_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "task_id",

@@ -730,6 +730,16 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         }
     }
 
+    if (body_parameters->get('cancel_ticket'))
+    {
+        error __"You do not have permission to cancel this ticket"
+            unless var('login')->is_admin || $ticket->actionee eq 'local';
+        if (process sub { $ticket->update({ cancelled => DateTime->now }) })
+        {
+            forwardHome({ success => "Ticket has been successfully cancelled" }, 'tickets');
+        }
+    }
+
     # Comment can be added on ticket creation or separately.  Create the
     # object, which will be added at ticket insertion time or otherwise later.
     my $comment = body_parameters->get('comment')
@@ -903,6 +913,11 @@ get '/tickets/?' => require_login sub {
             group => 'status',
             name  => 'Completed',
         },
+        cancelled       => {
+            url   => 'cancelled',
+            group => 'status',
+            name  => 'Cancelled',
+        },
         admin           => {
             url   => 'admin',
             group => 'actionee',
@@ -985,6 +1000,8 @@ get '/tickets/?' => require_login sub {
                 if $tt eq 'planned';
             $ticket_filter->{status}->{completed} = !!query_parameters->get('set')
                 if $tt eq 'completed';
+            $ticket_filter->{status}->{cancelled} = !!query_parameters->get('set')
+                if $tt eq 'cancelled';
         }
         else {
             # Clear

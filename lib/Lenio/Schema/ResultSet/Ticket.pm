@@ -55,9 +55,24 @@ sub summary
         {
             push @status, {'me.completed' => { '!=' => undef } };
         }
-        push @filters, {
-            -or => \@status,
-        } if @status;
+        if ($status->{cancelled})
+        {
+            push @status, {'me.cancelled' => { '!=' => undef } };
+        }
+        if (@status)
+        {
+            push @filters, {
+                -or => \@status,
+            };
+        }
+        else {
+            # Default to excluding cancelled tickets
+            push @filters, {'me.cancelled' => undef };
+        }
+    }
+    else {
+        # Default to excluding cancelled tickets
+        push @filters, {'me.cancelled' => undef };
     }
 
     if (my $actionee = $filter->{actionee})

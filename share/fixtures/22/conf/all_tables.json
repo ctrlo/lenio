@@ -1,0 +1,113 @@
+{
+   "belongs_to" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "Tasktype"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "class" : "Permission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Login",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Contractor"
+      },
+      {
+         "class" : "Audit",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Site"
+      },
+      {
+         "class" : "CheckItem",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Comment",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "class" : "Org",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "class" : "EventOrg",
+         "quantity" : "all"
+      },
+      {
+         "class" : "CheckDone",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Group"
+      },
+      {
+         "class" : "Invoice",
+         "quantity" : "all"
+      },
+      {
+         "class" : "SiteGroup",
+         "quantity" : "all"
+      },
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginOrg"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginPermission"
+      },
+      {
+         "class" : "CheckItemOption",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Notice"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Event"
+      }
+   ],
+   "might_have" : {
+      "fetch" : 0
+   }
+}

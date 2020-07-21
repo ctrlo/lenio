@@ -51,6 +51,12 @@
                         [% IF ticket_filter.status.completed %]<span class="glyphicon glyphicon-ok"></span>[% END %]
                     </a>
                 </li>
+                <li>
+                    <a href="?filter-status=cancelled[% IF NOT ticket_filter.status.cancelled %]&set=1[% END %]">
+                        [% filter_names.cancelled.name | html %]
+                        [% IF ticket_filter.status.cancelled %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                    </a>
+                </li>
                 <li role="separator" class="divider"></li>
                 <li role="presentation" class="dropdown-header">Actionee</li>
                 <li>
