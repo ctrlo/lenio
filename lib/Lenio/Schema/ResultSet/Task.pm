@@ -247,6 +247,7 @@ sub site_tasks_grouped
         my @all = $self->search({
             'site_tasks.site_id' => $site_ids,
             'task.global'        => 1,
+            'task.tasktype_id'   => { '!=' => undef },
         },{
             prefetch => {
                 site_tasks => [
