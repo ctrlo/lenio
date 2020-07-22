@@ -403,13 +403,13 @@ sub _cal_item
     };
 
     if ( $item{due} ) {
-        if ( DateTime->compare( $item{due}, $self->today ) < 0)
-        {
-            $t->{class} = 'event-important';
-        }
-        elsif ($item{next_planned})
+        if ($item{next_planned})
         {
             $t->{class} = 'event-warning-planned';
+        }
+        elsif ( DateTime->compare( $item{due}, $self->today ) < 0)
+        {
+            $t->{class} = 'event-important';
         }
         else {
             $t->{class} = 'event-warning';
