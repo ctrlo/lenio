@@ -190,6 +190,8 @@ get '/' => require_login sub {
         session task_sort => query_parameters->get('sort');
     }
 
+    # Overdue tasks for non-global items are not being used so are now removed
+    # from the template. Code retained here anyway for time being.
     my $local = var('login')->is_admin ? 0 : 1; # Only show local tasks for non-admin
     my @overdue = rset('Task')->overdue(
         site_id   => var('site_ids'),

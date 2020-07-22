@@ -1,55 +1,59 @@
 <h3>Tasks overdue and unplanned</h3>
 
-[% IF tasks.size %]
+[% IF login.is_admin %]
 
-    <table class="table table-striped">
-        <tr>
-            <th><a href="?sort=task" style="color:inherit">Task</a></th>
-            <th><a href="?sort=org" style="color:inherit">Site</a></th>
-            <th><a href="?sort=completed" style="color:inherit">Last done</a></th>
-            <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
-            <th>Relevant uncompleted ticket</th>
-        </tr>
+    [% IF tasks.size %]
 
-        [% FOR task IN tasks %]
+        <table class="table table-striped">
             <tr>
-                <td>[% task.name %]
-                </td>
-                <td>[% task.site.org.name %] ([% task.site.name %])</td>
-                <td>
-                    [% IF task.last_completed %]
-                        <a href="/ticket/[% task.last_completed_id %]">[% task.last_completed.strftime(dateformat) %]</a>
-                    [% ELSE %]
-                        (never)
-                    [% END %]
-                </td>
-                <td>
-                    [% IF task.last_planned %]
-                        <a href="/ticket/[% task.last_planned_id %]">[% task.last_planned.strftime(dateformat) %]</a>
-                    [% ELSE %]
-                        (no planned date)
-                    [% END %]
-                </td>
-                <td>
-                    [% IF task.first_provisional_id %]
-                        <a href="/ticket/[% task.first_provisional_id %]">
-                            Ticket [% task.first_provisional_id %]
-                        </a>
-                    [% ELSE %]
-                        [% IF login.is_admin OR NOT task.global %]
-                            (<a href="/ticket/0?task_id=[% task.id %]&site_id=[% task.site.id %]">Create ticket</a>)
-                        [% ELSE %]
-                            (no uncompleted ticket)
-                        [% END %]
-                    [% END %]
-                </td>
+                <th><a href="?sort=task" style="color:inherit">Task</a></th>
+                <th><a href="?sort=org" style="color:inherit">Site</a></th>
+                <th><a href="?sort=completed" style="color:inherit">Last done</a></th>
+                <th><a href="?sort=planned" style="color:inherit">Planned</a></th>
+                <th>Relevant uncompleted ticket</th>
             </tr>
-        [% END %]
-    </table> 
 
-[% ELSE %]
+            [% FOR task IN tasks %]
+                <tr>
+                    <td>[% task.name %]
+                    </td>
+                    <td>[% task.site.org.name %] ([% task.site.name %])</td>
+                    <td>
+                        [% IF task.last_completed %]
+                            <a href="/ticket/[% task.last_completed_id %]">[% task.last_completed.strftime(dateformat) %]</a>
+                        [% ELSE %]
+                            (never)
+                        [% END %]
+                    </td>
+                    <td>
+                        [% IF task.last_planned %]
+                            <a href="/ticket/[% task.last_planned_id %]">[% task.last_planned.strftime(dateformat) %]</a>
+                        [% ELSE %]
+                            (no planned date)
+                        [% END %]
+                    </td>
+                    <td>
+                        [% IF task.first_provisional_id %]
+                            <a href="/ticket/[% task.first_provisional_id %]">
+                                Ticket [% task.first_provisional_id %]
+                            </a>
+                        [% ELSE %]
+                            [% IF login.is_admin OR NOT task.global %]
+                                (<a href="/ticket/0?task_id=[% task.id %]&site_id=[% task.site.id %]">Create ticket</a>)
+                            [% ELSE %]
+                                (no uncompleted ticket)
+                            [% END %]
+                        [% END %]
+                    </td>
+                </tr>
+            [% END %]
+        </table>
 
-    <p>No tasks overdue</p>
+    [% ELSE %]
+
+        <p>No tasks overdue</p>
+
+    [% END %]
 
 [% END %]
 
