@@ -843,6 +843,11 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         if ($submit eq 'private' && var('login')->is_admin)
         {
             $comment->admin_only(1);
+            if (process sub { $comment->insert })
+            {
+                forwardHome(
+                    { success => "Comment has been added successfully" }, 'ticket/'.$ticket->id );
+            }
         }
         else {
             if (process sub { $comment->insert })
@@ -862,6 +867,8 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
                     site     => $ticket->site,
                 );
                 $email->send($args);
+                forwardHome(
+                    { success => "Comment has been added successfully" }, 'ticket/'.$ticket->id );
             }
         }
     }
