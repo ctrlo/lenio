@@ -179,6 +179,7 @@ hook before_template => sub {
     $tokens->{contractors} = [rset('Contractor')->ordered];
     $tokens->{contractors_selected} = session 'contractors';
     $tokens->{company_name} = config->{lenio}->{invoice}->{company};
+    $tokens->{logo} = config->{lenio}->{logo};
 };
 
 get '/' => require_login sub {

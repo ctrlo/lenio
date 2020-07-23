@@ -33,7 +33,7 @@
     <div class="container">
 
     <div>
-        <img class="padded" src="/images/BC_logo.png">
+        <img class="padded" src="[% logo %]" style="width:280px;height:auto">
     </div>
     [% UNLESS page=="login" %]
         <nav class="navbar navbar-default" role="navigation">
