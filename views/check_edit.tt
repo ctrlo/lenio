@@ -75,7 +75,7 @@
             [% END %]
             <a href="/task" role="button" class="btn btn-default">Cancel</a>
             [% UNLESS check.deleted %]
-                <button class="btn btn-default" data-toggle="modal" data-target="#modaldelete">Delete</button>
+                <a href="#" class="btn btn-default" data-toggle="modal" data-target="#modaldelete">Delete</a>
             [% END %]
         </div>
     </form>
