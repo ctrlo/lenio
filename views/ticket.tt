@@ -212,8 +212,8 @@
                             [% attach.name | html %]
                             </strong><br /><a class="btn btn-link btn-sm" href="/attach/[% attach.id %]">View</a>
                             [% IF login.is_admin %]
-                                | <form method="post"><button class="btn btn-link btn-sm"
-                                    name="attachrm" value="[% attach.id %]">Delete</button></form>
+                                | <button class="btn btn-link btn-sm"
+                                    name="attachrm" value="[% attach.id %]">Delete</button>
                             [% END %]
                             </div>
                         [% END %]
