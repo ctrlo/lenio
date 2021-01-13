@@ -162,6 +162,11 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+sub all_sites_string
+{   my $self = shift;
+    join ', ', map $_->name, $self->sites;
+}
+
 sub full_address
 {   my $self = shift;
     my @lines;
