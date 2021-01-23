@@ -1,183 +1,183 @@
 <h3>Tickets[% IF task %] ([% task.name %])[% END %]</h3>
 
-    <div class="btn-toolbar" role="toolbar">
+<div class="btn-toolbar" role="toolbar">
 
-        [% IF task %]
-            <a href="/ticket/0?task_id=[% task.id %]&site_id=[% login.site.id %]"
-                class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
-        [% ELSE %]
-            <a href="/ticket/0" class="btn btn-default" role="button">Create new reactive ticket</a>
-        [% END %]
-
-        <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Filter <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li role="presentation" class="dropdown-header">Ticket types</li>
-                <li>
-                    <a href="?filter-type=reactive[% IF NOT ticket_filter.type.reactive %]&set=1[% END %]">
-                        [% filter_names.reactive.name | html %]
-                        [% IF ticket_filter.type.reactive %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-type=task[% IF NOT ticket_filter.type.task %]&set=1[% END %]">
-                        [% filter_names.task.name | html %]
-                        [% IF ticket_filter.type.task %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li role="presentation" class="dropdown-header">Ticket status</li>
-                <li>
-                    <a href="?filter-status">Any status</a>
-                </li>
-                <li>
-                    <a href="?filter-status=not-planned[% IF NOT ticket_filter.status.not_planned %]&set=1[% END %]">
-                        [% filter_names.not_planned.name | html %]
-                        [% IF ticket_filter.status.not_planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-status=planned[% IF NOT ticket_filter.status.planned %]&set=1[% END %]">
-                        [% filter_names.planned.name | html %]
-                        [% IF ticket_filter.status.planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-status=completed[% IF NOT ticket_filter.status.completed %]&set=1[% END %]">
-                        [% filter_names.completed.name | html %]
-                        [% IF ticket_filter.status.completed %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-status=cancelled[% IF NOT ticket_filter.status.cancelled %]&set=1[% END %]">
-                        [% filter_names.cancelled.name | html %]
-                        [% IF ticket_filter.status.cancelled %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li role="presentation" class="dropdown-header">Actionee</li>
-                <li>
-                    <a href="?filter-actionee">Any actionee</a>
-                </li>
-                <li>
-                    <a href="?filter-actionee=admin[% IF NOT ticket_filter.actionee.admin %]&set=1[% END %]">
-                        [% filter_names.admin.name | html %]
-                        [% IF ticket_filter.actionee.admin %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-actionee=contractor[% IF NOT ticket_filter.actionee.contractor %]&set=1[% END %]">
-                        [% filter_names.contractor.name | html %]
-                        [% IF ticket_filter.actionee.contractor %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-actionee=local-action[% IF NOT ticket_filter.actionee.local_action %]&set=1[% END %]">
-                        [% filter_names.local_action.name | html %]
-                        [% IF ticket_filter.actionee.local_action %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-actionee=local-site[% IF NOT ticket_filter.actionee.local_site %]&set=1[% END %]">
-                        [% filter_names.local_site.name | html %]
-                        [% IF ticket_filter.actionee.local_site %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li role="presentation" class="dropdown-header">Dates</li>
-                <li>
-                    <a href="?filter-dates">All dates</a>
-                </li>
-                <li>
-                    <a href="?filter-dates=this-month[% IF NOT ticket_filter.dates.this_month %]&set=1[% END %]">
-                        [% filter_names.this_month.name | html %]
-                        [% IF ticket_filter.dates.this_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-dates=next-month[% IF NOT ticket_filter.dates.next_month %]&set=1[% END %]">
-                        [% filter_names.next_month.name | html %]
-                        [% IF ticket_filter.dates.next_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-dates=this-fy[% IF NOT ticket_filter.dates.this_fy %]&set=1[% END %]">
-                        [% filter_names.this_fy.name | html %]
-                        [% IF ticket_filter.dates.this_fy %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-dates=blank[% IF NOT ticket_filter.dates.blank %]&set=1[% END %]">
-                        [% filter_names.blank.name | html %]
-                        [% IF ticket_filter.dates.blank %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li role="presentation" class="dropdown-header">Invoicing and reporting</li>
-                <li>
-                    <a href="?filter-ir=no-invoice[% IF NOT ticket_filter.ir.no_invoice %]&set=1[% END %]">
-                        [% filter_names.no_invoice.name | html %]
-                        [% IF ticket_filter.ir.no_invoice %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-ir=no-invoice-sent[% IF NOT ticket_filter.ir.no_invoice_sent %]&set=1[% END %]">
-                        [% filter_names.no_invoice_sent.name | html %]
-                        [% IF ticket_filter.ir.no_invoice_sent %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-                <li>
-                    <a href="?filter-ir=no-report[% IF NOT ticket_filter.ir.no_report %]&set=1[% END %]">
-                        [% filter_names.no_report.name | html %]
-                        [% IF ticket_filter.ir.no_report %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Task <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a href="?task_id">All tasks</a>
-                </li>
-                <li role="separator" class="divider"></li>
-                [% FOREACH type IN site_tasks %]
-                    <li role="presentation" class="dropdown-header">[% type.name | html %]</li>
-                    [% FOREACH t IN type.tasks %]
-                        <li>
-                            <a href="?task_id=[% t.id %]">
-                                [% t.name | html %]
-                                [% IF task.id == t.id %]<span class="glyphicon glyphicon-ok"></span>[% END %]
-                            </a>
-                        </li>
-                    [% END %]
-                    [% UNLESS loop.last %]
-                        <li role="separator" class="divider"></li>
-                    [% END %]
-                [% END %]
-            </ul>
-        </div>
-    </div>
-
-    [% IF selected_filters.size %]
-        <p></p>
-        <div class="btn-toolbar" role="toolbar">
-            [% FOREACH fil IN selected_filters %]
-                <a href="/tickets/?filter-[% filter_names.$fil.group %]=[% filter_names.$fil.url %]"
-                    class="btn btn-default btn-xs" role="button">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    [% filter_names.$fil.name | html %]
-                </a>
-            [% END %]
-        </div>
+    [% IF task %]
+        <a href="/ticket/0?task_id=[% task.id %]&site_id=[% login.site.id %]"
+            class="btn btn-default" role="button">Create new ticket for [% task.name %]</a>
+    [% ELSE %]
+        <a href="/ticket/0" class="btn btn-default" role="button">Create new reactive ticket</a>
     [% END %]
 
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Filter <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li role="presentation" class="dropdown-header">Ticket types</li>
+            <li>
+                <a href="?filter-type=reactive[% IF NOT ticket_filter.type.reactive %]&set=1[% END %]">
+                    [% filter_names.reactive.name | html %]
+                    [% IF ticket_filter.type.reactive %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-type=task[% IF NOT ticket_filter.type.task %]&set=1[% END %]">
+                    [% filter_names.task.name | html %]
+                    [% IF ticket_filter.type.task %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Ticket status</li>
+            <li>
+                <a href="?filter-status">Any status</a>
+            </li>
+            <li>
+                <a href="?filter-status=not-planned[% IF NOT ticket_filter.status.not_planned %]&set=1[% END %]">
+                    [% filter_names.not_planned.name | html %]
+                    [% IF ticket_filter.status.not_planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-status=planned[% IF NOT ticket_filter.status.planned %]&set=1[% END %]">
+                    [% filter_names.planned.name | html %]
+                    [% IF ticket_filter.status.planned %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-status=completed[% IF NOT ticket_filter.status.completed %]&set=1[% END %]">
+                    [% filter_names.completed.name | html %]
+                    [% IF ticket_filter.status.completed %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-status=cancelled[% IF NOT ticket_filter.status.cancelled %]&set=1[% END %]">
+                    [% filter_names.cancelled.name | html %]
+                    [% IF ticket_filter.status.cancelled %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Actionee</li>
+            <li>
+                <a href="?filter-actionee">Any actionee</a>
+            </li>
+            <li>
+                <a href="?filter-actionee=admin[% IF NOT ticket_filter.actionee.admin %]&set=1[% END %]">
+                    [% filter_names.admin.name | html %]
+                    [% IF ticket_filter.actionee.admin %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=contractor[% IF NOT ticket_filter.actionee.contractor %]&set=1[% END %]">
+                    [% filter_names.contractor.name | html %]
+                    [% IF ticket_filter.actionee.contractor %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=local-action[% IF NOT ticket_filter.actionee.local_action %]&set=1[% END %]">
+                    [% filter_names.local_action.name | html %]
+                    [% IF ticket_filter.actionee.local_action %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-actionee=local-site[% IF NOT ticket_filter.actionee.local_site %]&set=1[% END %]">
+                    [% filter_names.local_site.name | html %]
+                    [% IF ticket_filter.actionee.local_site %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Dates</li>
+            <li>
+                <a href="?filter-dates">All dates</a>
+            </li>
+            <li>
+                <a href="?filter-dates=this-month[% IF NOT ticket_filter.dates.this_month %]&set=1[% END %]">
+                    [% filter_names.this_month.name | html %]
+                    [% IF ticket_filter.dates.this_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-dates=next-month[% IF NOT ticket_filter.dates.next_month %]&set=1[% END %]">
+                    [% filter_names.next_month.name | html %]
+                    [% IF ticket_filter.dates.next_month %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-dates=this-fy[% IF NOT ticket_filter.dates.this_fy %]&set=1[% END %]">
+                    [% filter_names.this_fy.name | html %]
+                    [% IF ticket_filter.dates.this_fy %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-dates=blank[% IF NOT ticket_filter.dates.blank %]&set=1[% END %]">
+                    [% filter_names.blank.name | html %]
+                    [% IF ticket_filter.dates.blank %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Invoicing and reporting</li>
+            <li>
+                <a href="?filter-ir=no-invoice[% IF NOT ticket_filter.ir.no_invoice %]&set=1[% END %]">
+                    [% filter_names.no_invoice.name | html %]
+                    [% IF ticket_filter.ir.no_invoice %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-ir=no-invoice-sent[% IF NOT ticket_filter.ir.no_invoice_sent %]&set=1[% END %]">
+                    [% filter_names.no_invoice_sent.name | html %]
+                    [% IF ticket_filter.ir.no_invoice_sent %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-ir=no-report[% IF NOT ticket_filter.ir.no_report %]&set=1[% END %]">
+                    [% filter_names.no_report.name | html %]
+                    [% IF ticket_filter.ir.no_report %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Task <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="?task_id">All tasks</a>
+            </li>
+            <li role="separator" class="divider"></li>
+            [% FOREACH type IN site_tasks %]
+                <li role="presentation" class="dropdown-header">[% type.name | html %]</li>
+                [% FOREACH t IN type.tasks %]
+                    <li>
+                        <a href="?task_id=[% t.id %]">
+                            [% t.name | html %]
+                            [% IF task.id == t.id %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                        </a>
+                    </li>
+                [% END %]
+                [% UNLESS loop.last %]
+                    <li role="separator" class="divider"></li>
+                [% END %]
+            [% END %]
+        </ul>
+    </div>
+</div>
+
+[% IF selected_filters.size %]
     <p></p>
+    <div class="btn-toolbar" role="toolbar">
+        [% FOREACH fil IN selected_filters %]
+            <a href="/tickets/?filter-[% filter_names.$fil.group %]=[% filter_names.$fil.url %]"
+                class="btn btn-default btn-xs" role="button">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                [% filter_names.$fil.name | html %]
+            </a>
+        [% END %]
+    </div>
+[% END %]
+
+<p></p>
 
 <table class="table table-striped">
     <tr>
