@@ -184,14 +184,46 @@
         [% IF task %]
             [% taskq = "&task_id=" _ task.id %]
         [% END %]
-        <th><a href="?sort=id[% taskq %]" style="color:inherit">ID</a></th>
-        <th><a href="?sort=title[% taskq %]" style="color:inherit">Title</a></th>
-        <th><a href="?sort=site[% taskq %]" style="color:inherit">Site</a></th>
-        <th><a href="?sort=provisional[% taskq %]" style="color:inherit">Copied date</a></th>
-        <th><a href="?sort=planned[% taskq %]" style="color:inherit">Planned</a></th>
-        <th><a href="?sort=completed[% taskq %]" style="color:inherit">Completed</a></th>
-        <th><a href="?sort=report[% taskq %]" style="color:inherit">Report received</a></th>
-        <th><a href="?sort=invoice[% taskq %]" style="color:inherit">Invoice sent</a></th>
+        <th>
+            <a href="?sort=id[% IF sort == 'id' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                ID
+            </a>
+        </th>
+        <th>
+            <a href="?sort=title[% IF sort == 'title' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Title
+            </a>
+        </th>
+        <th>
+            <a href="?sort=site[% IF sort == 'site' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Site
+            </a>
+        </th>
+        <th>
+            <a href="?sort=provisional[% IF sort == 'provisional' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Copied date
+            </a>
+        </th>
+        <th>
+            <a href="?sort=planned[% IF sort == 'planned' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Planned
+            </a>
+        </th>
+        <th>
+            <a href="?sort=completed[% IF sort == 'completed' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Completed
+            </a>
+        </th>
+        <th>
+            <a href="?sort=report[% IF sort == 'report' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Report received
+            </a>
+        </th>
+        <th>
+            <a href="?sort=invoice[% IF sort == 'invoice' AND NOT sort_desc %]&order=desc[% END %][% taskq %]" style="color:inherit">
+                Invoice sent
+            </a>
+        </th>
     </tr>
 
     [% FOR ticket IN tickets %]
