@@ -115,7 +115,7 @@ __PACKAGE__->add_columns(
   "username",
   { data_type => "varchar", is_nullable => 0, size => 128 },
   "email",
-  { data_type => "varchar", is_nullable => 0, size => 128 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "firstname",
   { data_type => "text", is_nullable => 1, size => 128 },
   "surname",

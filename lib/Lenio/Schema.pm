@@ -11,7 +11,7 @@ use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
-our $VERSION = 23;
+our $VERSION = 24;
 
 sub resultset
 {   my $self = shift;
