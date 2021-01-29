@@ -121,7 +121,7 @@ __PACKAGE__->add_columns(
   "surname",
   { data_type => "text", is_nullable => 1, size => 128 },
   "password",
-  { data_type => "varchar", is_nullable => 0, size => 128 },
+  { data_type => "varchar", is_nullable => 1, size => 128 },
   "is_admin",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "pwdreset",
