@@ -44,7 +44,7 @@ my @tests = (
     {
         name    => 'Item completed first time this month, but one missed at beginning',
         items   => 5,
-        classes => 'event-important event-success event-info event-warning event-warning',
+        classes => 'event-important event-success event-info event-warning-planned event-warning-planned',
         tickets => [
             {
                 task_id   => 1,
@@ -70,7 +70,7 @@ my @tests = (
     {
         name    => 'Only one item completed, other not done at all',
         items   => 4,
-        classes => 'event-success event-success event-info event-warning',
+        classes => 'event-success event-success event-info event-warning-planned',
         tickets => [
             {
                 task_id   => 1,
@@ -95,7 +95,7 @@ my @tests = (
     {
         name    => 'Items done out of normal cycle',
         items   => 5,
-        classes => 'event-important event-success event-success event-info event-warning',
+        classes => 'event-warning-planned event-success event-success event-info event-warning-planned',
         tickets => [
             {
                 task_id   => 1,
@@ -139,7 +139,7 @@ my @tests = (
     {
         name    => 'Overdue with next due',
         items   => 2,
-        classes => 'event-important event-info',
+        classes => 'event-warning-planned event-info',
         titles  => [qr/\Qplanned for 2016-08-20/, undef],
         tickets => [
             {
@@ -159,8 +159,8 @@ my @tests = (
     {
         name    => 'Overdue with next due in past',
         items   => 2,
-        classes => 'event-important event-info',
-        titles  => [qr/^((?!planned).)*$/, undef],
+        classes => 'event-warning-planned event-info',
+        titles  => [qr/\Qplanned for 2016-08-12/, undef],
         tickets => [
             {
                 task_id   => 2,
@@ -189,7 +189,7 @@ my @tests = (
     {
         name    => 'Item planned earlier than due date', # Should knock-off sequence
         items   => 4,
-        classes => 'event-success event-info event-warning event-warning',
+        classes => 'event-success event-info event-warning-planned event-warning-planned',
         tickets => [
             {
                 task_id   => 1,
@@ -210,7 +210,7 @@ my @tests = (
     {
         name    => 'Item planned earlier than due date but now past', # Should not knock-off sequence
         items   => 5,
-        classes => 'event-success event-info event-important event-warning event-warning',
+        classes => 'event-success event-info event-warning-planned event-warning-planned event-warning-planned',
         tickets => [
             {
                 task_id   => 1,
