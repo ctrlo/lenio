@@ -68,29 +68,52 @@ my $login = $seed_data->login;
 $login->update({ is_admin => 1 });
 foreach my $task_tickets (0, 1, undef)
 {
-    foreach my $uncompleted_only (0, 1)
+    foreach my $completed_only (0, 1)
     {
         foreach my $fy (undef, 2015, 2016)
         {
+            my $ticket_filter = !defined $task_tickets
+                ? {}
+                : $task_tickets
+                ? {
+                    type => {
+                        task     => 1,
+                        reactive => 0,
+                    },
+                } : {
+                    type => {
+                        task     => 0,
+                        reactive => 1,
+                    },
+                };
+            $ticket_filter->{status}->{completed} = 1 if $completed_only;
             my @summary = $schema->resultset('Ticket')->summary(
-                login            => $login,
-                site_id          => $site->id,
-                uncompleted_only => $uncompleted_only,
-                # task_id          => $task_id,
-                task_tickets     => $task_tickets,
-                fy               => $fy,
+                login   => $login,
+                site_id => $site->id,
+                filter  => $ticket_filter,
+                fy      => $fy,
             );
-            my $count = defined $task_tickets ? 1 : 2;
-            $count = $count * 2 if !$uncompleted_only;
-            if ($fy)
+            my $count;
+            if ($fy && $fy == 2016)
             {
-                if ($uncompleted_only || $fy == 2016)
-                {
-                    $count = 0;
-                }
-                else {
-                    $count = $count / 2;
-                }
+                $count = 0;
+            }
+            elsif ($fy && $fy == 2015)
+            {
+                $count = defined $task_tickets && $completed_only
+                    ? 1
+                    : defined $task_tickets
+                    ? 1
+                    : 2;
+            }
+            else {
+                $count = defined $task_tickets && $completed_only
+                    ? 1
+                    : defined $task_tickets
+                    ? 2
+                    : $completed_only
+                    ? 2
+                    : 4;
             }
             is( @summary, $count, "Correct number of tickets in summary" );
         }
@@ -149,10 +172,24 @@ foreach my $admin (0, 1)
     {
         foreach my $task_id (undef, $task->id)
         {
+            my $ticket_filter = !defined $task_tickets
+                ? {}
+                : $task_tickets
+                ? {
+                    type => {
+                        task     => 1,
+                        reactive => 0,
+                    },
+                } : {
+                    type => {
+                        task     => 0,
+                        reactive => 1,
+                    },
+                };
             my @summary = $schema->resultset('Ticket')->summary(
-                login            => $login,
-                task_id          => $task_id,
-                task_tickets     => $task_tickets,
+                login   => $login,
+                task_id => $task_id,
+                filter  => $ticket_filter,
             );
             # Count should always be the same, regardless of admin status:
             # - admin will see the ticket for site 2
@@ -172,7 +209,8 @@ foreach my $admin (0, 1)
                 else {
                     if ($task_id)
                     {
-                        is( @summary, 1, "Correct number of tickets in summary for viewing task ".$task->id." (admin $admin)" );
+                        # If searching on only reactive tickets, with a task ID, then nothing will be shown
+                        is( @summary, 0, "Correct number of tickets in summary for viewing task ".$task->id." (admin $admin)" );
                     }
                     else {
                         my $count = $admin ? 1 : 2;
