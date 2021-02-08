@@ -165,15 +165,15 @@
             [% cost_planned_total = 0 %][% cost_actual_total = 0 %]
             [% FOR task IN tasks %]
                     <tr>
-                        <td>[% task.tasktype.name %]</td>
+                        <td>[% task.tasktype.name | html %]</td>
                         <td>
                             [% IF site.id %]
-                                <a href="/tickets?task_id=[% task.id %]" title="View tickets related to this task">[% task.name %]</a>
+                                <a href="/tickets?task_id=[% task.id %]" title="View tickets related to this task">[% task.name | html %]</a>
                                 [% IF login.is_admin %]
                                 (<a href="/ticket/0?task_id=[% task.id %]" title="Create new ticket related to this task">Create ticket</a> | <a href="/task/[% task.id %]">Edit task</a> | <a href="javascript:;" data-toggle="modal" data-target="#modal_rm_task" data-task-id="[% task.id %]">Remove</a>)
                                 [% END %]
                             [% ELSE %]
-                                <a href="/task/[% task.id %]">[% task.name %]</a>
+                                <a href="/task/[% task.id %]">[% task.name | html %]</a>
                             [% END %]
                         </td>
                         [% IF site.id %]
