@@ -1175,7 +1175,7 @@ any ['get', 'post'] => '/invoice/:id' => require_login sub {
         $ticket or error __"No ticket specified to create the invoice for";
         $invoice->description(body_parameters->get('description'));
         $invoice->number(body_parameters->get('number'));
-        $invoice->disbursements(body_parameters->get('disbursements'));
+        $invoice->disbursements(body_parameters->get('disbursements') || undef);
         $invoice->ticket_id($ticket->id);
         $invoice->datetime(DateTime->now)
             if !$id;
