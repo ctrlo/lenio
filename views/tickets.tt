@@ -229,8 +229,8 @@
     [% FOR ticket IN tickets %]
     <tr>
         <td>[% ticket.id %]</td>
-        <td><a href="/ticket/[% ticket.id %]">[% IF ticket.name %][% ticket.name %][% ELSE %]View ticket[% END %]</a></td>
-        <td>[% ticket.site.org.name %] ([% ticket.site.name %])</td>
+        <td><a href="/ticket/[% ticket.id %]">[% IF ticket.name %][% ticket.name | html %][% ELSE %]View ticket[% END %]</a></td>
+        <td>[% ticket.site.org.name | html %] ([% ticket.site.name | html %])</td>
         <td>[% IF ticket.provisional %][% ticket.provisional.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
         <td>[% IF ticket.planned %][% ticket.planned.strftime(dateformat) %][% ELSE %](unplanned)[% END %]</td>
         <td>[% IF ticket.completed %][% ticket.completed.strftime(dateformat) %][% ELSE %](uncompleted)[% END %]</td>
