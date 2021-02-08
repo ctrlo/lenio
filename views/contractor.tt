@@ -47,7 +47,7 @@
 	    [% FOR contractor IN contractors %]
 	    <tr>
 		<td class="col-sm-1"><a href="/contractor/[% contractor.id %]">[% contractor.id %]</a></td>
-		<td class="col-sm-10">[% contractor.name %]</td>
+		<td class="col-sm-10">[% contractor.name | html %]</td>
 	    </tr>
 	    [% END %]
 	</table> 

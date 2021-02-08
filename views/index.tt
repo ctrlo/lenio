@@ -15,9 +15,9 @@
 
             [% FOR task IN tasks %]
                 <tr>
-                    <td>[% task.name %]
+                    <td>[% task.name | html %]
                     </td>
-                    <td>[% task.site.org.name %] ([% task.site.name %])</td>
+                    <td>[% task.site.org.name | html %] ([% task.site.name | html %])</td>
                     <td>
                         [% IF task.last_completed %]
                             <a href="/ticket/[% task.last_completed_id %]">[% task.last_completed.strftime(dateformat) %]</a>
