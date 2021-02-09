@@ -6,7 +6,7 @@ use base qw(DBIx::Class::ResultSet);
 
 use utf8; # Needed for £ symbols in PDF
 
-use CtrlO::PDF;
+use CtrlO::PDF 0.20;
 use DateTime;
 use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Number::Format;
@@ -655,14 +655,10 @@ sub _pdf
         logo         => $options{logo},
         logo_scaling => 0.15,
         orientation  => $options{orientation} || "portrait", # Default
-        top_padding  => 50,
-        #footer      => "My PDF document footer",
     );
 
     # Add a page
     $pdf->add_page;
-    # For the first page, move the cursor back up the page to remove the top_padding
-    $pdf->move_y_position(50);
 
     my $fy = Lenio::FY->new(site_id => $options{site}->id, year => $options{fy}, schema => $self->result_source->schema);
     my $period = $fy->costfrom->strftime("%d %B %Y")." to ".$fy->costto->strftime("%d %B %Y");
@@ -670,7 +666,7 @@ sub _pdf
     # Add headings
     $pdf->heading($options{company});
     $pdf->heading($options{title});
-    $pdf->heading($period, bottommargin => 20, size => 14);
+    $pdf->heading($period, size => 14);
     my $org = $options{site}->org;
     $pdf->text($org->full_address);
 
@@ -761,7 +757,7 @@ sub sla
     my $total = 0;
     foreach my $table (@tables)
     {
-        $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
+        $pdf->heading($table->{name}, size => 12);
         my $data = $table->{data};
         unshift @$data, [
             'Item',
@@ -786,10 +782,10 @@ sub sla
     $pdf->heading("Total fee for service contract: "._price($total)." +VAT", size => 14);
 
     $pdf->add_page;
-    $pdf->heading("Signature of Service Level Agreement", size => 12, topmargin => 15);
+    $pdf->heading("Signature of Service Level Agreement", size => 12);
     $pdf->text($options{sla_notes});
 
-    $pdf->heading("Signed", size => 12, topmargin => 15);
+    $pdf->heading("Signed");
     my $y = $pdf->y_position;
     $pdf->text("On behalf of ".$site->org->name);
     $pdf->text("Position:");
@@ -906,7 +902,7 @@ sub finsum
     my $total_planned = 0; my $total_actual = 0; my $total_reactive_planned = 0; my $total_reactive_actual = 0;
     foreach my $table (@tables)
     {
-        $pdf->heading($table->{name}, size => 12, topmargin => 10, bottommargin => 0);
+        $pdf->heading($table->{name}, size => 12);
         my $data = $table->{data};
         my @headings = $table->{is_reactive}
             ? (
