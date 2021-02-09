@@ -12,7 +12,7 @@ use DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000;
 use Number::Format;
 use Lenio::FY;
 use Log::Report;
-use Text::CSV;
+use Lenio::CSV;
 
 __PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1 Helper::ResultSet::CorrelateRelationship));
 
@@ -337,7 +337,7 @@ sub populate_tickets
 sub site_checks_csv
 {   my ($self, $site_id, %options) = @_;
     my $dateformat = $options{dateformat};
-    my $csv = Text::CSV->new;
+    my $csv = Lenio::CSV->new;
     my @headings = qw/check frequency last_done comments/;
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";
@@ -612,7 +612,7 @@ sub overdue
 sub csv
 {   my ($self, %options) = @_;
     my $dateformat = $options{dateformat};
-    my $csv = Text::CSV->new;
+    my $csv = Lenio::CSV->new;
     my @headings = qw/task frequency_qty frequency_unit contractor last_done next_due cost_planned cost_actual/;
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";

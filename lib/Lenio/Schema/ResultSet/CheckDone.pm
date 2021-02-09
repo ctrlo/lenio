@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use base qw(DBIx::Class::ResultSet);
 
+use Lenio::CSV;
+
 sub summary
 {   my ($self, %options) = @_;
 
@@ -24,7 +26,7 @@ sub summary
 sub summary_csv
 {   my ($self, %options) = @_;
     my $dateformat = $options{dateformat};
-    my $csv = Text::CSV->new;
+    my $csv = Lenio::CSV->new;
     my @headings = qw/name frequency date status comments/;
     $csv->combine(@headings);
     my $csvout = $csv->string."\n";

@@ -27,7 +27,7 @@ use Lenio::Calendar;
 use Lenio::Config;
 use Lenio::Email;
 use Session::Token;
-use Text::CSV;
+use Lenio::CSV;
 
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Extensible;
@@ -1509,7 +1509,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         ) if var('site_ids');
         if ($csv eq 'reactive')
         {
-            my $csv = Text::CSV->new;
+            my $csv = Lenio::CSV->new;
             my @headings = qw/title cost_planned cost_actual completed contractor/;
             $csv->combine(@headings);
             my $csvout = $csv->string."\n";
