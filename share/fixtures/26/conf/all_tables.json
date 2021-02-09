@@ -1,0 +1,113 @@
+{
+   "has_many" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "class" : "Ticket",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Audit",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "LoginNotice"
+      },
+      {
+         "class" : "Task",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Site"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Invoice"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "class" : "LoginOrg",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Permission"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "CheckDone",
+         "quantity" : "all"
+      },
+      {
+         "class" : "CheckItem",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Notice"
+      },
+      {
+         "class" : "Group",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Comment"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemOption"
+      },
+      {
+         "class" : "Event",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Login",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Org"
+      },
+      {
+         "class" : "Attach",
+         "quantity" : "all"
+      },
+      {
+         "class" : "SiteGroup",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Contractor"
+      }
+   ],
+   "might_have" : {
+      "fetch" : 0
+   },
+   "belongs_to" : {
+      "fetch" : 0
+   }
+}

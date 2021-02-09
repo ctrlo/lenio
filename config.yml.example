@@ -82,6 +82,7 @@ plugins:
     password_generator: Lenio::password_generator
     mail_from: '"Bradbury Consulting" <info@bradbury-consulting.co.uk>'
     login_page_handler: Lenio::login_page_handler
+    no_login_handler: 1
     exit_page: '/'
     realms:
       dbic:

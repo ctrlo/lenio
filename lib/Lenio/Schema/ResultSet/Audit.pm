@@ -44,7 +44,7 @@ sub login_success
 sub logout
 {   my ($self, $username, $login_id) = @_;
 
-    $self->schema->resultset('Audit')->create({
+    $self->create({
         login_id    => $login_id,
         description => "Logout by username $username",
         type        => 'logout',
@@ -55,7 +55,7 @@ sub logout
 sub login_failure
 {   my ($self, $username) = @_;
 
-    $self->schema->resultset('Audit')->create({
+    $self->create({
         description => "Login failure using username $username",
         type        => 'login_failure',
         datetime    => DateTime->now,
