@@ -226,9 +226,27 @@ sub login_page_handler
     };
 }
 
-post '/login' => sub {
+post '/login/?:code?' => sub {
 
     my $username = body_parameters->get('username');
+
+    if (body_parameters->get('submit_reset'))
+    {
+        if (my $username = param('username_reset'))
+        {
+            my $result = password_reset_send(username => $username);
+            defined $result
+                ? success(__('If the email address was valid then an email has been sent to it with a link to reset your password'))
+                : report({is_fatal => 0}, ERROR => 'Failed to send a password reset link. Did you enter a valid email address?');
+            redirect '/';
+        }
+    }
+
+    if (body_parameters->get('confirm_reset')) {
+        my $randompw = $password_generator->xkcd(words => 3);
+        user_password code => route_parameters->get('code'), new_password => $randompw;
+        return forward '/login', { new_password => $randompw }, { method => 'GET' };
+    }
 
     # Check whether login limit reached
     my $lastfail  = DateTime->now->subtract(minutes => 15);
@@ -1622,10 +1640,6 @@ sub _send_json
 {   header "Cache-Control" => "max-age=0, must-revalidate, private";
     content_type 'application/json';
     encode_json(shift);
-}
-
-sub password_generator
-{   $password_generator->xkcd( words => 3 );
 }
 
 sub _to_dt
