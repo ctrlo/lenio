@@ -184,6 +184,18 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 1 },
 );
 
+__PACKAGE__->has_many(
+  "tickets_live",
+  "Lenio::Schema::Result::Ticket",
+  sub {
+      my $args = shift;
+      {
+          "$args->{foreign_alias}.task_id"   => { -ident => "$args->{self_alias}.id" },
+          "$args->{foreign_alias}.cancelled" => undef,
+      };
+  }
+);
+
 =head2 tasktype
 
 Type: belongs_to

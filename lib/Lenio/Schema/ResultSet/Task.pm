@@ -165,7 +165,7 @@ sub summary
             {
                 "" => $schema->resultset('Ticket')->search({
                     'ticket.id' => {'=' => $schema->resultset('Task')
-                        ->correlate('tickets')
+                        ->correlate('tickets_live')
                         ->search({ site_id => $site_id, -or => [@dates] })
                         ->get_column('id')
                         ->max_rs->as_query}
@@ -180,7 +180,7 @@ sub summary
             {
                 "" => $schema->resultset('Ticket')->search({
                     'ticket2.id' => {'=' => $schema->resultset('Task')
-                        ->correlate('tickets')
+                        ->correlate('tickets_live')
                         ->search({ site_id => $site_id, -or => [@dates] })
                         ->get_column('id')
                         ->max_rs->as_query}
@@ -198,36 +198,36 @@ sub summary
          having => $having,
         '+columns' => {
             last_completed => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('completed')
                 ->max_rs->as_query,
             last_planned => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('planned')
                 ->max_rs->as_query,
             next_planned => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, completed => undef, planned => { '!=' => undef } }) # Next regardless of date options
                 ->get_column('planned')
                 ->max_rs->as_query,
             next_planned_id => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, completed => undef, planned => { '!=' => undef } }) # Next regardless of date options
                 ->get_column('id')
                 ->max_rs->as_query,
             has_provisional => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, completed => undef, planned => undef, provisional => { '!=' => undef } }) # Next regardless of date options
                 ->count_rs->as_query,
             cost_planned => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('cost_planned')
                 ->sum_rs->as_query,
             cost_actual => $schema->resultset('Task')
-                ->correlate('tickets')
+                ->correlate('tickets_live')
                 ->search({ site_id => $site_id, -or => [@dates]})
                 ->get_column('cost_actual')
                 ->sum_rs->as_query,
