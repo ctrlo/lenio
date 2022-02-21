@@ -5,7 +5,7 @@ use warnings;
 use base qw(DBIx::Class::ResultSet);
 
 sub active_rs
-{   shift->search({
+{   shift->search_rs({
         'me.deleted' => undef,
     }, {
         order_by => [
