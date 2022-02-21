@@ -244,7 +244,13 @@ post '/login/?:code?' => sub {
 
     if (body_parameters->get('confirm_reset')) {
         my $randompw = $password_generator->xkcd(words => 3);
-        user_password code => route_parameters->get('code'), new_password => $randompw;
+        my $un = user_password code => route_parameters->get('code'), new_password => $randompw;
+        # Reset fail count
+        schema->resultset('Login')->active_rs->search({
+            username => $un,
+        })->update({
+            failcount => 0,
+        });
         return forward '/login', { new_password => $randompw }, { method => 'GET' };
     }
 
