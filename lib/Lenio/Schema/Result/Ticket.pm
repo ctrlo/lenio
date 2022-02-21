@@ -295,6 +295,10 @@ sub before_delete
 sub validate {
     my $self = shift;
     return if !$self->actionee;
+    !$self->cost_planned || $self->cost_planned =~ /^[0-9]+(\.[0-9]+)?$/
+        or error __"Please enter planned cost as a decimal value";
+    !$self->cost_actual || $self->cost_actual =~ /^[0-9]+(\.[0-9]+)?$/
+        or error __"Please enter actual cost as a decimal value";
     $self->actionee =~ /^(external|local|with_site|admin)$/
         or error __x"Invalid actionee {actionee}", actionee => $self->actionee;
 }
