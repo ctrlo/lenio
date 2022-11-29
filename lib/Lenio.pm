@@ -257,7 +257,7 @@ post '/login/?:code?' => sub {
     # Check whether login limit reached
     my $lastfail  = DateTime->now->subtract(minutes => 15);
     my $lastfailf = schema->storage->datetime_parser->format_datetime($lastfail);
-    my $fail      = schema->resultset('Login')->search({
+    my $fail      = schema->resultset('Login')->active_rs->search({
         username  => $username,
         failcount => { '>=' => 5 },
         lastfail  => { '>' => $lastfailf },
