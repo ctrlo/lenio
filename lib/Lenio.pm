@@ -108,7 +108,7 @@ hook before => sub {
     return if request->uri eq '/logout';
 
     # Sites associated with the user 
-    forward '/error', { 'error' => 'There are no sites associated with this username' }
+    forward '/error/', { 'error' => 'There are no sites associated with this username' }
         unless $login->sites;
  
     # Select individual site and check user has access
@@ -205,6 +205,12 @@ get '/' => require_login sub {
         dateformat => config->{lenio}->{dateformat},
         tasks      => \@overdue,
         page       => 'index'
+    };
+};
+
+get '/error/' => sub {
+    template 'error', {
+        error => query_parameters->get('error')
     };
 };
 
