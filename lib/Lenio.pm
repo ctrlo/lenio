@@ -287,7 +287,7 @@ post '/login/?:code?' => sub {
         redirect '/';
     } else {
 
-        my ($user) = schema->resultset('Login')->search({
+        my ($user) = schema->resultset('Login')->active_rs->search({
             username => $username,
         })->all;
         if ($user)
