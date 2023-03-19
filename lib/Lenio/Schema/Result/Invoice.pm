@@ -138,7 +138,7 @@ sub pdf
     $page->stringl($font, 10, 70, 350, _enc "Please find detailed invoice herewith (Invoice $cinv)")
         if $cinv;
 
-    $page->rectangle(300, 220, 225, 110);
+    $page->rectangle(275, 220, 250, 110);
     $page->stroke;
 
     $self->_block(
@@ -147,7 +147,7 @@ sub pdf
         size  => 10,
         space => 0,
         text  => "Professional Fees:\n\nDisbursements:\n\nSub Total:\n\nVAT \@ 20%:",
-        x     => 310,
+        x     => 280,
         y     => 320,
     );
 
@@ -169,7 +169,7 @@ sub pdf
     $page->stringl($fontbold, 10, 310, 230, "TOTAL:");
     $page->stringl($fontbold, 10, 450, 230, sprintf("\xA3%.2f", $total));
 
-    $page->rectangle(345, 108, 180, 82);
+    $page->rectangle(275, 108, 250, 92);
     $page->stroke;
     $page->setrgbcolor(200, 0, 0);
 
@@ -179,8 +179,8 @@ sub pdf
         size  => 8,
         space => 1,
         text  => _enc $options{payment},
-        x     => 350,
-        y     => 185,
+        x     => 280,
+        y     => 195,
     );
 
     $page->setrgbcolor(0, 0, 0);
