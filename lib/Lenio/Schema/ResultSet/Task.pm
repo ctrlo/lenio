@@ -13,6 +13,7 @@ use Number::Format;
 use Lenio::FY;
 use Log::Report;
 use Lenio::CSV;
+use Text::Markdown; # Ensure installed otherwise markdown not rendered
 
 __PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1 Helper::ResultSet::CorrelateRelationship));
 
@@ -646,7 +647,9 @@ sub _price
 {    my $f = new Number::Format(
         -int_curr_symbol => '£',
     );
-    $f->format_price(shift);
+    my $price = $f->format_price(shift);
+    $price =~ s/ +//g; # Hacky way to remove space between £ and number
+    $price;
 }
 
 sub _pdf
@@ -666,7 +669,7 @@ sub _pdf
     # Add headings
     $pdf->heading($options{company});
     $pdf->heading($options{title});
-    $pdf->heading($period, size => 14);
+    $pdf->heading($period, size => 12);
     my $org = $options{site}->org;
     $pdf->text($org->full_address);
 
@@ -775,7 +778,7 @@ sub sla
             header_props => $hdr_props,
             font_size    => 8,
         );
-        $pdf->text("<b>Total cost: "._price($table->{total_planned})."</b>", indent => 500, size => 10);
+        $pdf->text("**Total cost: "._price($table->{total_planned})."**", indent => 500, size => 10, format => 'md1');
         $total += $table->{total_planned};
     }
 
@@ -790,12 +793,12 @@ sub sla
     $pdf->text("On behalf of ".$site->org->name);
     $pdf->text("Position:");
     $pdf->text("Date:");
-    $pdf->text("<u>Signature:</u>");
+    $pdf->text("<u>Signature:</u>", format => 'html');
     $pdf->set_y_position($y);
     $pdf->text("On behalf of $options{company}", indent => 250);
     $pdf->text("Position:", indent => 250);
     $pdf->text("Date:", indent => 250);
-    $pdf->text("Signature:", indent => 250);
+    $pdf->text("<u>Signature:</u>", indent => 250, format => 'html');
 
     $pdf->add_page;
     $pdf->heading('Excluded service items');
@@ -884,13 +887,16 @@ sub finsum
         $last_tasktype = $tasktype;
     }
 
-    push @tables, {
-        name          => $last_tasktype,
-        data          => [@data], # Copy
-        total_planned => $subtotal_planned,
-        total_actual  => $subtotal_actual,
-        is_reactive   => $is_reactive,
-    };
+    if (@tickets)
+    {
+        push @tables, {
+            name          => $last_tasktype,
+            data          => [@data], # Copy
+            total_planned => $subtotal_planned,
+            total_actual  => $subtotal_actual,
+            is_reactive   => $is_reactive,
+        };
+    }
 
     push @tables, $self->_task_tables(%params, finsum => 1);
 
@@ -936,8 +942,8 @@ sub finsum
             cell_props   => $cellprops,
             font_size    => 8,
         );
-        $pdf->text("<b>Total planned cost: "._price($table->{total_planned})."</b>", indent => 350, size => 10);
-        $pdf->text("<b>Total actual cost: "._price($table->{total_actual})."</b>", indent => 350, size => 10);
+        $pdf->text("**Total planned cost: "._price($table->{total_planned})."**", indent => 350, size => 10, format => 'md1');
+        $pdf->text("**Total actual cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
         if ($table->{is_reactive})
         {
             $total_reactive_planned += $table->{total_planned};
@@ -949,10 +955,10 @@ sub finsum
         }
     }
 
-    $pdf->heading("Agreed total cost of service contract: "._price($total_planned)." +VAT", size => 16);
-    $pdf->heading("Total actual annual cost to date: "._price($total_actual)." +VAT", size => 16);
+    $pdf->heading("Agreed total cost of service contract: "._price($total_planned)." +VAT", size => 12);
+    $pdf->heading("Total actual annual cost to date: "._price($total_actual)." +VAT", size => 12);
     $pdf->heading("Total Cost of Service Contract + Reactive Maintenance Call outs total cost: "
-        ._price($total_actual + $total_reactive_actual)." +VAT", size => 16);
+        ._price($total_actual + $total_reactive_actual)." +VAT", size => 12);
 
     $pdf;
 }
