@@ -52,7 +52,11 @@
                     <li [% IF page == "index" %]class="active"[% END %]><a href="/">Calendar</a></li>
                     <li [% IF page == "ticket" %]class="active"[% END %]><a href="/tickets">Tickets</a></li>
                     [% IF login.is_admin %]
-                        <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Tasks</a></li>
+                        [% IF session.site_id %]
+                            <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Tasks</a></li>
+                        [% ELSE %]
+                            <li [% IF page == "tasks" %]class="active"[% END %]><a href="/tasks/">Tasks</a></li>
+                        [% END %]
                         <li [% IF page == "invoice" %]class="active"[% END %]><a href="/invoices">Invoices</a></li>
                         <li [% IF page == "notice" %]class="active"[% END %]><a href="/notice">Notices</a></li>
                         <li class="dropdown">

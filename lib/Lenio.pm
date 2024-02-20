@@ -1320,6 +1320,22 @@ get '/invoices' => require_login sub {
     };
 };
 
+any ['get', 'post'] => '/tasks/' => require_login sub {
+
+    my $action;
+    my $id = route_parameters->get('id');
+
+    error __"This option is only available to administrators"
+        if !var('login')->is_admin;
+
+    redirect "/task" if session 'site_id';
+
+    template 'tasks' => {
+        tasks => [rset('Task')->global->all],
+        page  => 'tasks'
+    };
+};
+
 any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     my $action;
@@ -1327,7 +1343,8 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     if (var('login')->is_admin)
     {
-        session('site_id') or error "Please select a single site first";
+        redirect "/tasks/" if !session('site_id');
+
         if (body_parameters->get('taskadd'))
         {
             rset('SiteTask')->find_or_create({ task_id => body_parameters->get('taskadd'), site_id => session('site_id') });

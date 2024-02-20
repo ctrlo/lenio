@@ -1,0 +1,17 @@
+<h3>All global tasks</h3>
+
+<table class="table table-striped">
+    <tr>
+        <th>Type</th>
+        <th>Task</th>
+        <th>Frequency</th>
+    </tr>
+
+    [% FOR task IN tasks %]
+        <tr>
+            <td>[% task.tasktype.name | html %]</td>
+            <td><a href="/task/[% task.id %]">[% task.name %]</a></td>
+            <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
+        </tr>
+    [% END %]
+</table>
