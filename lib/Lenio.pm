@@ -1428,6 +1428,7 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         if (var('login')->is_admin)
         {
             $task->global(1);
+            $task->bespoke(body_parameters->get('bespoke') ? 1 : 0);
         }
         else
         {

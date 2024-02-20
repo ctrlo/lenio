@@ -112,6 +112,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 0 },
   "global",
   { data_type => "smallint", default_value => 1, is_nullable => 0 },
+  "bespoke",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "site_check",
   { data_type => "smallint", default_value => 0, is_nullable => 0 },
   "tasktype_id",

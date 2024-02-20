@@ -46,6 +46,7 @@ sub summary
     $search->{'site_tasks.site_id'} = $site_id if $site_id && $options{onlysite};
     $search->{'site_tasks.site_id'} = undef if $site_id && $options{excluded};
     $search->{'me.global'} = $options{global} if exists $options{global};
+    $search->{'me.bespoke'} = $options{bespoke} if exists $options{bespoke};
 
     $site_id
         or return $self->search($search, { order_by => $order_by, join => 'tasktype' })->all;
@@ -809,7 +810,7 @@ sub sla
         'Recommended frequency',
         'Notes',
     ]);
-    foreach my $task ($self->summary(site_id => $site->id, excluded => 1, global => 1))
+    foreach my $task ($self->summary(site_id => $site->id, excluded => 1, global => 1, bespoke => 0))
     {
         push @data, [
             $task->name,

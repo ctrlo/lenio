@@ -75,6 +75,13 @@
             </div>
         </div>
         [% END %]
+        [% IF login.is_admin %]
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="bespoke" [% IF task.bespoke %]checked[% END %]> This is a bespoke service item
+                </label>
+            </div>
+        [% END %]
         <div class="form-group">
             <button type="submit" name="submit" value="submit" class="btn btn-primary">
                 [% IF task.id %]Update[% ELSE %]Create[% END %]
