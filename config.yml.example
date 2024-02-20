@@ -69,7 +69,7 @@ plugins:
       dsn: dbi:mysql:database=lenio;mysql_enable_utf8=1;host=localhost
       schema_class: Lenio::Schema
       user: lenio
-      pass: lenio
+      password: lenio
       options:
         RaiseError: 1
         PrintError: 1
