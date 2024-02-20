@@ -1322,7 +1322,6 @@ get '/invoices' => require_login sub {
 
 any ['get', 'post'] => '/tasks/' => require_login sub {
 
-    my $action;
     my $id = route_parameters->get('id');
 
     error __"This option is only available to administrators"
@@ -1336,37 +1335,19 @@ any ['get', 'post'] => '/tasks/' => require_login sub {
     };
 };
 
-any ['get', 'post'] => '/task/?:id?' => require_login sub {
+any ['get', 'post'] => '/task/:id' => require_login sub {
 
-    my $action;
     my $id = route_parameters->get('id');
 
-    if (var('login')->is_admin)
-    {
-        redirect "/tasks/" if !session('site_id');
-
-        if (body_parameters->get('taskadd'))
-        {
-            rset('SiteTask')->find_or_create({ task_id => body_parameters->get('taskadd'), site_id => session('site_id') });
-        }
-        if (body_parameters->get('taskrm'))
-        {
-            rset('SiteTask')->search({ task_id => body_parameters->get('taskrm'), site_id => session('site_id') })->delete;
-        }
-    }
-
-    my $task = defined($id) && ($id && rset('Task')->find($id) || rset('Task')->new({}));
+    my $task = $id && rset('Task')->find($id) || rset('Task')->new({});
 
     my @tasks; my @tasks_local; my @adhocs;
 
-    if ($task && $task->id)
-    {
-        # Check whether the user has access to this task
-        my @sites = map { $_->site_id } $task->site_tasks->all;
-        forwardHome(
-            { danger => "You do not have permission for service item $id" } )
-                unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
-    }
+    # Check whether the user has access to this task
+    my @sites = map { $_->site_id } $task->site_tasks->all;
+    forwardHome(
+        { danger => "You do not have permission for service item $id" } )
+            unless var('login')->is_admin || (!$task->global && var('login')->has_site(@sites));
 
     if (body_parameters->get('delete'))
     {
@@ -1399,6 +1380,63 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
     }
 
+    if ( body_parameters->get('submit') )
+    {
+        if (var('login')->is_admin)
+        {
+            $task->global(1);
+            $task->bespoke(body_parameters->get('bespoke') ? 1 : 0);
+        }
+        else
+        {
+            session('site_id') or error "Please select a single site first";
+            $task->set_site_id(session('site_id'));
+            $task->global(0);
+        }
+
+        $task->name(body_parameters->get('name'));
+        $task->description(body_parameters->get('description'));
+        $task->contractor_requirements(body_parameters->get('contractor_requirements'));
+        $task->evidence_required(body_parameters->get('evidence_required'));
+        $task->statutory(body_parameters->get('statutory'));
+        $task->tasktype_id(body_parameters->get('tasktype_id') || undef); # Fix empty string from form
+        $task->period_qty(body_parameters->get('period_qty'));
+        $task->period_unit(body_parameters->get('period_unit'));
+
+        if (process sub { $task->update_or_insert })
+        {
+                forwardHome({ success => 'Service item has been successfully created' }, 'task' );
+        }
+    }
+
+    template 'task' => {
+        tasktypes => [rset('Tasktype')->all],
+        task      => $task,
+        page      => 'task'
+    };
+};
+
+any ['get', 'post'] => '/task/?' => require_login sub {
+
+    if (var('login')->is_admin)
+    {
+        redirect "/tasks/" if !session('site_id');
+
+        if (body_parameters->get('taskadd'))
+        {
+            rset('SiteTask')->find_or_create({ task_id => body_parameters->get('taskadd'), site_id => session('site_id') });
+        }
+        if (body_parameters->get('taskrm'))
+        {
+            rset('SiteTask')->search({ task_id => body_parameters->get('taskrm'), site_id => session('site_id') })->delete;
+        }
+    }
+    else {
+        session('site_id') or error "Please select a single site first";
+    }
+
+    my @tasks; my @tasks_local; my @adhocs;
+
     my $download = {
         default_from => DateTime->now->subtract(months => 1),
         default_to   => DateTime->now,
@@ -1426,7 +1464,6 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
 
     if (body_parameters->get('populate'))
     {
-        session('site_id') or error "Please select a single site first";
         my $year = body_parameters->get('populate_from');
         if (process sub { rset('Task')->populate_tickets(
                 site_id  => session('site_id'),
@@ -1439,158 +1476,121 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         }
     }
 
-    if ( body_parameters->get('submit') )
+    my $csv = query_parameters->get('csv') || ""; # prevent warnings
+
+    if ($csv eq 'service')
     {
-        session('site_id') or error "Please select a single site first";
-        if (var('login')->is_admin)
-        {
-            $task->global(1);
-            $task->bespoke(body_parameters->get('bespoke') ? 1 : 0);
-        }
-        else
-        {
-            $task->set_site_id(session('site_id'));
-            $task->global(0);
-        }
+        my $csvout = rset('Task')->csv(
+            site_id    => session('site_id'),
+            global     => 1,
+            fy         => session('fy'),
+            dateformat => $dateformat,
+        );
 
-        $task->name(body_parameters->get('name'));
-        $task->description(body_parameters->get('description'));
-        $task->contractor_requirements(body_parameters->get('contractor_requirements'));
-        $task->evidence_required(body_parameters->get('evidence_required'));
-        $task->statutory(body_parameters->get('statutory'));
-        $task->tasktype_id(body_parameters->get('tasktype_id') || undef); # Fix empty string from form
-        $task->period_qty(body_parameters->get('period_qty'));
-        $task->period_unit(body_parameters->get('period_unit'));
-
-        if (process sub { $task->update_or_insert })
-        {
-                forwardHome({ success => 'Service item has been successfully created' }, 'task' );
-        }
+        my $now = DateTime->now->ymd;
+        my $site = rset('Site')->find(session 'site_id')->org->name;
+        # XXX Is this correct? We can't send native utf-8 without getting the error
+        # "Strings with code points over 0xFF may not be mapped into in-memory file handles".
+        # So, encode the string (e.g. "\x{100}"  becomes "\xc4\x80) and then send it,
+        # telling the browser it's utf-8
+        utf8::encode($csvout);
+        return send_file(
+            \$csvout,
+            content_type => 'text/csv; chrset="utf-8"',
+            filename     => "$site service items $now.csv"
+        );
     }
 
-    else
+    if (var('login')->is_admin && query_parameters->get('sla') && query_parameters->get('sla') eq 'pdf')
     {
-        session('site_id') or error "Please select a single site first";
-        my $csv = (session('site_id') && query_parameters->get('csv')) || ""; # prevent warnings. not for all sites
+        my $site = rset('Site')->find(session 'site_id');
 
-        if ($csv eq 'service')
-        {
+        my $pdf = rset('Task')->sla(
+            fy         => session('fy'),
+            site       => $site,
+            dateformat => $dateformat,
+            %{config->{lenio}->{invoice}},
+        );
 
-            my $csvout = rset('Task')->csv(
-                site_id    => session('site_id'),
-                global     => 1,
-                fy         => session('fy'),
-                dateformat => $dateformat,
-            );
+        my $now = DateTime->now->ymd;
+        return send_file(
+            \$pdf->content,
+            content_type => 'application/pdf',
+            filename     => $site->org->name." Service Level Agreement $now.pdf"
+        );
+    }
 
-            my $now = DateTime->now->ymd;
-            my $site = rset('Site')->find(session 'site_id')->org->name;
-            # XXX Is this correct? We can't send native utf-8 without getting the error
-            # "Strings with code points over 0xFF may not be mapped into in-memory file handles".
-            # So, encode the string (e.g. "\x{100}"  becomes "\xc4\x80) and then send it,
-            # telling the browser it's utf-8
-            utf8::encode($csvout);
-            return send_file(
-                \$csvout,
-                content_type => 'text/csv; chrset="utf-8"',
-                filename     => "$site service items $now.csv"
-            );
-        }
+    if (var('login')->is_admin && query_parameters->get('finsum') && query_parameters->get('finsum') eq 'pdf')
+    {
+        my $site = rset('Site')->find(session 'site_id');
 
-        if (var('login')->is_admin && query_parameters->get('sla') && query_parameters->get('sla') eq 'pdf')
-        {
-            session('site_id') or error "Please select a single site first";
-            my $site = rset('Site')->find(session 'site_id');
+        my $pdf = rset('Task')->finsum(
+            fy         => session('fy'),
+            site       => $site,
+            dateformat => $dateformat,
+            %{config->{lenio}->{invoice}},
+        );
 
-            my $pdf = rset('Task')->sla(
-                fy         => session('fy'),
-                site       => $site,
-                dateformat => $dateformat,
-                %{config->{lenio}->{invoice}},
-            );
+        my $now = DateTime->now->ymd;
+        return send_file(
+            \$pdf->content,
+            content_type => 'application/pdf',
+            filename     => $site->org->name." Financial Summary $now.pdf"
+        );
+    }
 
-            my $now = DateTime->now->ymd;
-            return send_file(
-                \$pdf->content,
-                content_type => 'application/pdf',
-                filename     => $site->org->name." Service Level Agreement $now.pdf"
-            );
-        }
+    # Get all the global tasks.
+    @tasks = rset('Task')->summary(site_id => var('site_ids'), global => 1, fy => session('fy'), onlysite => 1);
 
-        if (var('login')->is_admin && query_parameters->get('finsum') && query_parameters->get('finsum') eq 'pdf')
-        {
-            session('site_id') or error "Please select a single site first";
-            my $site = rset('Site')->find(session 'site_id');
-
-            my $pdf = rset('Task')->finsum(
-                fy         => session('fy'),
-                site       => $site,
-                dateformat => $dateformat,
-                %{config->{lenio}->{invoice}},
-            );
-
-            my $now = DateTime->now->ymd;
-            return send_file(
-                \$pdf->content,
-                content_type => 'application/pdf',
-                filename     => $site->org->name." Financial Summary $now.pdf"
-            );
-        }
-
-        # Get all the global tasks.
-        @tasks = rset('Task')->summary(site_id => var('site_ids'), global => 1, fy => session('fy'), onlysite => 1);
-
-        # Get any adhoc tasks
-        @adhocs = rset('Ticket')->summary(
-            login        => var('login'),
-            site_id      => var('site_ids'),
-            task_tickets => 0,
-            fy           => session('site_id') && session('fy'),
-            filter       => {
-                type => {
-                    reactive => 1,
-                },
-                costs => {
-                    actual => 1,
-                },
+    # Get any adhoc tasks
+    @adhocs = rset('Ticket')->summary(
+        login        => var('login'),
+        site_id      => var('site_ids'),
+        task_tickets => 0,
+        fy           => session('site_id') && session('fy'),
+        filter       => {
+            type => {
+                reactive => 1,
             },
-        ) if var('site_ids');
-        if ($csv eq 'reactive')
+            costs => {
+                actual => 1,
+            },
+        },
+    ) if var('site_ids');
+    if ($csv eq 'reactive')
+    {
+        my $csv = Lenio::CSV->new;
+        my @headings = qw/title cost_planned cost_actual completed contractor/;
+        $csv->combine(@headings);
+        my $csvout = $csv->string."\n";
+        my ($cost_planned_total, $cost_actual_total);
+        foreach my $adhoc (@adhocs)
         {
-            my $csv = Lenio::CSV->new;
-            my @headings = qw/title cost_planned cost_actual completed contractor/;
-            $csv->combine(@headings);
-            my $csvout = $csv->string."\n";
-            my ($cost_planned_total, $cost_actual_total);
-            foreach my $adhoc (@adhocs)
-            {
-                my @row = (
-                    $adhoc->name,
-                    $adhoc->cost_planned,
-                    $adhoc->cost_actual,
-                    $adhoc->completed && $adhoc->completed->strftime($dateformat),
-                    $adhoc->contractor && $adhoc->contractor->name,
-                );
-                $csv->combine(@row);
-                $csvout .= $csv->string."\n";
-                $cost_planned_total += ($adhoc->cost_planned || 0);
-                $cost_actual_total  += ($adhoc->cost_actual || 0);
-            }
-            $csv->combine('Totals:', sprintf("%.2f", $cost_planned_total), sprintf("%.2f", $cost_actual_total),'','');
-            $csvout .= $csv->string."\n";
-            my $now = DateTime->now->ymd;
-            my $site = rset('Site')->find(session 'site_id')->org->name;
-            utf8::encode($csvout); # See comment above
-            return send_file(
-                \$csvout,
-                content_type => 'text/csv; chrset="utf-8"',
-                filename     => "$site reactive $now.csv"
+            my @row = (
+                $adhoc->name,
+                $adhoc->cost_planned,
+                $adhoc->cost_actual,
+                $adhoc->completed && $adhoc->completed->strftime($dateformat),
+                $adhoc->contractor && $adhoc->contractor->name,
             );
+            $csv->combine(@row);
+            $csvout .= $csv->string."\n";
+            $cost_planned_total += ($adhoc->cost_planned || 0);
+            $cost_actual_total  += ($adhoc->cost_actual || 0);
         }
-        # Get all the local tasks
-        @tasks_local = rset('Task')->summary(site_id => var('site_ids'), global => 0, onlysite => 1, fy => session('fy'));
-        $action = '';
+        $csv->combine('Totals:', sprintf("%.2f", $cost_planned_total), sprintf("%.2f", $cost_actual_total),'','');
+        $csvout .= $csv->string."\n";
+        my $now = DateTime->now->ymd;
+        my $site = rset('Site')->find(session 'site_id')->org->name;
+        utf8::encode($csvout); # See comment above
+        return send_file(
+            \$csvout,
+            content_type => 'text/csv; chrset="utf-8"',
+            filename     => "$site reactive $now.csv"
+        );
     }
+    # Get all the local tasks
+    @tasks_local = rset('Task')->summary(site_id => var('site_ids'), global => 0, onlysite => 1, fy => session('fy'));
 
     my $show_populate = ! grep $_->get_column('cost_planned'), @tasks;
 
@@ -1598,10 +1598,8 @@ any ['get', 'post'] => '/task/?:id?' => require_login sub {
         show_populate    => $show_populate,
         dateformat       => $dateformat,
         download         => $download,
-        action           => $action,
         site             => rset('Site')->find(session 'site_id'),
         site_checks      => [rset('Task')->site_checks(session 'site_id')],
-        task             => $task,
         tasks            => \@tasks,
         all_tasks        => [rset('Task')->global->all],
         tasks_local      => \@tasks_local,
