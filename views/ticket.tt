@@ -125,7 +125,7 @@
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="report_received" [% IF ticket.report_received %]checked[% END %]> Report received (or not applicable)
+                        <input type="checkbox" name="report_received" [% IF ticket.report_received %]checked[% END %]> Report received
                     </label>
                 </div>
                 <div class="checkbox">
