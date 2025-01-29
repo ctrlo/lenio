@@ -720,6 +720,10 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
             unless var('login')->has_site($ticket->site_id);
         # Existing ticket, get task from DB
         $task = $ticket->task;
+        # Set the session's site to the same as the ticket, otherwise
+        # unexpected things can happen with the session site being different to
+        # the page site
+        session site_id => $ticket->site_id;
     }
     elsif (defined($id) && !body_parameters->get('submit'))
     {
