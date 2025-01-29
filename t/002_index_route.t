@@ -23,7 +23,7 @@ is(
 
 $res = $test->request( POST '/login', [ username => 'foo', password => 'bar' ] );
 
-is( $res->code, 401, 'Login with fake details fails' );
-
+ok($res->is_redirect, "Response is redirect");
+is($res->header('location'), '/login', 'Login with fake details redirects back to login');
 
 done_testing;
