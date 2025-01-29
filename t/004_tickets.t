@@ -31,6 +31,7 @@ my @tickets = (
         },
     },
     {
+        # Local, won't count in any totals
         ticket => {
             name         => 'Reactive Local',
             description  => 'Rective local description',
@@ -95,26 +96,30 @@ foreach my $task_tickets (0, 1, undef)
                 fy      => $fy,
             );
             my $count;
-            if ($fy && $fy == 2016)
+            if ($fy && $fy == 2016) # None created
             {
                 $count = 0;
             }
             elsif ($fy && $fy == 2015)
             {
+                # For tasks, one planned in 2011, other completed in 2015
+                # For reactive, one planned in 2011, other completed in 2015
                 $count = defined $task_tickets && $completed_only
                     ? 1
                     : defined $task_tickets
-                    ? 1
-                    : 2;
+                    ? 0 # None open for tasks
+                    : $completed_only
+                    ? 2 # 2 completed this year
+                    : 0; # None open for this year, only other years
             }
             else {
                 $count = defined $task_tickets && $completed_only
                     ? 1
                     : defined $task_tickets
-                    ? 2
+                    ? 1 # Open task tickets
                     : $completed_only
                     ? 2
-                    : 4;
+                    : 2; # Not completed
             }
             is( @summary, $count, "Correct number of tickets in summary" );
         }
