@@ -48,7 +48,7 @@
 	    [% FOR notice IN notices %]
 	    <tr>
 		<td class="col-sm-1"><a href="/notice/view/[% notice.id %]">[% notice.id %]</a></td>
-		<td class="col-sm-8">[% notice.text %]</td>
+		<td class="col-sm-8">[% notice.text | html %]</td>
 		<td class="col-sm-2">[% notice.get_column('login_count') %]</td>
 	    </tr>
 	    [% END %]
