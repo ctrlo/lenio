@@ -1,4 +1,4 @@
-package t::lib::SeedData;
+package Test::Lenio::SeedData;
 
 use strict;
 use warnings;

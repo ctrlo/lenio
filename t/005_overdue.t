@@ -8,7 +8,8 @@ use Lenio::Calendar;
 use Log::Report;
 
 
-use t::lib::SeedData;
+use lib 't/lib';
+use Test::Lenio::SeedData;
 
 sub _calendar; sub _to_dt;
 
@@ -18,7 +19,7 @@ my $today = DateTime->new(
     day   => 14,
 );
 
-my $seed_data = t::lib::SeedData->new;
+my $seed_data = Test::Lenio::SeedData->new;
 my $schema    = $seed_data->schema;
 my $site      = $seed_data->site;
 my $tasks     = $seed_data->tasks;

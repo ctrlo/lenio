@@ -8,7 +8,8 @@ use Lenio::Calendar;
 use Log::Report;
 
 
-use t::lib::SeedData;
+use lib 't/lib';
+use Test::Lenio::SeedData;
 
 sub _calendar; sub _to_dt;
 
@@ -233,7 +234,7 @@ my @tests = (
 
 foreach my $test (@tests)
 {
-    my $seed_data = t::lib::SeedData->new;
+    my $seed_data = Test::Lenio::SeedData->new;
     my $schema    = $seed_data->schema;
     my $site      = $seed_data->site;
     my $tasks     = $seed_data->tasks;
@@ -387,7 +388,7 @@ foreach my $test (@tests)
 foreach my $test (@tests)
 {
     my @select_checks = map { $_->{check_name} } @{$test->{checks_done}};
-    my $seed_data = t::lib::SeedData->new(select_checks => [@select_checks]);
+    my $seed_data = Test::Lenio::SeedData->new(select_checks => [@select_checks]);
     my $schema    = $seed_data->schema;
     my $site      = $seed_data->site;
     my $checks    = $seed_data->checks;

@@ -4,9 +4,10 @@ use warnings;
 
 use Log::Report;
 
-use t::lib::SeedData;
+use lib 't/lib';
+use Test::Lenio::SeedData;
 
-my $seed_data = t::lib::SeedData->new;
+my $seed_data = Test::Lenio::SeedData->new;
 my $schema    = $seed_data->schema;
 my $login     = $seed_data->login;
 my $site      = $seed_data->site;

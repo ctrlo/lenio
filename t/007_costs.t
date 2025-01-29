@@ -9,7 +9,8 @@ use Log::Report;
 
 set_fixed_time('10/10/2016 01:00:00', '%m/%d/%Y %H:%M:%S');
 
-use t::lib::SeedData;
+use lib 't/lib';
+use Test::Lenio::SeedData;
 
 sub _calendar; sub _to_dt;
 
@@ -128,7 +129,7 @@ my @tests = (
 
 foreach my $test (@tests)
 {
-    my $seed_data = t::lib::SeedData->new;
+    my $seed_data = Test::Lenio::SeedData->new;
     my $schema    = $seed_data->schema;
     my $site      = $seed_data->site;
     my $tasks     = $seed_data->tasks;
