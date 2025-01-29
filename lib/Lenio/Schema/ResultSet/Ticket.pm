@@ -66,13 +66,13 @@ sub summary
             };
         }
         else {
-            # Default to excluding cancelled tickets
-            push @filters, {'me.cancelled' => undef };
+            # Default to excluding cancelled and completed tickets
+            push @filters, {'me.cancelled' => undef, 'me.completed' => undef};
         }
     }
     else {
         # Default to excluding cancelled tickets
-        push @filters, {'me.cancelled' => undef };
+        push @filters, {'me.cancelled' => undef, 'me.completed' => undef};
     }
 
     if (my $actionee = $filter->{actionee})
