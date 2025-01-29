@@ -856,7 +856,7 @@ sub finsum
 
     if (@tickets)
     {
-        my $subtotal_planned = 0; my $subtotal_actual = 0;
+        my $subtotal_actual = 0;
         my @data;
         foreach my $ticket (@tickets)
         {
@@ -864,20 +864,17 @@ sub finsum
                 $ticket->id,
                 $ticket->name,
                 $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
-                defined $ticket->cost_planned ? _price($ticket->cost_planned) : undef,
                 defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
                 $ticket->contractor ? $ticket->contractor->name : undef,
             );
             push @data, \@d;
 
-            $subtotal_planned += ($ticket->cost_planned || 0);
             $subtotal_actual  += ($ticket->cost_actual || 0);
         }
 
         push @tables, {
             name          => 'Reactive maintenance',
             data          => [@data], # Copy
-            total_planned => $subtotal_planned,
             total_actual  => $subtotal_actual,
             is_reactive   => 1,
         };
@@ -900,7 +897,6 @@ sub finsum
                 'ID',
                 'Item',
                 'Date',
-                'Planned cost',
                 'Actual cost',
                 'Contractor',
             ) : (
@@ -927,8 +923,14 @@ sub finsum
             cell_props   => $cellprops,
             font_size    => 8,
         );
-        $pdf->text("**Total planned cost: "._price($table->{total_planned})."**", indent => 350, size => 10, format => 'md1');
-        $pdf->text("**Total actual cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
+        if ($table->{is_reactive})
+        {
+            $pdf->text("**Total reactive cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
+        }
+        else {
+            $pdf->text("**Total planned cost: "._price($table->{total_planned})."**", indent => 350, size => 10, format => 'md1');
+            $pdf->text("**Total actual cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
+        }
         if ($table->{is_reactive})
         {
             $total_reactive_planned += $table->{total_planned};
