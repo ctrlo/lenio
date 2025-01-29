@@ -80,7 +80,7 @@ hook before => sub {
     $user
         or return;
 
-    header "X-Frame-Options" => "DENY"; # Prevent clickjacking
+    response_header "X-Frame-Options" => "DENY"; # Prevent clickjacking
 
     if (!session 'csrf_token')
     {
@@ -1665,7 +1665,7 @@ sub forwardHome {
 }
 
 sub _send_json
-{   header "Cache-Control" => "max-age=0, must-revalidate, private";
+{   response_header "Cache-Control" => "max-age=0, must-revalidate, private";
     content_type 'application/json';
     encode_json(shift);
 }
