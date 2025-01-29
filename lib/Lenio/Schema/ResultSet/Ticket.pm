@@ -27,9 +27,28 @@ sub summary
     if (my $type = $filter->{type})
     {
         my @type;
+        if ($type->{remedial})
+        {
+            # A remedial ticket is one that has a parent, and the parent is
+            # related to a task (i.e. it is a remedial item for a
+            # service-related item
+            push @type, {
+                -and => [
+                    {'me.parent_id' => { '!=' => undef } },
+                    {'parent.task_id' => { '!=' => undef } },
+                ],
+            };
+        }
         if ($type->{reactive})
         {
-            push @type, {'me.task_id' => undef};
+            # Reactive tickets are unrelated to service items
+            push @type, {
+                -and => [
+                    {'me.task_id'      => undef},
+                    # Either no parent or the parent is not related to a task
+                    {'parent.task_id' => undef},
+                ],
+            };
         }
         if ($type->{task})
         {
@@ -256,28 +275,28 @@ sub summary
         my $from = $args{fy} ? $fy->costfrom : $args{from};
         my $to   = $args{fy} ? $fy->costto   : $args{to};
         my $completed = {
-            completed => [
+            'me.completed' => [
                 -and =>
                     { '>=' => $dtf->format_datetime($from) },
                     { '<'  => $dtf->format_datetime($to) },
             ],
         };
         my $planned = {
-            planned => [
+            'me.planned' => [
                 -and =>
                     { '>=' => $dtf->format_datetime($from) },
                     { '<'  => $dtf->format_datetime($to) },
             ],
         };
-        $planned->{completed} = undef; # XXX if $args{fy}; # Don't include planned tasks completed in another year
+        $planned->{'me.completed'} = undef; # XXX if $args{fy}; # Don't include planned tasks completed in another year
         my $provisional = {
-            provisional => [
+            'me.provisional' => [
                 -and =>
                     { '>=' => $dtf->format_datetime($from) },
                     { '<'  => $dtf->format_datetime($to) },
             ],
-            completed => undef,
-            planned   => undef,
+            'me.completed' => undef,
+            'me.planned'   => undef,
         };
         $search->{'-or'} = [$completed, $planned, $provisional];
     }
@@ -314,7 +333,7 @@ sub summary
                 },
             }
         ],
-        join => 'invoice',
+        join => ['invoice', 'parent'],
         order_by => $order_by,
     })->all;
 }

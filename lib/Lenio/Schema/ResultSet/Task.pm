@@ -837,47 +837,49 @@ sub finsum
     my $period = $fy->costfrom->strftime($params{dateformat})." to ".$fy->costto->strftime($params{dateformat});
     my $pdf = $self->_pdf(%params, title => 'Financial Summary', period => $period);
 
-    my @tickets = $self->result_source->schema->resultset('Ticket')->summary(
-        site_id        => $site->id,
-        fy             => $params{fy},
-        cost_only      => 1,
-        sort           => 'type',
-        filter         => {
-            status => {
-                completed => 1,
-            },
-            type => {
-                reactive => 1,
-            },
-        },
-    );
-
     my @tables;
-
-    if (@tickets)
+    foreach my $type (qw/reactive remedial/)
     {
-        my $subtotal_actual = 0;
-        my @data;
-        foreach my $ticket (@tickets)
+        my @tickets = $self->result_source->schema->resultset('Ticket')->summary(
+            site_id        => $site->id,
+            fy             => $params{fy},
+            cost_only      => 1,
+            sort           => 'type',
+            filter         => {
+                status => {
+                    completed => 1,
+                },
+                type => {
+                    $type => 1,
+                },
+            },
+        );
+
+        if (@tickets)
         {
-            my @d = (
-                $ticket->id,
-                $ticket->name,
-                $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
-                defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
-                $ticket->contractor ? $ticket->contractor->name : undef,
-            );
-            push @data, \@d;
+            my $subtotal_actual = 0;
+            my @data;
+            foreach my $ticket (@tickets)
+            {
+                my @d = (
+                    $ticket->id,
+                    $ticket->name,
+                    $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
+                    defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
+                    $ticket->contractor ? $ticket->contractor->name : undef,
+                );
+                push @data, \@d;
 
-            $subtotal_actual  += ($ticket->cost_actual || 0);
+                $subtotal_actual  += ($ticket->cost_actual || 0);
+            }
+
+            push @tables, {
+                name          => $type eq 'reactive' ? 'Reactive maintenance' : 'Service remedials',
+                data          => [@data], # Copy
+                total_actual  => $subtotal_actual,
+                is_reactive   => 1,
+            };
         }
-
-        push @tables, {
-            name          => 'Reactive maintenance',
-            data          => [@data], # Copy
-            total_actual  => $subtotal_actual,
-            is_reactive   => 1,
-        };
     }
 
     push @tables, $self->_task_tables(%params, finsum => 1);
