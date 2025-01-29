@@ -926,7 +926,7 @@ sub finsum
             cell_props   => $cellprops,
             font_size    => 8,
         );
-        if ($table->{reactive}})
+        if ($table->{reactive})
         {
             $pdf->text("**Total reactive cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
         }
