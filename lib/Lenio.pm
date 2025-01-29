@@ -1224,8 +1224,8 @@ get '/attach/:file' => require_login sub {
 any ['get', 'post'] => '/invoice/:id' => require_login sub {
 
     my $id      = route_parameters->get('id');
-    my $invoice = defined $id && (rset('Invoice')->find($id) || rset('Invoice')->new({}));
-    my $ticket  = query_parameters->get('ticket') && rset('Ticket')->find(query_parameters->get('ticket'));
+    my $invoice = rset('Invoice')->find($id)
+        or error __"Invoice not found";
 
     if (defined query_parameters->get('download'))
     {
@@ -1239,85 +1239,8 @@ any ['get', 'post'] => '/invoice/:id' => require_login sub {
 	);
     }
 
-    var('login')->is_admin
-        or forwardHome({ danger => 'You do not have permission to edit invoices' });
+    forwardHome({ danger => 'The invoice creation functionality is no longer available' });
 
-    if (body_parameters->get('delete'))
-    {
-        if (process (sub { $invoice->delete } ) )
-        {
-            forwardHome({ success => 'The invoice has been successfully deleted' }, 'invoices');
-        }
-    }
-
-    if (body_parameters->get('submit'))
-    {
-        $ticket or error __"No ticket specified to create the invoice for";
-        $invoice->description(body_parameters->get('description'));
-        $invoice->number(body_parameters->get('number'));
-        $invoice->disbursements(body_parameters->get('disbursements') || undef);
-        $invoice->ticket_id($ticket->id);
-        $invoice->datetime(DateTime->now)
-            if !$id;
-        if (process sub { $invoice->update_or_insert })
-        {
-            # Email new invoice to users
-            my %options = %{config->{lenio}->{invoice}};
-            $options{dateformat} = config->{lenio}->{dateformat};
-            my $pdf = $invoice->pdf(%options);
-            my $args = {
-                login    => var('login'),
-                template => 'ticket/invoice',
-                ticket   => $ticket,
-                url      => "/ticket/".$ticket->id,
-                subject  => "Ticket ".$ticket->id." invoice added - ",
-                attach   => {
-                    data      => $pdf,
-                    mime_type => 'application/pdf',
-                },
-            };
-            my $email = Lenio::Email->new(
-                config   => config,
-                schema   => schema,
-                uri_base => request->uri_base,
-                site     => $ticket->site, # rset('Site')->find(param 'site_id'),
-            );
-            $email->send($args);
-
-            my $action = $id ? 'updated' : 'created';
-            $id = $invoice->id;
-            forwardHome({ success => "The invoice has been successfully $action" }, "invoice/$id");
-        }
-
-    }
-
-    template 'invoice' => {
-        id      => $id,
-        invoice => $invoice,
-        ticket  => $ticket,
-        page    => 'invoice'
-    };
-};
-
-get '/invoices' => require_login sub {
-
-    if (query_parameters->get('sort'))
-    {
-        session invoice_desc => session('invoice_sort') && session('invoice_sort') eq query_parameters->get('sort') ? !session('invoice_desc') : 0;
-        session invoice_sort => query_parameters->get('sort');
-    }
-
-    my @invoices = rset('Invoice')->summary(
-        login     => var('login'),
-        site_id   => var('site_ids'),
-        sort      => session('invoice_sort'),
-        sort_desc => session('invoice_desc'),
-    );
-
-    template 'invoices' => {
-        invoices => \@invoices,
-        page     => 'invoice'
-    };
 };
 
 any ['get', 'post'] => '/tasks/' => require_login sub {

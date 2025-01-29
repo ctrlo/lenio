@@ -117,11 +117,6 @@
                         class="form-control [% UNLESS readonly %]datepicker[% END %]"
                         id="completed" value="[% ticket.completed.ymd %]" [% readonly %]>
                 </div>
-                    [% IF ticket.invoice %]
-                        <a href="/invoice/[% ticket.invoice.id %]" id="invoice" class="btn btn-default">View Invoice</a>
-                    [% ELSE %]
-                        <a href="/invoice/0?ticket=[% ticket.id %]" id="invoice" class="btn btn-default">Create Invoice...</a>
-                    [% END %]
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="report_received" [% IF ticket.report_received %]checked[% END %]> Report received
@@ -192,35 +187,33 @@
         </div>
         <div class="col-sm-2">
             [% IF ticket.id %]
-            <div class="form-group">
-                <label for="attach">Invoices</label>
-                [% IF ticket.invoice %]
-                    <div class="well well-sm">
-                        <strong>
-                            Number [% ticket.invoice.number | html %]
-                        </strong><br /><a class="btn btn-link btn-sm" href="/invoice/[% ticket.invoice.id %]?download">View</a>
-                    </div>
-                [% ELSE %]
-                    <p>There are no invoices related to this ticket</p>
-                [% END %]
-            </div>
-            <div class="form-group">
-                    <label for="attach">Attachments</label>
-                    [% IF ticket.attaches.size %]
-                        [% FOR attach IN ticket.attaches %]
-                            <div class="well well-sm"><strong>
-                            [% attach.name | html %]
-                            </strong><br /><a class="btn btn-link btn-sm" href="/attach/[% attach.id %]">View</a>
-                            [% IF login.is_admin %]
-                                | <button class="btn btn-link btn-sm"
-                                    name="attachrm" value="[% attach.id %]">Delete</button>
-                            [% END %]
+                [% IF ticket.invoice # legacy functionality %]
+                    <div class="form-group">
+                            <label for="attach">Invoices</label>
+                            <div class="well well-sm">
+                                <strong>
+                                    Number [% ticket.invoice.number | html %]
+                                </strong><br /><a class="btn btn-link btn-sm" href="/invoice/[% ticket.invoice.id %]?download">View</a>
                             </div>
+                    </div>
+                [% END %]
+                <div class="form-group">
+                        <label for="attach">Attachments</label>
+                        [% IF ticket.attaches.size %]
+                            [% FOR attach IN ticket.attaches %]
+                                <div class="well well-sm"><strong>
+                                [% attach.name | html %]
+                                </strong><br /><a class="btn btn-link btn-sm" href="/attach/[% attach.id %]">View</a>
+                                [% IF login.is_admin %]
+                                    | <button class="btn btn-link btn-sm"
+                                        name="attachrm" value="[% attach.id %]">Delete</button>
+                                [% END %]
+                                </div>
+                            [% END %]
+                        [% ELSE %]
+                            <p>There are no files related to this ticket</p>
                         [% END %]
-                    [% ELSE %]
-                        <p>There are no files related to this ticket</p>
-                    [% END %]
-            </div>
+                </div>
                 <a role="button" href="#modal_attach" class="btn btn-default" data-toggle="modal" data-target="#modal_attach">
                     Attach new...
                 </a>

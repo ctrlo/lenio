@@ -57,7 +57,6 @@
                         [% ELSE %]
                             <li [% IF page == "tasks" %]class="active"[% END %]><a href="/tasks/">Tasks</a></li>
                         [% END %]
-                        <li [% IF page == "invoice" %]class="active"[% END %]><a href="/invoices">Invoices</a></li>
                         <li [% IF page == "notice" %]class="active"[% END %]><a href="/notice">Notices</a></li>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Contractors <span class="caret"></span></a>
@@ -89,7 +88,6 @@
                     [% ELSE %]
                         <li [% IF page == "task" %]class="active"[% END %]><a href="/task">Summary</a></li>
                         <li [% IF page == "check" %]class="active"[% END %]><a href="/checks">Site checks</a></li>
-                        <li [% IF page == "invoice" %]class="active"[% END %]><a href="/invoices">Invoices</a></li>
                     [% END %]
 
                     <li class="dropdown">
