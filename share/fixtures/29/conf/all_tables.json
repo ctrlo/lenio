@@ -1,0 +1,113 @@
+{
+   "belongs_to" : {
+      "fetch" : 0
+   },
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "Comment"
+      },
+      {
+         "class" : "LoginOrg",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItem"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Permission"
+      },
+      {
+         "class" : "LoginPermission",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Org",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Audit"
+      },
+      {
+         "class" : "Tasktype",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Ticket"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Task"
+      },
+      {
+         "class" : "Contractor",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Invoice",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "EventOrg"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteGroup"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Attach"
+      },
+      {
+         "class" : "Site",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "SiteTask"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Event"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemOption"
+      },
+      {
+         "class" : "Group",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckItemDone"
+      },
+      {
+         "class" : "Login",
+         "quantity" : "all"
+      },
+      {
+         "quantity" : "all",
+         "class" : "CheckDone"
+      },
+      {
+         "class" : "LoginNotice",
+         "quantity" : "all"
+      },
+      {
+         "class" : "Notice",
+         "quantity" : "all"
+      }
+   ],
+   "has_many" : {
+      "fetch" : 0
+   },
+   "might_have" : {
+      "fetch" : 0
+   }
+}

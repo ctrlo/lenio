@@ -17,6 +17,12 @@
     <h4><a href="/tickets?task_id=[% ticket.task_id %]&site_id=[% ticket.site_id %]">[% ticket.task.name | html %]</a></h4>
 [% END %]
 
+[% IF ticket.parent %]
+    <div class="alert alert-info">
+        This is a child of ticket <a href="[% ticket.parent_id %]">[% ticket.parent_id %] ([% ticket.parent.name | html %])</a>
+    </div>
+[% END %]
+
 [% UNLESS !ticket.id OR login.is_admin OR ticket.actionee == "local" %]
     [% readonly = "readonly" %]
 [% END %]
@@ -187,6 +193,19 @@
         </div>
         <div class="col-sm-2">
             [% IF ticket.id %]
+                [% IF NOT ticket.parent %]
+                    <div class="form-group">
+                        <label for="child_ticket">Child tickets</label>
+                        [% IF ticket.children %]
+                            <ul>
+                                [% FOR child IN ticket.children %]
+                                    <li><a href="/ticket/[% child.id %]">[% child.id %] ([% child.name | html %])</a></li>
+                                [% END %]
+                            </ul>
+                        [% END %]
+                        <a class="btn btn-default" href="/ticket/0?parent=[% ticket.id %]">Create child ticket</a>
+                    </div>
+                [% END %]
                 [% IF ticket.invoice # legacy functionality %]
                     <div class="form-group">
                             <label for="attach">Invoices</label>

@@ -710,6 +710,17 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         $task = rset('Task')->find($task_id);
     }
 
+    # Attach to a parent? Only on creation
+    my $parent;
+    if (my $parent_id = query_parameters->get('parent'))
+    {
+        # Check user has access
+        $parent = schema->resultset('Ticket')->find($parent_id)
+            or error __x"Parent ticket ID {id} not found", id => $parent_id;
+        error __x"You do not have permission for parent ticket ID {id}", id => $parent_id
+            unless var('login')->has_site($parent->site_id);
+    }
+
     my $ticket;
     if (defined($id) && $id)
     {
@@ -753,6 +764,8 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
                 site_id => $site_id,
             });
         }
+        $ticket->parent_id($parent->id)
+            if $parent;
     }
     elsif (defined($id))
     {
@@ -761,6 +774,8 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
             created_by => logged_in_user->{id},
             created_at => DateTime->now,
         });
+        $ticket->parent_id($parent->id)
+            if $parent;
     }
 
     if ( body_parameters->get('attach') ) {
