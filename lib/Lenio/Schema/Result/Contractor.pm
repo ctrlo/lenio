@@ -15,6 +15,8 @@ Lenio::Schema::Result::Contractor
 use strict;
 use warnings;
 
+use DateTime;
+
 use base 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
@@ -55,6 +57,12 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
   { data_type => "text", is_nullable => 0 },
+  "deleted",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -86,9 +94,10 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2014-02-20 00:04:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EQEBTcMMa5CmWHt4udCuGg
+sub delete_contractor
+{   my $self = shift;
+    $self->update({ deleted => DateTime->now });
+}
 
 sub validate {
     my $self = shift;

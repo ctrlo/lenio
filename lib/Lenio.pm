@@ -176,7 +176,7 @@ hook before_template => sub {
     $tokens->{csrf_token} = session 'csrf_token';
     $tokens->{login}      = var('login');
     $tokens->{groups}     = [schema->resultset('Group')->ordered];
-    $tokens->{contractors} = [rset('Contractor')->ordered];
+    $tokens->{contractors} = [rset('Contractor')->active];
     $tokens->{contractors_selected} = session 'contractors';
     $tokens->{company_name} = config->{lenio}->{invoice}->{company};
     $tokens->{logo} = config->{lenio}->{logo};
@@ -438,12 +438,12 @@ any ['get', 'post'] => '/contractor/?:id?' => require_login sub {
     my $id = route_parameters->get('id');
     if (defined $id)
     {
-        $contractor = rset('Contractor')->find($id) || rset('Contractor')->new({});
+        $contractor = rset('Contractor')->active->find($id) || rset('Contractor')->new({});
     }
 
     if (body_parameters->get('delete'))
     {
-        if (process (sub { $contractor->delete } ) )
+        if (process (sub { $contractor->delete_contractor } ) )
         {
             forwardHome({ success => 'Contractor has been successfully deleted' }, 'contractor');
         }
@@ -461,7 +461,7 @@ any ['get', 'post'] => '/contractor/?:id?' => require_login sub {
     template 'contractor' => {
         id          => $id,
         contractor  => $contractor,
-        contractors => [rset('Contractor')->ordered],
+        contractors => [rset('Contractor')->active],
         page        => 'contractor'
     };
 };
@@ -959,7 +959,7 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
     template 'ticket' => {
         id           => $id,
         ticket       => $ticket,
-        contractors  => [rset('Contractor')->ordered],
+        contractors  => [rset('Contractor')->active],
         dateformat   => config->{lenio}->{dateformat},
         page         => 'ticket'
     };

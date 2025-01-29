@@ -4,8 +4,12 @@ use strict;
 use warnings;
 use base qw(DBIx::Class::ResultSet);
 
-sub ordered
-{   shift->search({}, { order_by => 'me.name' })->all;
+sub active
+{   shift->search({
+        deleted => undef,
+    }, {
+        order_by => 'me.name'
+    })->all;
 }
 
 1;
