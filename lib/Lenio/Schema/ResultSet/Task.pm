@@ -851,50 +851,35 @@ sub finsum
             },
         },
     );
-    my @tables; my @data; my $last_tasktype; my $subtotal_planned = 0; my $subtotal_actual; my $is_reactive;
 
-    foreach my $ticket (@tickets)
-    {
-        my $tasktype = $ticket->task ? $ticket->task->tasktype_name : 'Reactive maintenance';
-        if (defined $last_tasktype && $tasktype ne $last_tasktype)
-        {
-            push @tables, {
-                name          => $last_tasktype,
-                data          => [@data], # Copy
-                total_planned => $subtotal_planned,
-                total_actual  => $subtotal_actual,
-                is_reactive   => $is_reactive,
-            };
-            $subtotal_planned = 0; $subtotal_actual = 0;
-            @data = ();
-        }
-        $is_reactive = $tasktype eq 'Reactive maintenance';
-
-        my @d = (
-            $ticket->name,
-            $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
-            defined $ticket->cost_planned ? _price($ticket->cost_planned) : undef,
-            defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
-            $ticket->contractor ? $ticket->contractor->name : undef,
-        );
-        unshift @d, $ticket->id
-            if $is_reactive;
-        push @data, \@d;
-
-        $subtotal_planned += ($ticket->cost_planned || 0);
-        $subtotal_actual  += ($ticket->cost_actual || 0);
-
-        $last_tasktype = $tasktype;
-    }
+    my @tables;
 
     if (@tickets)
     {
+        my $subtotal_planned = 0; my $subtotal_actual = 0;
+        my @data;
+        foreach my $ticket (@tickets)
+        {
+            my @d = (
+                $ticket->id,
+                $ticket->name,
+                $ticket->completed ? $ticket->completed->strftime($params{dateformat}) : undef,
+                defined $ticket->cost_planned ? _price($ticket->cost_planned) : undef,
+                defined $ticket->cost_actual ? _price($ticket->cost_actual) : undef,
+                $ticket->contractor ? $ticket->contractor->name : undef,
+            );
+            push @data, \@d;
+
+            $subtotal_planned += ($ticket->cost_planned || 0);
+            $subtotal_actual  += ($ticket->cost_actual || 0);
+        }
+
         push @tables, {
-            name          => $last_tasktype,
+            name          => 'Reactive maintenance',
             data          => [@data], # Copy
             total_planned => $subtotal_planned,
             total_actual  => $subtotal_actual,
-            is_reactive   => $is_reactive,
+            is_reactive   => 1,
         };
     }
 
