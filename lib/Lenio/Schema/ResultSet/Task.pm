@@ -562,6 +562,7 @@ sub overdue
             name              => $task->name,
             global            => $task->global,
             task              => $task,
+            period            => $task->period,
             site              => {
                 id   => $task->get_column('site_id'),
                 name => $task->get_column('site_name'),
