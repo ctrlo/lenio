@@ -1469,7 +1469,6 @@ any ['get', 'post'] => '/task/?' => require_login sub {
     @adhocs = rset('Ticket')->summary(
         login        => var('login'),
         site_id      => var('site_ids'),
-        task_tickets => 0,
         fy           => session('site_id') && session('fy'),
         filter       => {
             type => {

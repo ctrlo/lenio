@@ -840,7 +840,6 @@ sub finsum
     my @tickets = $self->result_source->schema->resultset('Ticket')->summary(
         site_id        => $site->id,
         fy             => $params{fy},
-        task_tickets   => 0,
         cost_only      => 1,
         sort           => 'type',
         filter         => {
