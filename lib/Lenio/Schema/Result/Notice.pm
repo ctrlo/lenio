@@ -93,6 +93,14 @@ sub validate {
     error __"Please enter some text for the noticer" unless $self->text;
 }
 
+sub delete_notice
+{   my $self = shift;
+    my $guard = $self->result_source->schema->txn_scope_guard;
+    $self->login_notices->delete;
+    $self->delete;
+    $guard->commit;
+}
+
 sub after_create
 {   my $self = shift;
     my $schema = $self->result_source->schema;

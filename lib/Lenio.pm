@@ -476,7 +476,7 @@ any ['get', 'post'] => '/notice/?:id?' => require_login sub {
 
     if (body_parameters->get('delete'))
     {
-        if (process (sub { $notice->delete } ) )
+        if (process (sub { $notice->delete_notice } ) )
         {
             forwardHome({ success => 'The notice has been successfully deleted' }, 'notice');
         }
