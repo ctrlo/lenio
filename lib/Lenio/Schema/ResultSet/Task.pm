@@ -878,7 +878,7 @@ sub finsum
                 name          => $type eq 'reactive' ? 'Reactive maintenance' : 'Service remedials',
                 data          => [@data], # Copy
                 total_actual  => $subtotal_actual,
-                is_reactive   => 1,
+                $type         => 1,
             };
         }
     }
@@ -890,12 +890,12 @@ sub finsum
         font_size  => 8,
     };
 
-    my $total_planned = 0; my $total_actual = 0; my $total_reactive_planned = 0; my $total_reactive_actual = 0;
+    my $total_planned = 0; my $total_actual = 0; my $total_reactive_actual = 0;
     foreach my $table (@tables)
     {
         $pdf->heading($table->{name}, size => 12);
         my $data = $table->{data};
-        my @headings = $table->{is_reactive}
+        my @headings = $table->{reactive} || $table->{remedial}
             ? (
                 'ID',
                 'Item',
@@ -916,7 +916,7 @@ sub finsum
         my $cellprops = [];
         foreach my $row (@$data)
         {
-            push @$cellprops, !$table->{is_reactive} && $row->[3]
+            push @$cellprops, !($table->{reactive} || $table->{remedial}) && $row->[3]
                 ? [({background_color => '#77dd77'}) x @$row]
                 : [(undef) x @$row];
         }
@@ -926,17 +926,20 @@ sub finsum
             cell_props   => $cellprops,
             font_size    => 8,
         );
-        if ($table->{is_reactive})
+        if ($table->{reactive}})
         {
             $pdf->text("**Total reactive cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
+        }
+        elsif ($table->{remedial})
+        {
+            $pdf->text("**Total service remedials: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
         }
         else {
             $pdf->text("**Total planned cost: "._price($table->{total_planned})."**", indent => 350, size => 10, format => 'md1');
             $pdf->text("**Total actual cost: "._price($table->{total_actual})."**", indent => 350, size => 10, format => 'md1', top_padding => 2);
         }
-        if ($table->{is_reactive})
+        if ($table->{reactive} || $table->{remedial})
         {
-            $total_reactive_planned += $table->{total_planned};
             $total_reactive_actual += $table->{total_actual};
         }
         else {
