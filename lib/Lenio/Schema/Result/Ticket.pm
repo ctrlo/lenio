@@ -322,6 +322,9 @@ sub validate {
         or error __"Please enter actual cost as a decimal value";
     $self->actionee =~ /^(external|local|with_site|admin)$/
         or error __x"Invalid actionee {actionee}", actionee => $self->actionee;
+    # Only one layer of parent/child supported at this time
+    !$self->parent_id || !$self->parent->parent_id
+        or error __"Cannot add a child ticket to another child ticket";
 }
 
 sub last_completed
