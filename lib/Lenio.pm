@@ -1013,6 +1013,11 @@ get '/tickets/?' => require_login sub {
             group => 'type',
             name  => 'Tickets for services',
         },
+        open     => {
+            url   => 'open',
+            group => 'status',
+            name  => 'Open',
+        },
         not_planned     => {
             url   => 'not-planned',
             group => 'status',
@@ -1109,19 +1114,27 @@ get '/tickets/?' => require_login sub {
     {
         if (my $tt = query_parameters->get('filter-status'))
         {
-            $ticket_filter->{status}->{not_planned} = !!query_parameters->get('set')
-                if $tt eq 'not-planned';
-            $ticket_filter->{status}->{planned} = !!query_parameters->get('set')
-                if $tt eq 'planned';
-            $ticket_filter->{status}->{completed} = !!query_parameters->get('set')
-                if $tt eq 'completed';
-            $ticket_filter->{status}->{cancelled} = !!query_parameters->get('set')
-                if $tt eq 'cancelled';
+            $tt =~ /^(not-planned|planned|completed|cancelled|open)$/
+                or error __"Invalid filter key: {key}", key => $tt;
+            # Use URL-friendly parameters
+            $tt =~ s/-/_/g;
+            if (query_parameters->get('set'))
+            {
+                $ticket_filter->{status}->{$tt} = 1;
+            }
+            else {
+                delete $ticket_filter->{status}->{$tt};
+            }
         }
         else {
             # Clear
             delete $ticket_filter->{status};
         }
+    }
+    if (!$ticket_filter->{status} || !%{$ticket_filter->{status}})
+    {
+        notice __"Defaulting to all open tickets";
+        $ticket_filter->{status} = { open => 1 };
     }
 
     if (defined query_parameters->get('filter-actionee'))

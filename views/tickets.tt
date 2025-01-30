@@ -30,7 +30,10 @@
             <li role="separator" class="divider"></li>
             <li role="presentation" class="dropdown-header">Ticket status</li>
             <li>
-                <a href="?filter-status">Open tickets</a>
+                <a href="?filter-status=open[% IF NOT ticket_filter.status.open %]&set=1[% END %]">
+                    [% filter_names.open.name | html %]
+                    [% IF ticket_filter.status.open %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
             </li>
             <li>
                 <a href="?filter-status=not-planned[% IF NOT ticket_filter.status.not_planned %]&set=1[% END %]">

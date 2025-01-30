@@ -88,7 +88,13 @@ foreach my $task_tickets (0, 1, undef)
                         reactive => 1,
                     },
                 };
-            $ticket_filter->{status}->{completed} = 1 if $completed_only;
+            if ($completed_only)
+            {
+                $ticket_filter->{status}->{completed} = 1;
+            }
+            else {
+                $ticket_filter->{status}->{open} = 1;
+            }
             my @summary = $schema->resultset('Ticket')->summary(
                 login   => $login,
                 site_id => $site->id,
