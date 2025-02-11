@@ -778,37 +778,44 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
             if $parent;
     }
 
-    if ( body_parameters->get('attach') ) {
-        my $upload = request->upload('newattach')
+    if ( body_parameters->get('attach') )
+    {
+        my @uploads = request->upload('newattach')
             or error __"Please select a file to upload";
-        my $attach = {
-            name        => $upload->basename,
-            ticket_id   => $id,
-            upload      => $upload,
-            mimetype    => $upload->type,
-        };
-
-        if (process sub { rset('Attach')->create_with_file($attach) })
+        my $email = Lenio::Email->new(
+            config   => config,
+            schema   => schema,
+            uri_base => request->uri_base,
+            site     => $ticket->site,
+        );
+        if (process sub
         {
-            my $args = {
-                login    => var('login'),
-                template => 'ticket/attach',
-                ticket   => $ticket,
-                url      => "/ticket/".$ticket->id,
-                subject  => "Ticket ".$ticket->id." attachment added - ",
-                attach   => {
-                    data      => $upload->content,
-                    mime_type => $upload->type,
-                },
-            };
-            my $email = Lenio::Email->new(
-                config   => config,
-                schema   => schema,
-                uri_base => request->uri_base,
-                site     => $ticket->site, # rset('Site')->find(param 'site_id'),
-            );
-            $email->send($args);
-            success __"File has been added successfully";
+            foreach my $upload (@uploads)
+            {
+                my $attach = {
+                    name        => $upload->basename,
+                    ticket_id   => $id,
+                    upload      => $upload,
+                    mimetype    => $upload->type,
+                };
+
+                rset('Attach')->create_with_file($attach);
+                my $args = {
+                    login    => var('login'),
+                    template => 'ticket/attach',
+                    ticket   => $ticket,
+                    url      => "/ticket/".$ticket->id,
+                    subject  => "Ticket ".$ticket->id." attachment added - ",
+                    attach   => {
+                        data      => $upload->content,
+                        mime_type => $upload->type,
+                    },
+                };
+                $email->send($args);
+            }
+        })
+        {
+            success __xn"File has been added successfully", "Files have been added successfully", @uploads;
         }
     }
 

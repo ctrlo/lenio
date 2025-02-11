@@ -254,7 +254,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="newattach">Attach new file</label>
-                    <input type="file" id="newattach" name="newattach"></input>
+                    <input type="file" id="newattach" name="newattach" multiple></input>
                 </div>
             </div>
             <div class="modal-footer">
