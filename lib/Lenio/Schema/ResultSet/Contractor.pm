@@ -9,7 +9,7 @@ sub active
         deleted => undef,
     }, {
         order_by => 'me.name'
-    })->all;
+    });
 }
 
 1;
