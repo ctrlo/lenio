@@ -311,8 +311,9 @@ get '/logout' => sub {
 
 # Dismiss a notice
 post '/close/:id' => require_login sub {
-    my $notice = rset('LoginNotice')->find(route_parameters->get('id')) or return;
+    my $notice = rset('LoginNotice')->find(route_parameters->get('id')) or return 0;
     $notice->delete if $notice->login_id == var('login')->id;
+    return 1;
 };
 
 any ['get', 'post'] => '/user/:id' => require_login sub {
