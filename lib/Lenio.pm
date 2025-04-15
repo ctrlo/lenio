@@ -949,6 +949,8 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
 
     if (my $submit = body_parameters->get('addcomment'))
     {
+        # $comment not defined if not text entered
+        $comment or error __"Please enter a comment to add";
         $comment->ticket_id($ticket->id);
         if ($submit eq 'private' && var('login')->is_admin)
         {
