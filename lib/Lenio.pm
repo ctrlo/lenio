@@ -28,6 +28,10 @@ use Lenio::Email;
 use Session::Token;
 use Lenio::CSV;
 
+# Ensure secure session ID generation (CVE-2026-13577)
+use Crypt::URandom;
+use Math::Random::ISAAC::XS;
+
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Extensible;
 use Dancer2::Plugin::LogReport;
