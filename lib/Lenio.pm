@@ -27,6 +27,7 @@ use Lenio::Config;
 use Lenio::Email;
 use Session::Token;
 use Lenio::CSV;
+use Sys::Hostname qw/hostname/;
 
 # Ensure secure session ID generation (CVE-2026-13577)
 use Crypt::URandom;
@@ -66,6 +67,12 @@ hook before => sub {
 
     # Used to display error messages
     return if param 'error';
+
+    # Prevent Host Header Injection attacks, ensuring that any use of base
+    # hostname matches the server and are therefore valid.
+    report ERROR => __x"Requested host name {host} does not match server name {server}",
+        host => request->base->host, server => hostname
+            if hostname ne request->base->host;
 
     my $user = logged_in_user
 
