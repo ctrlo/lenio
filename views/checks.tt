@@ -1,4 +1,4 @@
-<h3>Site checks ([% site.org.name %] - [% site.name %])</h3>
+<h3>Site checks ([% site.org.name | html %] - [% site.name | html %])</h3>
 <table class="table table-striped">
     <tr>
         <th>Name</th>
@@ -9,7 +9,7 @@
     [% FOR check IN site_checks %]
         <tr>
             <td>
-                [% check.name %] (<a href="/check/[% check.id %]">Log done</a>)
+                [% check.name | html %] (<a href="/check/[% check.id %]">Log done</a>)
             </td>
             <td>
                 [% check.period_qty %] [% check.period_unit %][% IF check.period_qty > 1 %]s[% END %]

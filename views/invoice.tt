@@ -14,11 +14,11 @@
             </div>
             <div class="form-group">
                 <label for="number">Invoice number</label>
-                <input type="text" name="number" class="form-control" id="number" value="[% invoice.number %]">
+                <input type="text" name="number" class="form-control" id="number" value="[% invoice.number | html %]">
             </div>
             <div class="form-group">
                 <label for="disbursements">Disbursements</label>
-                <input type="text" name="disbursements" class="form-control" id="disbursements" value="[% invoice.disbursements %]">
+                <input type="text" name="disbursements" class="form-control" id="disbursements" value="[% invoice.disbursements | html %]">
             </div>
             <div class="form-group">
                 <button type="submit" name="submit" value="submit" class="btn btn-primary">

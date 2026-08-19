@@ -10,7 +10,7 @@
     [% FOR task IN tasks %]
         <tr>
             <td>[% task.tasktype.name | html %]</td>
-            <td><a href="/task/[% task.id %]">[% task.name %]</a></td>
+            <td><a href="/task/[% task.id %]">[% task.name | html %]</a></td>
             <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
         </tr>
     [% END %]

@@ -1,5 +1,5 @@
     [% IF check.id %]
-        <h3>[% check.name %]</h3>
+        <h3>[% check.name | html %]</h3>
     [% ELSE %]
         <h3>Create new site check</h3>
     [% END %]

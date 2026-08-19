@@ -1,4 +1,4 @@
-<h3>[% check.name %]
+<h3>[% check.name | html %]
     <small>
         [% IF check_done.id %]
             Update existing check
@@ -13,7 +13,7 @@
     [% FOREACH item IN check.check_items %]
         [% done_item = check_done.find_check_item(item.id) %]
         <div class="form-group">
-            <label for="item[% item.id %]" class="control-label">[% item.name %]</label>
+            <label for="item[% item.id %]" class="control-label">[% item.name | html %]</label>
             [% IF item.has_custom_options %]
                 <select class="form-control" id="item[% item.id %]" name="item[% item.id %]">
                     [% IF NOT done_item.status_custom %]
@@ -41,7 +41,7 @@
     </div>
     <div class="form-group">
         <label for="comment" class="control-label">Comments:</label>
-        <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check_done.comment %]</textarea>
+        <textarea class="form-control monospace" id="comment" name="comment" rows="10">[% check_done.comment | html %]</textarea>
     </div>
     <button type="submit" name="submit_check_done" value="submit" class="btn btn-primary">
         [% IF check_done.id %]

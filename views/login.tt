@@ -40,7 +40,7 @@
                                     <form>
                                         <input type="hidden" name="csrf_token" value="[% csrf_token %]">
                                         <div class="form-group">
-                                            <input id="password" class="form-control form-control-static" type="password" value="[% new_password %]" data-toggle="password" readonly style="cursor: text" data-placement="before">
+                                            <input id="password" class="form-control form-control-static" type="password" value="[% new_password | html %]" data-toggle="password" readonly style="cursor: text" data-placement="before">
                                         </div>
                                     </form>
                                     <p class="text-right"><a href="/login">Continue to login screen</a>
@@ -80,7 +80,7 @@
                         <h2>Please Sign In</h2>
                         <hr>
                         <div class="form-group">
-                            <input type="email" name="username" id="email" class="form-control input-lg" placeholder="Email Address" value="[% username %]" autocomplete="off">
+                            <input type="email" name="username" id="email" class="form-control input-lg" placeholder="Email Address" value="[% username | html %]" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <input type="password" name="password" id="password" class="form-control input-lg" placeholder="Password" autocomplete="off">

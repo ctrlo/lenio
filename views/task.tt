@@ -1,6 +1,6 @@
 [% IF task %]
     [% IF task.id %]
-        <h3>[% task.name %]</h3>
+        <h3>[% task.name | html %]</h3>
     [% ELSE %]
         <h3>Create new service item</h3>
     [% END %]
@@ -68,7 +68,7 @@
                     [% site_id = task.site_id || site.id %]
                     <select class="form-control" id="site_id" name="site_id" [% readonly %]>
                         [% FOR site IN login.sites %]
-                        <option value="[% site.id %]" [% IF site.id == site_id %]selected[% END %]>[% site.org.name %] ([% site.name %])</option>
+                        <option value="[% site.id %]" [% IF site.id == site_id %]selected[% END %]>[% site.org.name | html %] ([% site.name | html %])</option>
                         [% END %]
                     </select>
                 </div>
@@ -97,7 +97,7 @@
     [% IF site.id OR login.is_admin %]
         <h3>Service items
 	[% IF site.id %]
-            ([% site.org.name %] - [% site.name %])
+            ([% site.org.name | html %] - [% site.name | html %])
         [% ELSE %]
             (All sites)
         [% END %]
@@ -136,7 +136,7 @@
                     <input type="hidden" name="csrf_token" value="[% csrf_token %]">
                     <select class="form-control" name="fy" onchange="this.form.submit()">
                         [% FOR fy IN site.fys %]
-                            <option value="[% fy.year %]" [% IF session.fy == fy.year %]selected[% END %]>Show costs for [% fy.name %]</option>
+                            <option value="[% fy.year | html %]" [% IF session.fy == fy.year %]selected[% END %]>Show costs for [% fy.name | html %]</option>
                         [% END %]
                     </select>
                 </form>
@@ -301,7 +301,7 @@
 
                 [% FOR task IN tasks_local %]
                 <tr>
-                    <td><a href="/task/[% task.id %]">[% task.name %]</a></td>
+                    <td><a href="/task/[% task.id %]">[% task.name | html %]</a></td>
                     <td>[% task.period_qty %] [% task.period_unit %][% IF task.period_qty > 1 %]s[% END %]</td>
                     [% IF site.id %]
                         <td>[% task.planned.strftime(dateformat) %]</td>
@@ -392,7 +392,7 @@
                     <label for="populate_from" class="control-label">From</label>
                     <select class="form-control" name="populate_from">
                         [% FOR fy IN site.fys %]
-                            <option value="[% fy.year %]">Copy tickets from [% fy.name %]</option>
+                            <option value="[% fy.year %]">Copy tickets from [% fy.name | html %]</option>
                         [% END %]
                     </select>
                 </div>
