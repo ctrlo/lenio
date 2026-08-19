@@ -314,8 +314,11 @@ post '/login/?:code?' => sub {
 };
 
 get '/logout' => sub {
-    rset('Audit')->logout(logged_in_user->{username}, logged_in_user->{id});
-    app->destroy_session;
+    if (logged_in_user)
+    {
+        rset('Audit')->logout(logged_in_user->{username}, logged_in_user->{id});
+        app->destroy_session;
+    }
     forwardHome();
 };
 
