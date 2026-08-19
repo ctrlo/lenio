@@ -1179,6 +1179,21 @@ get '/tickets/?' => require_login sub {
         }
     }
 
+    if (defined query_parameters->get('filter-child'))
+    {
+        if (my $tt = query_parameters->get('filter-child'))
+        {
+            $ticket_filter->{child}->{child} = !!query_parameters->get('set')
+                if $tt eq 'child';
+            $ticket_filter->{child}->{parent} = !!query_parameters->get('set')
+                if $tt eq 'parent';
+        }
+        else {
+            # Clear
+            delete $ticket_filter->{child};
+        }
+    }
+
     if (defined query_parameters->get('filter-dates'))
     {
         if (my $tt = query_parameters->get('filter-dates'))

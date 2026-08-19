@@ -89,6 +89,26 @@
                 </a>
             </li>
             <li role="separator" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Child tickets</li>
+            <li>
+                <a href="?filter-child">
+                    Child and parent tickets
+                    [% IF NOT ticket_filter.child %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-child=parent[% IF NOT ticket_filter.child.parent %]&set=1[% END %]">
+                    Show only parent tickets
+                    [% IF ticket_filter.child.parent %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li>
+                <a href="?filter-child=child[% IF NOT ticket_filter.child.child %]&set=1[% END %]">
+                    Show only child tickets
+                    [% IF ticket_filter.child.child %]<span class="glyphicon glyphicon-ok"></span>[% END %]
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
             <li role="presentation" class="dropdown-header">Dates</li>
             <li>
                 <a href="?filter-dates">All dates</a>

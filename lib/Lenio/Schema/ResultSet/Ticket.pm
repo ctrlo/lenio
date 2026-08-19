@@ -134,6 +134,22 @@ sub summary
         } if @costs;
     }
 
+    if (my $child = $filter->{child})
+    {
+        my @child;
+        if ($child->{child})
+        {
+            push @child, {'me.parent_id' => { '!=' => undef }};
+        }
+        if ($child->{parent})
+        {
+            push @child, {'children.id' => { '!=' => undef }};
+        }
+        push @filters, {
+            -or => \@child,
+        } if @child;
+    }
+
     if (my $dates = $filter->{dates})
     {
         my $dtf = $self->result_source->schema->storage->datetime_parser;
@@ -333,7 +349,7 @@ sub summary
                 },
             }
         ],
-        join => ['invoice', 'parent'],
+        join => ['invoice', 'parent', 'children'],
         order_by => $order_by,
     })->all;
 }
