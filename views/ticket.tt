@@ -175,6 +175,9 @@
                             <span class="pull-right">(<a href="#" data-toggle="modal"
                                 data-target="#modal_comment_delete" data-comment_id="[% comment.id %]">Delete comment</a>)
                             </span>
+                            <span class="pull-right">(<a href="#" data-toggle="modal" data-target="#modal_comment_edit"
+                                data-comment_id="[% comment.id %]" data-comment_text="[% comment.text | html %]">Edit comment</a>)
+                            </span>
                         [% END %]
                     <br />[% comment.text | html %]</div>
                 [% END %]
@@ -326,6 +329,28 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 <button type="submit" name="delete_comment" id="modal_comment_delete-comment_id" value="" class="btn btn-primary">Delete</button>
+            </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<div class="modal fade" id="modal_comment_edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="[% csrf_token %]">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Edit ticket comment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <textarea name="edit_comment_text" id="modal_comment_edit-comment_text" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" name="edit_comment" id="modal_comment_edit-comment_id" value="" class="btn btn-primary">Update</button>
             </div>
             </form>
         </div><!-- /.modal-content -->

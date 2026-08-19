@@ -717,6 +717,24 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
         }
     }
 
+    # Check for comment edit
+    if (my $comment_id = body_parameters->get('edit_comment'))
+    {
+        error "You do not have access to edit comments"
+            unless var('login')->is_admin;
+        if (my $comment = rset('Comment')->find($comment_id))
+        {
+            my $ticket_id = $comment->ticket_id;
+            if (process sub { $comment->update({ text => body_parameters->get('edit_comment_text') }) })
+            {
+                forwardHome({ success => "Comment has been successfully updated" }, "ticket/$ticket_id");
+            }
+        }
+        else {
+            error "Comment id {id} not found", id => $comment_id;
+        }
+    }
+
     # task_id can be specified in posted form or prefilled in ticket url
     my $task;
     if (my $task_id = body_parameters->get('task_id') || query_parameters->get('task_id'))

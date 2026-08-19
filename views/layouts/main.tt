@@ -212,6 +212,13 @@
                     var comment_id = button.data('comment_id');
                     $('#modal_comment_delete-comment_id').val(comment_id);
                 });
+                $('#modal_comment_edit').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var comment_id = button.data('comment_id');
+                    $('#modal_comment_edit-comment_id').val(comment_id);
+                    var comment_text = button.data('comment_text');
+                    $('#modal_comment_edit-comment_text').val(comment_text);
+                });
             });
         </script>
     [% END %]
