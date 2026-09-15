@@ -1,0 +1,29 @@
+name: 'GADS Tests'
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  unit_tests:
+    name: 'Unit Tests'
+    runs-on: 'ubuntu-22.04'
+    timeout-minutes: 30
+    container: debian:trixie
+
+    steps:
+      - name: 'Check out the GADS repository'
+        uses: 'actions/checkout@v4'
+      - name: 'Install dependencies'
+        run: |
+          chmod +x ./.github/workflows/install.sh
+          ./.github/workflows/install.sh
+      - name: 'Run the unit tests'
+        run: prove -lrs -j4 t
