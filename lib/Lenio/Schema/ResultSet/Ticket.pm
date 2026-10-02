@@ -8,6 +8,8 @@ use utf8;
 
 use Log::Report;
 
+__PACKAGE__->load_components(qw(Helper::ResultSet::DateMethods1));
+
 sub summary
 {   my ($self, %args) = @_;
     my $search = {};
@@ -352,6 +354,81 @@ sub summary
         join => ['invoice', 'parent', 'children'],
         order_by => $order_by,
     })->all;
+}
+
+my @month = qw(January Febuary March April May June July August
+                September October November December);
+
+sub report_count
+{   my ($self, %args) = @_;
+
+    my $dtf  = $self->result_source->schema->storage->datetime_parser;
+
+    my $search = {
+        created_at => {
+            '>' => $dtf->format_datetime(DateTime->now->subtract(months => 12)),
+        }
+    };
+
+    $search->{'me.site_id'} = $args{site_id}
+        if $args{site_id};
+
+    $search->{'login_orgs.login_id'} = $args{login}->id
+        if $args{login} && !$args{login}->is_admin;
+
+    my $report = $self->search_rs($search, {
+        select => [
+            # Count service and reactive tickets - abstract literal SQL?
+            { sum => \"IF(task_id IS NOT NULL, 1, 0)" },
+            { sum => \"IF(task_id IS NULL, 1, 0)" },
+            $self->dt_SQL_pluck({ -ident => '.created_at' }, 'year'),
+            $self->dt_SQL_pluck({ -ident => '.created_at' }, 'month'),
+            { max => 'site.name' },
+            { max => 'org.name' },
+        ],
+        as => [qw/count_task count_reactive year month site_name org_name/],
+        join => {
+            'site' => {
+                'org' => 'login_orgs'
+            },
+        },
+        group_by => [
+            'me.site_id',
+            $self->dt_SQL_pluck({ -ident => '.created_at' }, 'year'),
+            $self->dt_SQL_pluck({ -ident => '.created_at' }, 'month'),
+        ],
+        order_by => ['org.name', { -desc => 'me.created_at'} ],
+    });
+
+    my @return;
+
+    my ($previous_org, @months);
+    foreach my $item ($report->all)
+    {
+        my $org = $item->get_column('org_name')." (".$item->get_column('site_name').")";
+        if ($previous_org && $previous_org ne $org)
+        {
+            push @return, {
+                name   => $previous_org,
+                months => [@months],
+            };
+            @months = ();
+        }
+        push @months, {
+            task     => $item->get_column('count_task'),
+            reactive => $item->get_column('count_reactive'),
+            month    => $month[$item->get_column('month')],
+            year     => $item->get_column('year'),
+        };
+        $previous_org = $org;
+    }
+
+    push @return, {
+        name   => $previous_org,
+        months => [@months],
+    };
+
+    \@return;
 }
 
 1;

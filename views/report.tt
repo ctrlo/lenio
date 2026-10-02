@@ -1,0 +1,36 @@
+<h1>Reports</h1>
+
+<h2>Number of tickets created</h2>
+
+[% FOR org IN report %]
+
+    <h3>[% org.name | html %]</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>
+                Month
+            </th>
+            <th>
+                Service tickets
+            </th>
+            <th>
+                Reactive tickets
+            </th>
+        </tr>
+        [% FOREACH month IN org.months %]
+            <tr>
+                <td>
+                    [% month.month | html %] [% month.year | html %]
+                </td>
+                <td>
+                    [% month.task | html %]
+                </td>
+                <td>
+                    [% month.reactive | html %]
+                </td>
+            </tr>
+        [% END %]
+    </table>
+
+[% END %]

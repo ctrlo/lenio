@@ -1025,6 +1025,18 @@ any ['get', 'post'] => '/ticket/:id?' => require_login sub {
     };
 };
 
+get '/tickets/reports/?' => require_login sub {
+
+    my $report = rset('Ticket')->report_count(
+        login   => var('login'),
+        site_id => query_parameters->get('site_id') || var('site_ids'),
+    );
+
+    template 'report' => {
+        report => $report,
+    };
+};
+
 get '/tickets/?' => require_login sub {
 
     # Deal with sort options

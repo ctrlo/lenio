@@ -185,6 +185,9 @@
             [% END %]
         </ul>
     </div>
+
+    <a href="/tickets/reports/" class="btn btn-default" role="button">Reports</a>
+
 </div>
 
 [% IF selected_filters.size %]
